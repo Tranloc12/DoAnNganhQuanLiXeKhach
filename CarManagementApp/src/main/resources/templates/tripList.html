@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <title>Quản lý Chuyến đi</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+
+<body>
+    <div th:replace="~{base :: header}"></div>
+
+    <main class="container-fluid mt-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Quản lý Chuyến đi</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <a th:href="@{/trips/add-or-update}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus-circle"></i> Thêm chuyến đi mới
+                </a>
+            </div>
+        </div>
+
+        <form th:action="@{/trips}" method="get" class="mb-3">
+            <div class="input-group">
+                <input type="text" name="kw" class="form-control" th:value="${kw}" placeholder="Tìm kiếm theo biển số xe, tài xế, tuyến đường...">
+                <button class="btn btn-outline-secondary" type="submit">Tìm kiếm</button>
+            </div>
+        </form>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Danh sách Chuyến đi</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Xe buýt</th>
+                                <th>Tài xế</th>
+                                <th>Tuyến đường</th>
+                                <th>Khởi hành</th>
+                                <th>Dự kiến đến</th>
+                                <th>Thực tế đến</th>
+                                <th>Giá vé</th>
+                                <th>Trạng thái</th>
+                                <th>Còn ghế</th>
+                                <th>Đã đặt</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="trip : ${trips}">
+                                <td th:text="${trip.id}"></td>
+                                <td th:text="${trip.busId.licensePlate}"></td>
+                                <td th:text="${trip.driverId.userId.username}"></td>
+                                <td th:text="${trip.routeId.routeName}"></td>
+                                <td th:text="${trip.departureTime != null ? #temporals.format(trip.departureTime, 'HH:mm dd-MM-yyyy') : ''}"></td>
+                                <td th:text="${trip.arrivalTime != null ? #temporals.format(trip.arrivalTime, 'HH:mm dd-MM-yyyy') : ''}"></td>
+                                <td th:text="${trip.actualArrivalTime != null ? #temporals.format(trip.actualArrivalTime, 'HH:mm dd-MM-yyyy') : ''}"></td>
+                                <td th:text="${#numbers.formatDecimal(trip.fare, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                                <td th:text="${trip.status}"></td>
+                                <td th:text="${trip.availableSeats}"></td>
+                                <td th:text="${trip.totalBookedSeats}"></td>
+                                <td>
+                                    <a th:href="@{/trips/add-or-update(id=${trip.id})}" class="btn btn-sm btn-warning mb-1">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <a th:href="@{/trips/delete/{id}(id=${trip.id})}" class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa chuyến đi này không?');">
+                                        <i class="fas fa-trash-alt"></i> Xóa
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${trips.isEmpty()}">
+                                <td colspan="12" class="text-center">Không có chuyến đi nào.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{base :: footer}"></div>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

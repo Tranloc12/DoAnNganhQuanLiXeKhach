@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Đặt chỗ của tôi</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+
+<body>
+    <div th:replace="~{base :: header}"></div>
+
+    <main class="container-fluid mt-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Đặt chỗ của tôi</h1>
+        </div>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div th:if="${bookings.isEmpty()}" class="alert alert-info text-center">
+            Bạn chưa có đặt chỗ nào. <a th:href="@{/}" class="alert-link">Tìm chuyến đi ngay!</a>
+        </div>
+        <div th:unless="${bookings.isEmpty()}" class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Danh sách các đặt chỗ của bạn</h6>
+            </div>
+            <div class="card-body">
+                <div class="list-group">
+                    <div th:each="b : ${my-bookings}" class="list-group-item list-group-item-action mb-3 shadow-sm">
+                        <div class="d-flex w-100 justify-content-between">
+                            <h5 class="mb-1">Đặt chỗ #<span th:text="${b.id}"></span> - <span th:text="${b.tripId.routeId.routeName}"></span></h5>
+                            <small class="text-muted">Đặt lúc: <span th:text="${#temporals.format(b.bookingDate, 'dd/MM/yyyy HH:mm')}"></span></small>
+                        </div>
+                        <p class="mb-1">Tuyến: <span th:text="${b.tripId.routeId.origin}"></span> - <span th:text="${b.tripId.routeId.destination}"></span></p>
+                        <p class="mb-1">Khởi hành: <span th:text="${#temporals.format(b.tripId.departureTime, 'dd/MM/yyyy HH:mm')}"></span></p>
+                        <p class="mb-1">Số ghế: <span th:text="${b.numberOfSeats}"></span> <span th:if="${not #strings.isEmpty(b.seatNumbers)}">(Ghế: <span th:text="${b.seatNumbers}"></span>)</span></p>
+                        <p class="mb-1">Tổng tiền: <span th:text="${#numbers.formatDecimal(b.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></span></p>
+                        <p class="mb-1">Trạng thái thanh toán: <span th:classappend="${b.paymentStatus == 'Paid' ? 'badge-success' : 'badge-warning'}" class="badge"><span th:text="${b.paymentStatus}"></span></span></p>
+                        <p class="mb-1">Trạng thái đặt chỗ: <span th:classappend="${b.bookingStatus == 'Confirmed' ? 'badge-info' : 'badge-danger'}" class="badge"><span th:text="${b.bookingStatus}"></span></span></p>
+
+                        <div th:if="${b.bookingStatus == 'Confirmed'}" class="mt-2 text-end">
+                            <form th:action="@{/my-bookings/cancel/{bookingId}(bookingId=${b.id})}" method="post" onsubmit="return confirm('Bạn có chắc chắn muốn hủy đặt chỗ này không?');">
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-times-circle"></i> Hủy đặt chỗ
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="mt-4 text-center">
+            <a th:href="@{/}" class="btn btn-secondary">Quay lại trang chính</a>
+        </div>
+    </main>
+
+    <div th:replace="~{base :: footer}"></div>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

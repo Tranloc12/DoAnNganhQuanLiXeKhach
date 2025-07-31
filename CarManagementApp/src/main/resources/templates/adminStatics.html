@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Bảng điều khiển & Thống kê</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+
+    <style>
+        /* General Body Styling */
+        body {
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif; /* Ưu tiên font hiện đại hơn */
+            background-color: #f0f2f5; /* Nền xám nhạt tinh tế */
+            color: #34495e; /* Màu chữ xám đậm */
+            margin: 0;
+            padding: 0;
+            line-height: 1.6;
+        }
+
+        /* Main Container Styling */
+        .container {
+            max-width: 1300px; /* Chiều rộng tối đa lớn hơn nữa */
+            margin: 50px auto; /* Khoảng cách trên dưới thoải mái */
+            padding: 40px 50px; /* Tăng padding */
+            background-color: #ffffff;
+            border-radius: 15px; /* Bo góc mềm mại, sang trọng */
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* Bóng đổ sâu và mượt hơn */
+            animation: fadeIn 0.8s ease-out; /* Hiệu ứng fade in khi tải trang */
+        }
+
+        /* Keyframe for fade-in animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Headings */
+        h1 {
+            text-align: center;
+            color: #2c3e50; /* Màu đậm cho tiêu đề chính */
+            margin-bottom: 50px;
+            font-size: 3rem; /* Kích thước font lớn, ấn tượng */
+            font-weight: 700;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #e0e0e0; /* Đường viền dưới dày hơn */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px; /* Khoảng cách giữa icon và text */
+            letter-spacing: -0.5px; /* Giảm khoảng cách chữ để trông hiện đại */
+        }
+
+        h2 {
+            text-align: center;
+            color: #4a69bd; /* Màu xanh tím than hiện đại */
+            margin-top: 60px; /* Khoảng cách trên lớn hơn */
+            margin-bottom: 35px;
+            font-size: 2.2rem;
+            font-weight: 600;
+            position: relative;
+        }
+        h2::after { /* Gạch chân nhẹ dưới h2 */
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80px;
+            height: 3px;
+            background-color: #c9d6ea;
+            border-radius: 5px;
+        }
+
+        /* Stats Section - for overall spacing */
+        .stats-section {
+            padding: 40px 0;
+            border-bottom: 1px solid #e0e0e0; /* Đường phân cách solid, tinh tế hơn */
+        }
+        .stats-section:last-child {
+            border-bottom: none;
+        }
+
+        /* Form for Year Selection */
+        .input-group {
+            max-width: 400px; /* Chiều rộng form rộng hơn */
+            margin: 0 auto 40px auto;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Bóng đổ nổi bật hơn */
+            border-radius: 8px; /* Bo góc input group */
+            overflow: hidden;
+            background-color: #fff;
+        }
+        .form-control {
+            border: 1px solid #dcdcdc; /* Màu border nhạt hơn */
+            padding: 12px 15px; /* Tăng padding input */
+            font-size: 1.1rem;
+            height: auto; /* Đảm bảo chiều cao linh hoạt */
+        }
+        .form-control:focus {
+            border-color: #4a69bd; /* Màu border khi focus */
+            box-shadow: 0 0 0 0.25rem rgba(74, 105, 189, 0.25); /* Shadow khi focus */
+        }
+        .btn-info {
+            background-color: #4a69bd; /* Màu nút đậm hơn */
+            border-color: #4a69bd;
+            color: white;
+            font-weight: 600;
+            padding: 12px 25px; /* Tăng padding nút */
+            transition: all 0.3s ease; /* Hiệu ứng chuyển động mượt */
+        }
+        .btn-info:hover {
+            background-color: #3b5998; /* Màu nút khi hover */
+            border-color: #3b5998;
+            transform: translateY(-2px); /* Hiệu ứng nhấc nhẹ */
+            box-shadow: 0 4px 10px rgba(74, 105, 189, 0.4);
+        }
+
+        /* Chart Container Styling */
+        .chart-container {
+            position: relative;
+            height: 50vh; /* Chiều cao lớn hơn */
+            max-height: 450px; /* Chiều cao tối đa */
+            width: 95%; /* Chiều rộng lớn hơn */
+            max-width: 900px; /* Giới hạn chiều rộng biểu đồ */
+            margin: 30px auto 50px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+            padding: 25px; /* Tăng padding bên trong */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease; /* Hiệu ứng hover cho chart container */
+        }
+        .chart-container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Specific style for user role chart (pie chart) */
+        .chart-container.user-role-chart {
+            height: 40vh; /* Nhỏ hơn cho biểu đồ tròn */
+            max-height: 350px;
+            width: 60%; /* Rộng hơn cho biểu đồ tròn */
+            max-width: 600px;
+        }
+
+
+        /* Table Styling */
+        .table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            margin-top: 30px;
+            font-size: 1.05rem;
+            background-color: #ffffff;
+            border-radius: 10px; /* Bo góc rõ ràng hơn cho bảng */
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Bóng đổ cho bảng */
+        }
+
+        .table thead {
+            background-image: linear-gradient(to right, #4a69bd, #5f80e0); /* Gradient cho header bảng */
+            color: white;
+            font-size: 1.1rem;
+        }
+
+        .table th,
+        .table td {
+            padding: 18px 15px; /* Tăng padding cho cell */
+            text-align: center;
+            border: none;
+            vertical-align: middle; /* Căn giữa nội dung theo chiều dọc */
+        }
+
+        .table th {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.7px; /* Tăng khoảng cách chữ */
+        }
+
+        .table tbody tr {
+            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
+        }
+
+        .table tbody tr:nth-child(odd) {
+            background-color: #ffffff;
+        }
+
+        .table tbody tr:nth-child(even) {
+            background-color: #fcfdfe; /* Màu nền cực nhạt cho hàng chẵn */
+        }
+
+        .table tbody tr:hover {
+            background-color: #eef4fc; /* Màu nền khi hover */
+            transform: scale(1.005); /* Hiệu ứng phóng to nhẹ */
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Alert styling */
+        .alert-info {
+            background-color: #eef7ff; /* Màu nền nhẹ nhàng, tươi sáng hơn */
+            color: #4a69bd; /* Màu chữ tương ứng */
+            border: 1px solid #b3d9ff; /* Border cùng tông màu */
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 40px;
+            font-size: 1.15rem;
+            font-weight: 500;
+        }
+
+        /* Responsive Adjustments */
+        @media (max-width: 992px) {
+            .container {
+                padding: 30px;
+                margin: 30px auto;
+            }
+            h1 {
+                font-size: 2.5rem;
+                margin-bottom: 40px;
+            }
+            h2 {
+                font-size: 1.9rem;
+                margin-top: 50px;
+            }
+            .chart-container {
+                height: 40vh;
+                max-height: 380px;
+                width: 98%;
+            }
+            .chart-container.user-role-chart {
+                height: 32vh;
+                max-height: 300px;
+                width: 75%;
+            }
+            .table th,
+            .table td {
+                padding: 15px 10px;
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 20px auto;
+            }
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 30px;
+                gap: 10px;
+            }
+            h2 {
+                font-size: 1.7rem;
+                margin-top: 40px;
+                margin-bottom: 25px;
+            }
+            .chart-container {
+                height: 35vh;
+                max-height: 320px;
+                width: 100%;
+                padding: 15px;
+            }
+            .chart-container.user-role-chart {
+                height: 28vh;
+                max-height: 250px;
+                width: 85%;
+            }
+            .input-group {
+                max-width: 100%;
+            }
+            .table th,
+            .table td {
+                padding: 10px 8px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <th:block th:replace="~{base :: header}"></th:block>
+
+    <div class="container mt-4">
+        <h1>
+            <i class="fas fa-chart-line"></i> Bảng điều khiển & Thống kê
+        </h1>
+
+        <div class="stats-section">
+            <h2>Doanh thu theo tháng (Năm <span th:text="${statsYear}"></span>)</h2>
+            <form th:action="@{/admin-statics}" method="get" class="mb-3">
+                <div class="input-group">
+                    <input type="number" name="year" class="form-control"
+                           placeholder="Nhập năm (ví dụ: 2025)" th:value="${statsYear}" min="2000" max="2100">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-calendar-alt"></i> Xem theo năm
+                    </button>
+                </div>
+            </form>
+            <div th:if="${monthlyRevenueStats != null and not monthlyRevenueStats.isEmpty()}">
+                <div class="chart-container">
+                    <canvas id="monthlyRevenueChart"></canvas>
+                </div>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tháng</th>
+                            <th>Tổng doanh thu</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="stat : ${monthlyRevenueStats}">
+                            <td th:text="${stat[0]}"></td>
+                            <td th:text="${#numbers.formatCurrency(stat[1])}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:unless="${monthlyRevenueStats != null and not monthlyRevenueStats.isEmpty()}" class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Chưa có dữ liệu doanh thu cho năm <span th:text="${statsYear}"></span>.
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h2>Số lượng chuyến đi theo tuyến đường</h2>
+            <div th:if="${tripCountByRouteStats != null and not tripCountByRouteStats.isEmpty()}">
+                <div class="chart-container">
+                    <canvas id="tripCountByRouteChart"></canvas>
+                </div>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Tuyến đường</th>
+                            <th>Số chuyến đi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="stat : ${tripCountByRouteStats}">
+                            <td th:text="${stat[0]}"></td>
+                            <td th:text="${stat[1]}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:unless="${tripCountByRouteStats != null and not tripCountByRouteStats.isEmpty()}" class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Chưa có dữ liệu chuyến đi theo tuyến đường.
+            </div>
+        </div>
+
+        <div class="stats-section">
+            <h2>Số lượng người dùng theo vai trò</h2>
+            <div th:if="${userRoleStats != null and not userRoleStats.isEmpty()}">
+                <div class="chart-container user-role-chart">
+                    <canvas id="userRoleChart"></canvas>
+                </div>
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Vai trò</th>
+                            <th>Số lượng người dùng</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="stat : ${userRoleStats}">
+                            <td th:text="${stat[0]}"></td>
+                            <td th:text="${stat[1]}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div th:unless="${userRoleStats != null and not userRoleStats.isEmpty()}" class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Chưa có dữ liệu người dùng theo vai trò.
+            </div>
+        </div>
+
+    </div>
+
+    <th:block th:replace="~{base :: footer}"></th:block>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        // Hàm để tạo màu sắc gradient ngẫu nhiên
+        function getRandomGradientColors(count) {
+            const colors = [];
+            for (let i = 0; i < count; i++) {
+                const hue = (i * (360 / count) + Math.random() * 30) % 360; // Spread hues and add randomness
+                const saturation = 70 + Math.random() * 20; // 70-90% saturation
+                const lightness = 60 + Math.random() * 10; // 60-70% lightness
+                const startColor = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.7)`;
+                const endColor = `hsla(${(hue + 30) % 360}, ${saturation}%, ${lightness - 10}%, 0.8)`;
+                colors.push({ start: startColor, end: endColor });
+            }
+            return colors;
+        }
+
+        // --- Doanh thu theo tháng ---
+        const monthLabels = /*[[${monthLabels}]]*/ [];
+        const revenueData = /*[[${revenueData}]]*/ [];
+
+        if (document.getElementById('monthlyRevenueChart')) {
+            const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
+            const revenueGradient = monthlyRevenueCtx.createLinearGradient(0, 0, 0, 400);
+            revenueGradient.addColorStop(0, 'rgba(74, 105, 189, 0.9)'); /* Darker blue */
+            revenueGradient.addColorStop(1, 'rgba(113, 150, 255, 0.6)'); /* Lighter blue */
+
+            new Chart(monthlyRevenueCtx, {
+                type: 'bar',
+                data: {
+                    labels: monthLabels,
+                    datasets: [{
+                        label: 'Doanh thu (VND)',
+                        data: revenueData,
+                        backgroundColor: revenueGradient,
+                        borderColor: 'rgba(74, 105, 189, 1)',
+                        borderWidth: 1,
+                        borderRadius: 8, /* Bo góc lớn hơn cho cột */
+                        hoverBackgroundColor: 'rgba(74, 105, 189, 1)', /* Màu khi hover */
+                        hoverBorderColor: 'rgba(50, 70, 150, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000, /* Thời gian animation */
+                        easing: 'easeOutQuart' /* Kiểu animation */
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Doanh thu (VND)',
+                                font: { size: 15, weight: 'bold', family: 'Inter' },
+                                color: '#555'
+                            },
+                            ticks: {
+                                precision: 0,
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(value);
+                                },
+                                color: '#777',
+                                font: { size: 12 }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)', /* Đường lưới rất mờ */
+                                drawBorder: false /* Không vẽ border trục */
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Tháng',
+                                font: { size: 15, weight: 'bold', family: 'Inter' },
+                                color: '#555'
+                            },
+                            ticks: {
+                                color: '#777',
+                                font: { size: 12 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Biểu đồ Doanh thu theo tháng',
+                            font: { size: 20, weight: 'bold', family: 'Inter' },
+                            color: '#333',
+                            padding: { top: 10, bottom: 20 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
+                                    }
+                                    return label;
+                                }
+                            },
+                            backgroundColor: 'rgba(44, 62, 80, 0.9)', /* Darker, sleek tooltip */
+                            titleColor: '#fff',
+                            bodyColor: '#e0e0e0',
+                            padding: 12,
+                            boxPadding: 6,
+                            displayColors: true, /* Giữ màu cho tooltip */
+                            bodyFont: { size: 14 },
+                            titleFont: { size: 15, weight: 'bold' },
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                            borderWidth: 1
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Số lượng chuyến đi theo tuyến đường (Pie Chart) ---
+        const routeLabels = /*[[${routeLabels}]]*/ [];
+        const tripCountData = /*[[${tripCountData}]]*/ [];
+
+        if (document.getElementById('tripCountByRouteChart')) {
+            const routeColors = getRandomGradientColors(routeLabels.length);
+            const backgroundColors = routeColors.map(c => c.start);
+            const borderColors = routeColors.map(c => c.end);
+
+            new Chart(document.getElementById('tripCountByRouteChart').getContext('2d'), {
+                type: 'pie',
+                data: {
+                    labels: routeLabels,
+                    datasets: [{
+                        label: 'Số chuyến đi',
+                        data: tripCountData,
+                        backgroundColor: backgroundColors,
+                        borderColor: borderColors,
+                        borderWidth: 2, /* Border dày hơn cho pie chart */
+                        hoverOffset: 15, /* Hiệu ứng nổi khi hover */
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        animateRotate: true, /* Animation khi tải */
+                        animateScale: true,
+                        duration: 1200,
+                        easing: 'easeOutQuart'
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Phân bổ chuyến đi theo tuyến đường',
+                            font: { size: 20, weight: 'bold', family: 'Inter' },
+                            color: '#333',
+                            padding: { top: 10, bottom: 20 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        const total = context.dataset.data.reduce((sum, current) => sum + current, 0);
+                                        const percentage = ((context.parsed / total) * 100).toFixed(1) + '%';
+                                        label += `${context.parsed} chuyến (${percentage})`;
+                                    }
+                                    return label;
+                                }
+                            },
+                            backgroundColor: 'rgba(44, 62, 80, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#e0e0e0',
+                            padding: 12,
+                            boxPadding: 6,
+                            bodyFont: { size: 14 },
+                            titleFont: { size: 15, weight: 'bold' },
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                            borderWidth: 1
+                        },
+                        legend: {
+                            position: 'right', /* Legend bên phải */
+                            align: 'center',
+                            labels: {
+                                padding: 15,
+                                font: {
+                                    size: 13,
+                                    family: 'Inter'
+                                },
+                                color: '#555',
+                                boxWidth: 20, /* Kích thước hộp màu */
+                                boxHeight: 20,
+                                usePointStyle: true /* Dùng hình tròn cho legend */
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- Số lượng người dùng theo vai trò (Bar Chart) ---
+        const roleLabels = /*[[${roleLabels}]]*/ [];
+        const userCountData = /*[[${userCountData}]]*/ [];
+
+        if (document.getElementById('userRoleChart')) {
+            const userRoleCtx = document.getElementById('userRoleChart').getContext('2d');
+            const userRoleGradient = userRoleCtx.createLinearGradient(0, 0, 0, 300);
+            userRoleGradient.addColorStop(0, 'rgba(153, 102, 255, 0.9)'); /* Purple */
+            userRoleGradient.addColorStop(1, 'rgba(180, 150, 255, 0.6)'); /* Lighter purple */
+
+            new Chart(userRoleCtx, {
+                type: 'bar',
+                data: {
+                    labels: roleLabels,
+                    datasets: [{
+                        label: 'Số lượng người dùng',
+                        data: userCountData,
+                        backgroundColor: userRoleGradient,
+                        borderColor: 'rgba(153, 102, 255, 1)',
+                        borderWidth: 1,
+                        borderRadius: 8,
+                        hoverBackgroundColor: 'rgba(153, 102, 255, 1)',
+                        hoverBorderColor: 'rgba(120, 80, 200, 1)',
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Số lượng người dùng',
+                                font: { size: 15, weight: 'bold', family: 'Inter' },
+                                color: '#555'
+                            },
+                            ticks: {
+                                precision: 0,
+                                color: '#777',
+                                font: { size: 12 }
+                            },
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)',
+                                drawBorder: false
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Vai trò',
+                                font: { size: 15, weight: 'bold', family: 'Inter' },
+                                color: '#555'
+                            },
+                            ticks: {
+                                color: '#777',
+                                font: { size: 12 }
+                            },
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Biểu đồ Số lượng người dùng theo vai trò',
+                            font: { size: 20, weight: 'bold', family: 'Inter' },
+                            color: '#333',
+                            padding: { top: 10, bottom: 20 }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + ' người';
+                                    }
+                                    return label;
+                                }
+                            },
+                            backgroundColor: 'rgba(44, 62, 80, 0.9)',
+                            titleColor: '#fff',
+                            bodyColor: '#e0e0e0',
+                            padding: 12,
+                            boxPadding: 6,
+                            displayColors: true,
+                            bodyFont: { size: 14 },
+                            titleFont: { size: 15, weight: 'bold' },
+                            borderColor: 'rgba(255, 255, 255, 0.3)',
+                            borderWidth: 1
+                        },
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+        /*]]>*/
+    </script>
+</body>
+</html>

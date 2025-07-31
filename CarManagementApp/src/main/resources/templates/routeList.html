@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <title>Quản lý Tuyến đường</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+
+<body>
+    <div th:replace="base :: header"></div>
+
+    <main class="container mt-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Quản lý Tuyến đường</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <a th:href="@{/routes/add-or-update}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus-circle"></i> Thêm tuyến đường mới
+                </a>
+            </div>
+        </div>
+
+        <form th:action="@{/routes}" method="get" class="mb-3">
+            <div class="input-group">
+                <input type="text" name="kw" class="form-control" th:value="${kw}" placeholder="Tìm kiếm theo tên tuyến, điểm đi/đến...">
+                <button class="btn btn-outline-secondary" type="submit">Tìm kiếm</button>
+            </div>
+        </form>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Danh sách Tuyến đường</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên tuyến</th>
+                                <th>Điểm đi</th>
+                                <th>Điểm đến</th>
+                                <th>Khoảng cách (Km)</th>
+                                <th>TG ước tính</th>
+                                <th>Giá/Km</th>
+                                <th>Hoạt động</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="route : ${routes}">
+                                <td th:text="${route.id}"></td>
+                                <td th:text="${route.routeName}"></td>
+                                <td th:text="${route.origin}"></td>
+                                <td th:text="${route.destination}"></td>
+                                <td th:text="${route.distanceKm}"></td>
+                                <td th:text="${route.estimatedTravelTime}"></td>
+                                <td th:text="${#numbers.formatDecimal(route.pricePerKm, 0, 'COMMA', 0, 'POINT')}"></td>
+                                <td>
+                                    <span th:if="${route.isActive}" class="badge bg-success">Hoạt động</span>
+                                    <span th:unless="${route.isActive}" class="badge bg-secondary">Không hoạt động</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/routes/add-or-update(id=${route.id})}" class="btn btn-sm btn-warning me-2">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <a th:href="@{/routes/delete/{id}(id=${route.id})}" class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa tuyến đường này không?');">
+                                        <i class="fas fa-trash-alt"></i> Xóa
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${routes.isEmpty()}">
+                                <td colspan="9" class="text-center">Không có tuyến đường nào.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="base :: footer"></div>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

@@ -1,0 +1,136 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Quản Lý Gói Tập Gym</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+
+<body>
+    <div th:replace="base :: header"></div>
+    <div class="container mt-5" style="max-width: 600px;">
+        <h1 class="text-center text-primary mb-4">QUẢN LÝ GÓI TẬP GYM</h1>
+
+        <!-- Form Add Package -->
+        <form method="post" th:action="@{/gym-packages/add}" th:object="${gymPackage}"
+            class="border p-4 rounded shadow">
+            <div th:if="${successMessage}" class="alert alert-success alert-dismissible">
+                <span th:text="${successMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible">
+                <span th:text="${errorMessage}"></span>
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+
+            <!-- Tên Gói Tập -->
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" th:field="*{namePack}" id="namePack" placeholder="Tên gói tập"
+                    required minlength="3" />
+                <label for="namePack">Tên gói tập</label>
+                <small class="text-danger" th:if="${#fields.hasErrors('namePack')}" th:errors="*{namePack}"></small>
+            </div>
+
+            <!-- Giá Tiền -->
+            <div class="form-floating mb-3">
+                <input type="number" class="form-control" th:field="*{price}" id="price" placeholder="Giá tiền" required
+                    min="10000" />
+                <label for="price">Giá tiền (VND)</label>
+                <small class="text-danger" th:if="${#fields.hasErrors('price')}" th:errors="*{price}"></small>
+            </div>
+
+            <!-- Thời gian Gói Tập -->
+            <div class="form-group mb-3">
+                <label for="choice" class="form-label">Thời gian gói tập</label>
+                <select class="form-select" th:field="*{choice}" id="choice" required>
+                    <option value="" disabled selected>Chọn thời gian</option>
+                    <option value="1-month">1 tháng</option>
+                    <option value="3-month">3 tháng</option>
+                    <option value="6-month">6 tháng</option>
+                    <option value="1-year">1 năm</option>
+                </select>
+                <small class="text-danger" th:if="${#fields.hasErrors('choice')}" th:errors="*{choice}"></small>
+            </div>
+
+            <!-- Giảm giá -->
+            <div class="form-floating mb-3">
+                <input type="number" class="form-control" th:field="*{discount}" id="discount"
+                    placeholder="Giảm giá (%)" min="0" max="100" />
+                <label for="discount">Giảm giá (%)</label>
+                <small class="text-danger" th:if="${#fields.hasErrors('discount')}" th:errors="*{discount}"></small>
+            </div>
+
+            <!-- Mô tả Quyền Lợi -->
+            <div class="form-floating mb-3">
+                <textarea class="form-control" th:field="*{description}" id="description" placeholder="Mô tả quyền lợi"
+                    required rows="4"></textarea>
+                <label for="description">Mô tả quyền lợi</label>
+                <small class="text-danger" th:if="${#fields.hasErrors('description')}"
+                    th:errors="*{description}"></small>
+            </div>
+
+            <!-- Số Buổi PT -->
+            <div class="form-floating mb-3">
+                <input type="number" class="form-control" th:field="*{dayswpt}" id="dayswpt"
+                    placeholder="Số buổi tập với PT" required min="1" />
+                <label for="dayswpt">Số buổi tập với PT</label>
+                <small class="text-danger" th:if="${#fields.hasErrors('dayswpt')}" th:errors="*{dayswpt}"></small>
+            </div>
+
+            <!-- Trạng thái hoạt động (isActive) -->
+            <div class="form-check mb-3">
+                <input type="checkbox" class="form-check-input" th:field="*{isActive}" id="isActive" />
+                <label class="form-check-label" for="isActive">Kích hoạt gói tập</label>
+            </div>
+
+            <!-- Nút Submit -->
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Lưu gói tập</button>
+            </div>
+        </form>
+
+        <hr class="my-5">
+
+        <!-- Danh Sách Gói Tập -->
+        <h2 class="text-center text-primary mb-4">Danh Sách Gói Tập</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Tên gói tập</th>
+                    <th>Giá tiền</th>
+                    <th>Thời gian</th>
+                    <th>Mô tả quyền lợi</th>
+                    <th>Số buổi PT</th>
+                    <th>Giảm giá</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="package : ${gymPackages}">
+                    <td th:text="${package.namePack}"></td>
+                    <td th:text="${package.price}"></td>
+                    <td th:text="${#strings.contains(package.choice, 'month') ? package.choice.replace('-month', ' tháng') :
+                                     #strings.contains(package.choice, 'quarter') ? package.choice.replace('-quarter', ' quý') :
+                                     #strings.contains(package.choice, 'year') ? package.choice.replace('-year', ' năm') :
+                                     package.choice}"></td>
+                    <td th:text="${package.description}"></td>
+                    <td th:text="${package.dayswpt}"></td>
+                    <td th:text="${package.discount != null ? package.discount + '%' : 'Không có'}"></td>
+                    <td>
+                        <span th:text="${package.isActive ? 'Kích hoạt' : 'Ngừng hoạt động'}"></span>
+                    </td>
+                    <td class="button-spacing">
+                        <a th:href="@{/gym-packages/edit/{id}(id=${package.id})}"
+                            class="btn btn-warning btn-sm btn-spacing">Sửa</a>
+                        <a th:href="@{/gym-packages/delete/{id}(id=${package.id})}"
+                            class="btn btn-danger btn-sm">Xóa</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div th:replace="base :: footer"></div>
+</body>
+
+</html>

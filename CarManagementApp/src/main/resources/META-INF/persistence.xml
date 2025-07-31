@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+  <!-- Define Persistence Unit -->
+  <persistence-unit name="my_persistence_unit">
+    <class>com.nhom12.pojo.Payment</class>
+    <class>com.nhom12.pojo.Notification</class>
+    <class>com.nhom12.pojo.GymPackage</class>
+    <class>com.nhom12.pojo.User</class>
+    <class>com.nhom12.pojo.MemberInfo</class>
+    <class>com.nhom12.pojo.Subscription</class>
+    <class>com.nhom12.pojo.TrainingProgress</class>
+    <class>com.nhom12.pojo.Workout</class>
+    <class>com.nhom12.pojo.Review</class>
+    <class>com.nhom12.pojo.Driver</class>
+    <class>com.nhom12.pojo.Bus</class>
+    <class>com.nhom12.pojo.PassengerInfo</class>
+    <class>com.nhom12.pojo.Booking</class>
+    <class>com.nhom12.pojo.Route</class>
+    <class>com.nhom12.pojo.Trip</class>
+  </persistence-unit>
+</persistence>
