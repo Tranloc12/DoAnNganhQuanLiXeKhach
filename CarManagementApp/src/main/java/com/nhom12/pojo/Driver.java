@@ -4,6 +4,8 @@
  */
 package com.nhom12.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -72,6 +74,7 @@ public class Driver implements Serializable {
     @Column(name = "isActive")
     private Boolean isActive;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "driverId")
+     @JsonManagedReference
     private Set<Trip> tripSet;
     @JoinColumn(name = "userId", referencedColumnName = "id")
     @OneToOne

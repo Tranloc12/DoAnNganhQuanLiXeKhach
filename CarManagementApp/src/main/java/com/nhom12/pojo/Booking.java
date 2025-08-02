@@ -1,5 +1,6 @@
 package com.nhom12.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -60,6 +61,7 @@ public class Booking implements Serializable {
     private String paymentStatus;
     @Size(max = 20)
     @Column(name = "bookingStatus")
+    @JsonIgnore
     private String bookingStatus;
     @Size(max = 100)
     @Column(name = "seatNumbers")
@@ -71,6 +73,7 @@ public class Booking implements Serializable {
     @ManyToOne(optional = false)
     private User userId;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "bookingId")
+    @JsonIgnore
     private Set<Payment> paymentSet;
 
     public Booking() {

@@ -4,6 +4,7 @@
  */
 package com.nhom12.pojo;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -66,6 +67,7 @@ public class Bus implements Serializable {
     @Column(name = "isActive")
     private Boolean isActive;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "busId")
+    @JsonIgnore
     private Set<Trip> tripSet;
 
     public Bus() {

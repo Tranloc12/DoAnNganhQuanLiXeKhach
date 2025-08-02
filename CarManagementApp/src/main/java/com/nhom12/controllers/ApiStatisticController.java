@@ -3,41 +3,51 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
 package com.nhom12.controllers;
-import com.nhom12.services.StatisticService;
+
+import com.nhom12.pojo.User;
+import com.nhom12.services.TripService;
+import com.nhom12.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
+import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
 @RestController
-@RequestMapping("/api/secure/statistics")
-@CrossOrigin(origins = "*")
+@RequestMapping("/api/statistics")
+@CrossOrigin
 public class ApiStatisticController {
 
     @Autowired
-    private StatisticService statisticService;
+    private TripService tripService;
 
-    @GetMapping("/members")
-    public ResponseEntity<Long> getTotalMembers() {
-        long totalMembers = statisticService.getTotalMembers();
-        return ResponseEntity.ok(totalMembers);
-    }
+    @Autowired
+    private UserService userService;
 
+    // 📊 Thống kê doanh thu theo tháng
     @GetMapping("/revenue")
-    public ResponseEntity<Double> getTotalRevenue() {
-        double totalRevenue = statisticService.getTotalRevenue();
-        return ResponseEntity.ok(totalRevenue);
+    public ResponseEntity<?> getRevenueStats(@RequestParam(required = false) Integer year) {
+        if (year == null) {
+            year = LocalDate.now().getYear();
+        }
+        List<Object[]> stats = tripService.getMonthlyRevenueStats(year);
+        return ResponseEntity.ok(stats);
     }
 
-    @GetMapping("/gym-usage")
-    public ResponseEntity<Map<String, Integer>> getGymUsageByTimeSlot() {
-        Map<String, Integer> gymUsage = statisticService.getGymUsageByTimeSlot();
-        return ResponseEntity.ok(gymUsage);
+    // 📊 Thống kê số chuyến theo tuyến đường
+    @GetMapping("/trips")
+    public ResponseEntity<?> getTripCountStats() {
+        return ResponseEntity.ok(tripService.getTripCountByRouteStats());
     }
-    
-    
+
+    // 📊 Thống kê số user theo vai trò
+    @GetMapping("/users")
+    public ResponseEntity<?> getUserRoleStats() {
+        return ResponseEntity.ok(userService.getUserRoleStats());
+    }
 }
+

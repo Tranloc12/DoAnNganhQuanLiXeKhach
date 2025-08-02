@@ -40,11 +40,11 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @EnableWebSecurity
 @EnableTransactionManagement
 @ComponentScan(basePackages = {
-        "com.nhom12.controllers",
-        "com.nhom12.repositories",
-        "com.nhom12.services",
-        "com.nhom12.utils",
-        "com.nhom12.filters"
+    "com.nhom12.controllers",
+    "com.nhom12.repositories",
+    "com.nhom12.services",
+    "com.nhom12.utils",
+    "com.nhom12.filters"
 })
 public class SpringSecurityConfigs {
 
@@ -75,63 +75,81 @@ public class SpringSecurityConfigs {
                 .csrf(c -> c.disable())
                 // Chỉ STATELESS cho API endpoints, STATEFUL cho web endpoints
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
-                        .maximumSessions(1)
-                        .maxSessionsPreventsLogin(false))
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .maximumSessions(1)
+                .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(requests -> requests
-                        // Public endpoints
-                        .requestMatchers(HttpMethod.POST, "/api/register", "/api/login").permitAll()
-                        .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/gym-packages").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/gym-packages").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/gym-packages/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/byPackage").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/reviews/averageByPackage").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/trainers").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/api/members").permitAll()
-                        // VNPay endpoints - must be public for IPN callbacks
-                        .requestMatchers("/api/payment/vnpay/ipn/**").permitAll()
-                        .requestMatchers("/api/payment/vnpay/return/**").permitAll()
-                        .requestMatchers("/api/payment/vnpay/debug/**").permitAll()
-                        // Debug endpoints - temporary for troubleshooting
-                        .requestMatchers("/api/secure/subscription/debug/**").permitAll()
-                        .requestMatchers("/api/gym-packages/update-choice-format").permitAll()
-
-                        // Admin only endpoints (phải đặt TRƯỚC các rule chung)
-                        .requestMatchers("/users", "/trainers", "/members", "/admin/**").hasRole("ADMIN")
-                        .requestMatchers("/api/secure/statistics/**").hasRole("ADMIN")
-
-                        // Admin and Manager endpoints (management operations)
-                        .requestMatchers(HttpMethod.POST, "/gym-packages").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(HttpMethod.PUT, "/gym-packages/**").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers(HttpMethod.DELETE, "/gym-packages/**").hasAnyRole("ADMIN", "MANAGER")
-
-                        // API endpoints với JWT authentication (đặt SAU các rule cụ thể)
-                        .requestMatchers("/api/current-user").authenticated()
-                        .requestMatchers(HttpMethod.GET, "/api/secure/**").authenticated()
-                        .requestMatchers(HttpMethod.POST, "/api/secure/**").authenticated()
-                        .requestMatchers(HttpMethod.PUT, "/api/secure/**").authenticated()
-                        .requestMatchers(HttpMethod.DELETE, "/api/secure/**").authenticated()
-                        .requestMatchers("/reviews").hasAnyRole("ADMIN", "MANAGER")
-                        .requestMatchers("/api/secure/gym-packages/**").hasAnyRole("ADMIN", "MANAGER")
-
-                        // Trainer endpoints
-                        .requestMatchers("/api/secure/workout/*/approve").hasRole("TRAINER")
-                        .requestMatchers("/api/secure/workout/*/suggest").hasRole("TRAINER")
-
-                        // Member endpoints
-                        .requestMatchers("/api/secure/workout").hasRole("MEMBER")
-                        .requestMatchers("/api/secure/subscriptions/my").hasRole("MEMBER")
-
-                        // Payment endpoints
-                        .requestMatchers("/payment/**").authenticated()
-
-                        .anyRequest().authenticated())
+                // Public endpoints
+                .requestMatchers(HttpMethod.POST, "/api/register", "/api/login").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/buses", "/api/buses/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/buses").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/buses/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/buses/**").hasRole("ADMIN")
+                // ✅ Trip API
+                .requestMatchers(HttpMethod.GET, "/api/trips", "/api/trips/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/trips").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/trips/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/trips/**").hasRole("ADMIN")
+                // ✅ Route API
+                .requestMatchers(HttpMethod.GET, "/api/routes", "/api/routes/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/routes").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/routes/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/routes/**").hasRole("ADMIN")
+                // ✅ Booking API
+                .requestMatchers(HttpMethod.GET, "/api/bookings/my").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/bookings").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/bookings/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/bookings/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                // ✅ Review API
+                .requestMatchers(HttpMethod.GET, "/api/reviews", "/api/reviews/**").permitAll() // Cho phép GET công khai
+                .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated() // User phải đăng nhập mới được review
+                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                // ✅ Statistics API
+                .requestMatchers(HttpMethod.GET, "/api/statistics", "/api/statistics/**").hasRole("ADMIN")
+                .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/gym-packages").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/gym-packages").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/gym-packages/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reviews/byPackage").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/reviews/averageByPackage").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/trainers").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/members").permitAll()
+                // VNPay endpoints - must be public for IPN callbacks
+                .requestMatchers("/api/payment/vnpay/ipn/**").permitAll()
+                .requestMatchers("/api/payment/vnpay/return/**").permitAll()
+                .requestMatchers("/api/payment/vnpay/debug/**").permitAll()
+                // Debug endpoints - temporary for troubleshooting
+                .requestMatchers("/api/secure/subscription/debug/**").permitAll()
+                .requestMatchers("/api/gym-packages/update-choice-format").permitAll()
+                // Admin only endpoints (phải đặt TRƯỚC các rule chung)
+                .requestMatchers("/users", "/trainers", "/members", "/admin/**").hasRole("ADMIN")
+                .requestMatchers("/api/secure/statistics/**").hasRole("ADMIN")
+                // Admin and Manager endpoints (management operations)
+                .requestMatchers(HttpMethod.POST, "/gym-packages").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.PUT, "/gym-packages/**").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.DELETE, "/gym-packages/**").hasAnyRole("ADMIN", "MANAGER")
+                // API endpoints với JWT authentication (đặt SAU các rule cụ thể)
+                .requestMatchers("/api/current-user").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/secure/**").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/secure/**").authenticated()
+                .requestMatchers(HttpMethod.PUT, "/api/secure/**").authenticated()
+                .requestMatchers(HttpMethod.DELETE, "/api/secure/**").authenticated()
+                .requestMatchers("/reviews").hasAnyRole("ADMIN", "MANAGER")
+                .requestMatchers("/api/secure/gym-packages/**").hasAnyRole("ADMIN", "MANAGER")
+                // Trainer endpoints
+                .requestMatchers("/api/secure/workout/*/approve").hasRole("TRAINER")
+                .requestMatchers("/api/secure/workout/*/suggest").hasRole("TRAINER")
+                // Member endpoints
+                .requestMatchers("/api/secure/workout").hasRole("MEMBER")
+                .requestMatchers("/api/secure/subscriptions/my").hasRole("MEMBER")
+                // Payment endpoints
+                .requestMatchers("/payment/**").authenticated()
+                .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form.loginPage("/login")
-                        .loginProcessingUrl("/login")
-                        .defaultSuccessUrl("/")
-                        .failureUrl("/login?error=true").permitAll())
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/")
+                .failureUrl("/login?error=true").permitAll())
                 .logout(logout -> logout.logoutSuccessUrl("/login").permitAll());
         return http.build();
     }

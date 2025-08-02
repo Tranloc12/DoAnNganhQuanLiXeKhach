@@ -4,6 +4,8 @@
  */
 package com.nhom12.pojo;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.time.LocalDateTime; // Giữ nguyên import này, vì bây giờ chúng ta sẽ dùng nó
 import jakarta.persistence.Basic;
 import jakarta.persistence.CascadeType;
@@ -70,17 +72,20 @@ public class Trip implements Serializable {
     @Column(name = "totalBookedSeats")
     private Integer totalBookedSeats;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "tripId")
+    @JsonIgnore
     private Set<Booking> bookingSet;
     @JoinColumn(name = "busId", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Bus busId;
     @JoinColumn(name = "driverId", referencedColumnName = "id")
     @ManyToOne(optional = false)
+     @JsonBackReference 
     private Driver driverId;
     @JoinColumn(name = "routeId", referencedColumnName = "id")
     @ManyToOne(optional = false)
     private Route routeId;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "tripId")
+    @JsonIgnore
     private Set<Review> reviewSet;
 
     public Trip() {
