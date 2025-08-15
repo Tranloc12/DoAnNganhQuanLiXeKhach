@@ -9,12 +9,15 @@ import com.nhom12.pojo.User;
 import com.nhom12.repositories.BookingRepository;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+
+
 
 @Repository
 public class BookingRepositoryImpl implements BookingRepository {
@@ -37,11 +40,6 @@ public class BookingRepositoryImpl implements BookingRepository {
             e.printStackTrace();
             return null;
         }
-    }
-
-    @Override
-    public Booking getBookingById(int bookingId) {
-        return getCurrentSession().get(Booking.class, bookingId);
     }
 
     @Override
@@ -120,4 +118,46 @@ public class BookingRepositoryImpl implements BookingRepository {
         }
         return query.getResultList();
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Optional<Booking> getBookingById(int bookingId) {
+        return Optional.ofNullable(this.getCurrentSession().get(Booking.class, bookingId));
+    }
+
+    @Override
+    @Transactional
+    public void updateBookingStatus(int bookingId, String status) {
+        Booking booking = this.getCurrentSession().get(Booking.class, bookingId);
+        if (booking != null) {
+            booking.setBookingStatus(status);
+            this.getCurrentSession().merge(booking);
+
+        }
+    }
+    
+    
+    
+    @Override
+    public Booking findById(Integer id) {
+        // Lấy một đối tượng Booking theo ID
+        return getCurrentSession().get(Booking.class, id);
+    }
+
+    @Override
+    public void update(Booking booking) {
+        // Cập nhật một đối tượng Booking trong database
+        getCurrentSession().update(booking);
+    }
+    
+    
+    
+    // Triển khai phương thức cập nhật trạng thái thanh toán
+    
+
+    // Trong file BookingRepositoryImpl.java
+   // TRIỂN KHAI PHƯƠNG THỨC MỚI ĐỂ LẤY THÔNG TIN VÉ XE
+   
 }
+
+

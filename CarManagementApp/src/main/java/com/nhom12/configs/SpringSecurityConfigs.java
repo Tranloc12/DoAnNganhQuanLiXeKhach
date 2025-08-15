@@ -13,12 +13,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.annotation.Order;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.session.HttpSessionEventPublisher;
+import jakarta.servlet.http.HttpServletResponse; // THÊM DÒNG NÀY
+import org.springframework.http.HttpStatus; // THÊM DÒNG NÀY
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer; // THÊM DÒNG NÀY nếu chưa có
+
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,12 +44,14 @@ import org.springframework.web.servlet.handler.HandlerMappingIntrospector;
 @Configuration
 @EnableWebSecurity
 @EnableTransactionManagement
+@Import(PaypalConfig.class)
 @ComponentScan(basePackages = {
     "com.nhom12.controllers",
     "com.nhom12.repositories",
     "com.nhom12.services",
     "com.nhom12.utils",
-    "com.nhom12.filters"
+    "com.nhom12.filters",
+    "com.nhom12.configs"
 })
 public class SpringSecurityConfigs {
 
@@ -80,32 +87,60 @@ public class SpringSecurityConfigs {
                 .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(requests -> requests
                 // Public endpoints
+
                 .requestMatchers(HttpMethod.POST, "/api/register", "/api/login").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/buses", "/api/buses/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/buses").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/buses/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/buses/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/buses").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.PUT, "/api/buses/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.DELETE, "/api/buses/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.GET, "/api/drivers", "/api/drivers/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/drivers").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.PUT, "/api/drivers/**").hasAnyRole("ADMIN", "MANAGER", "STAFF") // Thêm dòng này để cho phép cập nhật
+                .requestMatchers(HttpMethod.DELETE, "/api/drivers/**").hasAnyRole("ADMIN", "MANAGER") // Sửa lại dòng này để phân quyền rõ ràng hơn
+                //user
+                .requestMatchers(HttpMethod.POST, "/api/users").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.PUT, "/api/users/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                 // ✅ Trip API
-                .requestMatchers(HttpMethod.GET, "/api/trips", "/api/trips/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.POST, "/api/trips").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/trips/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/trips/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.GET, "/api/trips", "/api/trips/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/trips").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.PUT, "/api/trips/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.DELETE, "/api/trips/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                 // ✅ Route API
                 .requestMatchers(HttpMethod.GET, "/api/routes", "/api/routes/**").permitAll()
-                .requestMatchers(HttpMethod.POST, "/api/routes").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.PUT, "/api/routes/**").hasRole("ADMIN")
-                .requestMatchers(HttpMethod.DELETE, "/api/routes/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/routes").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.PUT, "/api/routes/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.DELETE, "/api/routes/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                 // ✅ Booking API
-                .requestMatchers(HttpMethod.GET, "/api/bookings/my").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/bookings/my").hasAnyRole("ADMIN", "MANAGER", "STAFF", "PASSENGER")
                 .requestMatchers(HttpMethod.POST, "/api/bookings").authenticated()
-                .requestMatchers(HttpMethod.DELETE, "/api/bookings/**").authenticated()
-                .requestMatchers(HttpMethod.GET, "/api/bookings/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.DELETE, "/api/bookings/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/bookings/**").permitAll()
                 // ✅ Review API
                 .requestMatchers(HttpMethod.GET, "/api/reviews", "/api/reviews/**").permitAll() // Cho phép GET công khai
-                .requestMatchers(HttpMethod.POST, "/api/reviews/**").authenticated() // User phải đăng nhập mới được review
-                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.POST, "/api/reviews/**").hasAnyRole("PASSENGER")// User phải đăng nhập mới được review
+                .requestMatchers(HttpMethod.PUT, "/api/reviews/**").hasAnyRole("PASSENGER")// User phải đăng nhập mới được review
+                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasAnyRole("ADMIN", "MANAGER", "STAFF", "PASSENGER")
+                .requestMatchers(HttpMethod.GET, "/api/reviews/my-reviews").hasAnyRole("PASSENGER", "ADMIN", "MANAGER", "DRIVER")
                 // ✅ Statistics API
                 .requestMatchers(HttpMethod.GET, "/api/statistics", "/api/statistics/**").hasRole("ADMIN")
+                // ✅ DriverSchedule API
+                .requestMatchers(HttpMethod.GET, "/api/schedules", "/api/schedules/**").hasAnyRole("ADMIN", "MANAGER", "STAFF", "DRIVER")
+                .requestMatchers(HttpMethod.POST, "/api/schedules").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.PUT, "/api/schedules/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.DELETE, "/api/schedules/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                // ✅ Payment API
+                .requestMatchers(HttpMethod.POST, "/api/payments/create").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/payments/vnpay_return").permitAll()
+                .requestMatchers(HttpMethod.GET, "/vnpay_return").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/paypal/create").authenticated()
+                .requestMatchers(HttpMethod.POST, "/api/paypal/capture").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/paypal/success").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/paypal/cancel").permitAll()
+                // --- CÁC ENDPOINT PAYPAL ĐƯỢC THÊM/CẬP NHẬT ---
+                .requestMatchers(HttpMethod.POST, "/api/paypal/create-payment").authenticated() // Tạo thanh toán, cần xác thực người dùng
+                .requestMatchers(HttpMethod.GET, "/api/paypal/execute-payment").permitAll() // Endpoint PayPal redirect, cần public
+                .requestMatchers(HttpMethod.GET, "/api/payments/my").hasAnyRole("PASSENGER", "ADMIN", "MANAGER", "DRIVER")
                 .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/gym-packages").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/gym-packages").permitAll()
@@ -125,9 +160,6 @@ public class SpringSecurityConfigs {
                 .requestMatchers("/users", "/trainers", "/members", "/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/secure/statistics/**").hasRole("ADMIN")
                 // Admin and Manager endpoints (management operations)
-                .requestMatchers(HttpMethod.POST, "/gym-packages").hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.PUT, "/gym-packages/**").hasAnyRole("ADMIN", "MANAGER")
-                .requestMatchers(HttpMethod.DELETE, "/gym-packages/**").hasAnyRole("ADMIN", "MANAGER")
                 // API endpoints với JWT authentication (đặt SAU các rule cụ thể)
                 .requestMatchers("/api/current-user").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/secure/**").authenticated()

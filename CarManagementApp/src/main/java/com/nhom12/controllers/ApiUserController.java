@@ -34,9 +34,7 @@ public class ApiUserController {
     private BCryptPasswordEncoder passwordEncoder;
 
     private JwtUtils jwtUtils = new JwtUtils();
-
-
-    // 📌 Đăng ký
+    
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserForm userForm) {
         try {
@@ -88,7 +86,9 @@ public class ApiUserController {
     // 📌 Lấy user đang đăng nhập
     @GetMapping("/current-user")
     public ResponseEntity<User> getCurrentUser(Principal principal) {
-        if (principal == null) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
         return ResponseEntity.ok(userService.getUserByUsername(principal.getName()));
     }
 
@@ -97,7 +97,9 @@ public class ApiUserController {
     public ResponseEntity<?> updateUser(Principal principal, @RequestBody Map<String, String> params) {
         try {
             User currentUser = userService.getUserByUsername(principal.getName());
-            if (params.containsKey("email")) currentUser.setEmail(params.get("email"));
+            if (params.containsKey("email")) {
+                currentUser.setEmail(params.get("email"));
+            }
             if (params.containsKey("dob")) {
                 SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
                 currentUser.setDob(sdf.parse(params.get("dob")));
@@ -128,10 +130,6 @@ public class ApiUserController {
     }
 
     // 📌 Lấy danh sách theo role
-    @GetMapping("/drivers")
-    public List<User> getDrivers() {
-        return userService.getUsersByRole("ROLE_DRIVER");
-    }
 
     @GetMapping("/passengers")
     public List<User> getPassengers() {
@@ -142,5 +140,49 @@ public class ApiUserController {
     public List<User> getStaff() {
         return userService.getUsersByRole("ROLE_STAFF");
     }
-}
 
+    @PostMapping("/users")
+    public ResponseEntity<?> createUser(
+            @RequestBody @Valid UserForm userForm,
+            Principal principal
+    ) {
+        // ✅ Kiểm tra quyền ADMIN
+        User adminUser = userService.getUserByUsername(principal.getName());
+        if (adminUser == null
+                || (!"ROLE_ADMIN".equals(adminUser.getUserRole()) && !"ROLE_MANAGER".equals(adminUser.getUserRole()))) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body(Map.of("error", "Bạn không có quyền thực hiện chức năng này"));
+        }
+
+        // ✅ Kiểm tra username đã tồn tại chưa
+        if (userService.getUserByUsername(userForm.getUsername()) != null) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Tên đăng nhập đã tồn tại"));
+        }
+
+        // ✅ Parse ngày sinh
+        Date dob;
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            dob = sdf.parse(userForm.getDob());
+        } catch (ParseException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Định dạng ngày sinh không hợp lệ (yyyy-MM-dd)"));
+        }
+
+        // ✅ Tạo đối tượng User mới
+        User newUser = new User();
+        newUser.setUsername(userForm.getUsername());
+        newUser.setPassword(passwordEncoder.encode(userForm.getPassword()));
+        newUser.setEmail(userForm.getEmail());
+        newUser.setDob(dob);
+        newUser.setUserRole(userForm.getUserRole());
+        newUser.setIsActive(true);
+
+        userService.saveUser(newUser);
+
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(Map.of("message", "Thêm người dùng thành công"));
+    }
+
+}

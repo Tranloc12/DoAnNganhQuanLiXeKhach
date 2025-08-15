@@ -30,7 +30,7 @@ public class ApiBusController {
     private boolean isAdmin(Principal principal) {
         if (principal == null) return false;
         User currentUser = userServ.getUserByUsername(principal.getName());
-        return currentUser != null && "ROLE_ADMIN".equals(currentUser.getUserRole());
+        return currentUser != null && "ROLE_ADMIN".equals(currentUser.getUserRole())|| "ROLE_MANAGER".equals(currentUser.getUserRole())|| "ROLE_STAFF".equals(currentUser.getUserRole());
     }
 
     // Lấy danh sách xe buýt

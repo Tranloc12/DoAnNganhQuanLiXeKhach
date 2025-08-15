@@ -39,12 +39,6 @@ import java.util.Set;
     @NamedQuery(name = "Route.findByIsActive", query = "SELECT r FROM Route r WHERE r.isActive = :isActive")})
 public class Route implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 100)
@@ -60,12 +54,22 @@ public class Route implements Serializable {
     @Size(min = 1, max = 100)
     @Column(name = "destination")
     private String destination;
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
-    @Column(name = "distanceKm")
-    private Double distanceKm;
     @Size(max = 50)
     @Column(name = "estimatedTravelTime")
     private String estimatedTravelTime;
+    @OneToMany(mappedBy = "routeId")
+    @JsonIgnore
+    private Set<DriverSchedule> driverScheduleSet;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
+    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
+    @Column(name = "distanceKm")
+    private Double distanceKm;
     @Column(name = "pricePerKm")
     private Double pricePerKm;
     @Column(name = "isActive")
@@ -96,29 +100,6 @@ public class Route implements Serializable {
         this.id = id;
     }
 
-    public String getRouteName() {
-        return routeName;
-    }
-
-    public void setRouteName(String routeName) {
-        this.routeName = routeName;
-    }
-
-    public String getOrigin() {
-        return origin;
-    }
-
-    public void setOrigin(String origin) {
-        this.origin = origin;
-    }
-
-    public String getDestination() {
-        return destination;
-    }
-
-    public void setDestination(String destination) {
-        this.destination = destination;
-    }
 
     public Double getDistanceKm() {
         return distanceKm;
@@ -128,13 +109,6 @@ public class Route implements Serializable {
         this.distanceKm = distanceKm;
     }
 
-    public String getEstimatedTravelTime() {
-        return estimatedTravelTime;
-    }
-
-    public void setEstimatedTravelTime(String estimatedTravelTime) {
-        this.estimatedTravelTime = estimatedTravelTime;
-    }
 
     public Double getPricePerKm() {
         return pricePerKm;
@@ -183,6 +157,46 @@ public class Route implements Serializable {
     @Override
     public String toString() {
         return "com.nhom12.pojo.Route[ id=" + id + " ]";
+    }
+
+    public String getRouteName() {
+        return routeName;
+    }
+
+    public void setRouteName(String routeName) {
+        this.routeName = routeName;
+    }
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    public void setOrigin(String origin) {
+        this.origin = origin;
+    }
+
+    public String getDestination() {
+        return destination;
+    }
+
+    public void setDestination(String destination) {
+        this.destination = destination;
+    }
+
+    public String getEstimatedTravelTime() {
+        return estimatedTravelTime;
+    }
+
+    public void setEstimatedTravelTime(String estimatedTravelTime) {
+        this.estimatedTravelTime = estimatedTravelTime;
+    }
+
+    public Set<DriverSchedule> getDriverScheduleSet() {
+        return driverScheduleSet;
+    }
+
+    public void setDriverScheduleSet(Set<DriverSchedule> driverScheduleSet) {
+        this.driverScheduleSet = driverScheduleSet;
     }
     
 }

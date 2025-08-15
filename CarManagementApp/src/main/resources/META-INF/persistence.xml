@@ -17,5 +17,6 @@
     <class>com.nhom12.pojo.Booking</class>
     <class>com.nhom12.pojo.Route</class>
     <class>com.nhom12.pojo.Trip</class>
+    <class>com.nhom12.pojo.DriverSchedule</class>
   </persistence-unit>
 </persistence>

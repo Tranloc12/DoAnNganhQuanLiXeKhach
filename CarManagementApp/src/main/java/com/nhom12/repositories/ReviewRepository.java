@@ -19,7 +19,7 @@ public interface ReviewRepository {
     Review getReviewById(int reviewId);
     List<Review> getReviewsByTrip(Trip trip);
     List<Review> getReviewsByUser(User user);
-    boolean updateReview(Review review);
+    Review updateReview(Review review); 
     boolean deleteReview(int reviewId);
     List<Review> getAllReviews(Map<String, String> params); // Dùng cho admin view
 }

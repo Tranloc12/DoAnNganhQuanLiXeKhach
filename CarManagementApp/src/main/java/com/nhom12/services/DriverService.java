@@ -10,11 +10,8 @@ import java.util.List;
 public interface DriverService {
     List<Driver> getDrivers(String kw);
     Driver getDriverById(int id);
-    
     boolean addOrUpdateDriver(Driver driver);
     boolean deleteDriver(int id);
-    
-     long countDrivers();
-    
-    // ... các phương thức khác ...
+    long countDrivers();
+    boolean isLicenseNumberExists(String licenseNumber, Integer driverId); 
 }

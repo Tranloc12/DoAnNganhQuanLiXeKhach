@@ -1,9 +1,4 @@
 <!DOCTYPE html>
-<!--
-Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
-Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
--->
-<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 <head>
     <title th:text="${driverForm.id != null and driverForm.id > 0 ? 'Cập nhật Tài xế' : 'Thêm Tài xế mới'}"></title>
@@ -31,7 +26,10 @@ Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit thi
                 <label for="userId" class="form-label">Người dùng liên kết (Tên đăng nhập):</label>
                 <select th:field="*{userId}" class="form-select" id="userId" required>
                     <option value="">-- Chọn Người dùng --</option>
-                    <option th:each="user : ${users}" th:value="${user.id}" th:text="${user.username}"></option>
+                    <option th:each="user : ${users}"
+                            th:value="${user.id}"
+                            th:text="${user.username}"
+                            th:selected="${user.id == driverForm.userId}"></option>
                 </select>
                 <div class="invalid-feedback" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
             </div>

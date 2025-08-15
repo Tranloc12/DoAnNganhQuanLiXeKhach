@@ -8,10 +8,10 @@ import com.nhom12.pojo.Driver;
 import java.util.List;
 
 public interface DriverRepository {
-    List<Driver> getDrivers(String kw); // Lấy danh sách tài xế
+    List<Driver> getDrivers(String kw);
     Driver getDriverById(int id);
     boolean addOrUpdateDriver(Driver driver);
     boolean deleteDriver(int id);
-     long countDrivers();
-    // ... các phương thức khác nếu có ...
+    long countDrivers();
+    boolean isLicenseNumberExists(String licenseNumber, Integer driverId); // <-- Thêm phương thức này
 }

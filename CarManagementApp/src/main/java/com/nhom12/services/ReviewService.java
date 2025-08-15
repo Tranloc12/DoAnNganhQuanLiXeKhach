@@ -19,8 +19,9 @@ public interface ReviewService {
     @Transactional(readOnly = true)
     List<Review> getReviewsByTrip(Trip trip);
     @Transactional(readOnly = true)
-    List<Review> getReviewsByUser(User user);
-    boolean updateReview(Review review);
+    List<Review> getReviewsByUser(User user);  
+    @Transactional
+    Review updateReview(Review review); 
     boolean deleteReview(int reviewId);
     @Transactional(readOnly = true)
     List<Review> getAllReviews(Map<String, String> params);

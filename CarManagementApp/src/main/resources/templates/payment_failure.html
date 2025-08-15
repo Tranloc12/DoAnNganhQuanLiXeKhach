@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán thất bại</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+        .container {
+            background-color: #fff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .failure-icon {
+            color: #dc3545;
+            font-size: 50px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #dc3545;
+        }
+        p {
+            color: #666;
+            font-size: 18px;
+        }
+        .btn-home {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #6c757d;
+            color: #fff;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="failure-icon">&#10006;</div>
+        <h1>Thanh toán thất bại!</h1>
+        <p th:text="${message}">Tin nhắn từ server sẽ hiển thị ở đây.</p>
+        <a href="/" class="btn-home">Quay về trang chủ</a>
+    </div>
+</body>
+</html>

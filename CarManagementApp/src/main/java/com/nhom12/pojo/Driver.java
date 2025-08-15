@@ -14,11 +14,13 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint; 
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
 import jakarta.validation.constraints.NotNull;
@@ -32,7 +34,7 @@ import java.util.Set;
  * @author admin
  */
 @Entity
-@Table(name = "driver")
+@Table(name = "driver", uniqueConstraints = {@UniqueConstraint(columnNames = {"licenseNumber"})}) // <-- Thêm ràng buộc UNIQUE
 @NamedQueries({
     @NamedQuery(name = "Driver.findAll", query = "SELECT d FROM Driver d"),
     @NamedQuery(name = "Driver.findById", query = "SELECT d FROM Driver d WHERE d.id = :id"),
@@ -45,12 +47,6 @@ import java.util.Set;
     @NamedQuery(name = "Driver.findByIsActive", query = "SELECT d FROM Driver d WHERE d.isActive = :isActive")})
 public class Driver implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 50)
@@ -59,25 +55,36 @@ public class Driver implements Serializable {
     @Size(max = 10)
     @Column(name = "licenseType")
     private String licenseType;
-    @Column(name = "dateOfIssue")
-    @Temporal(TemporalType.DATE)
-    private Date dateOfIssue;
-    @Column(name = "dateOfExpiry")
-    @Temporal(TemporalType.DATE)
-    private Date dateOfExpiry;
     @Size(max = 20)
     @Column(name = "contactNumber")
     private String contactNumber;
     @Size(max = 255)
     @Column(name = "address")
     private String address;
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "driverId")
+    @JsonIgnore 
+    private Set<DriverSchedule> driverScheduleSet;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
+    @Column(name = "dateOfIssue")
+    @Temporal(TemporalType.DATE)
+    private Date dateOfIssue;
+    @Column(name = "dateOfExpiry")
+    @Temporal(TemporalType.DATE)
+    private Date dateOfExpiry;
     @Column(name = "isActive")
     private Boolean isActive;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "driverId")
-     @JsonManagedReference
+    @JsonManagedReference
+    @JsonIgnore // 
     private Set<Trip> tripSet;
     @JoinColumn(name = "userId", referencedColumnName = "id")
-    @OneToOne
+    @ManyToOne
     private User userId;
 
     public Driver() {
@@ -100,21 +107,6 @@ public class Driver implements Serializable {
         this.id = id;
     }
 
-    public String getLicenseNumber() {
-        return licenseNumber;
-    }
-
-    public void setLicenseNumber(String licenseNumber) {
-        this.licenseNumber = licenseNumber;
-    }
-
-    public String getLicenseType() {
-        return licenseType;
-    }
-
-    public void setLicenseType(String licenseType) {
-        this.licenseType = licenseType;
-    }
 
     public Date getDateOfIssue() {
         return dateOfIssue;
@@ -132,21 +124,6 @@ public class Driver implements Serializable {
         this.dateOfExpiry = dateOfExpiry;
     }
 
-    public String getContactNumber() {
-        return contactNumber;
-    }
-
-    public void setContactNumber(String contactNumber) {
-        this.contactNumber = contactNumber;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
 
     public Boolean getIsActive() {
         return isActive;
@@ -195,6 +172,46 @@ public class Driver implements Serializable {
     @Override
     public String toString() {
         return "com.nhom12.pojo.Driver[ id=" + id + " ]";
+    }
+
+    public String getLicenseNumber() {
+        return licenseNumber;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+
+    public String getLicenseType() {
+        return licenseType;
+    }
+
+    public void setLicenseType(String licenseType) {
+        this.licenseType = licenseType;
+    }
+
+    public String getContactNumber() {
+        return contactNumber;
+    }
+
+    public void setContactNumber(String contactNumber) {
+        this.contactNumber = contactNumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public Set<DriverSchedule> getDriverScheduleSet() {
+        return driverScheduleSet;
+    }
+
+    public void setDriverScheduleSet(Set<DriverSchedule> driverScheduleSet) {
+        this.driverScheduleSet = driverScheduleSet;
     }
     
 }

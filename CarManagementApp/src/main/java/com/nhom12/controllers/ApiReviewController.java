@@ -54,6 +54,20 @@ public class ApiReviewController {
         return ResponseEntity.ok(reviews);
     }
 
+    // ✅ Lấy thông tin chi tiết của một review để hiển thị trên form chỉnh sửa
+    @GetMapping("/{reviewId}")
+    public ResponseEntity<?> getReviewById(@PathVariable("reviewId") int reviewId) {
+        try {
+            Review review = reviewService.getReviewById(reviewId);
+            if (review == null) {
+                return ResponseEntity.status(404).body("Không tìm thấy đánh giá.");
+            }
+            return ResponseEntity.ok(review);
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Lỗi máy chủ khi tải đánh giá.");
+        }
+    }
+
     // ✅ Tạo review (user phải đăng nhập)
     @PostMapping("/trip/{tripId}")
     public ResponseEntity<?> addReview(@PathVariable("tripId") int tripId,
@@ -95,7 +109,8 @@ public class ApiReviewController {
         if (user == null
                 || (!"ROLE_ADMIN".equals(user.getUserRole())
                 && !"ROLE_MANAGER".equals(user.getUserRole())
-                && !"ROLE_STAFF".equals(user.getUserRole()))) {
+                && !"ROLE_STAFF".equals(user.getUserRole())
+                && !"ROLE_PASSENGER".equals(user.getUserRole()))) {
             return ResponseEntity.status(403).body("Bạn không có quyền xóa đánh giá này");
         }
 
@@ -105,4 +120,58 @@ public class ApiReviewController {
         }
         return ResponseEntity.status(400).body("Không thể xóa đánh giá");
     }
+
+    @PutMapping("/{reviewId}")
+    public ResponseEntity<?> updateReview(@PathVariable("reviewId") int reviewId,
+            @RequestBody Map<String, Object> payload,
+            Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body("Bạn cần đăng nhập để chỉnh sửa đánh giá.");
+        }
+
+        User currentUser = userService.getUserByUsername(principal.getName());
+        if (currentUser == null) {
+            return ResponseEntity.status(401).body("Thông tin người dùng không hợp lệ.");
+        }
+
+        Review existingReview = reviewService.getReviewById(reviewId);
+        if (existingReview == null) {
+            return ResponseEntity.status(404).body("Không tìm thấy đánh giá để chỉnh sửa.");
+        }
+
+        boolean isOwner = currentUser.getId().equals(existingReview.getUserId().getId());
+        boolean isAdminOrStaff = "ROLE_PASSENGER".equals(currentUser.getUserRole());
+
+        if (!isOwner && !isAdminOrStaff) {
+            return ResponseEntity.status(403).body("Bạn không có quyền chỉnh sửa đánh giá này.");
+        }
+
+        if (payload.containsKey("rating")) {
+            existingReview.setRating((int) payload.get("rating"));
+        }
+        if (payload.containsKey("comment")) {
+            existingReview.setComment((String) payload.get("comment"));
+        }
+
+        Review updatedReview = reviewService.updateReview(existingReview);
+        if (updatedReview != null) {
+            return ResponseEntity.ok(updatedReview);
+        }
+
+        return ResponseEntity.status(500).body("Không thể cập nhật đánh giá. Vui lòng thử lại sau.");
+    }
+    
+    @GetMapping("/my-reviews")
+    public ResponseEntity<?> getMyReviews(Principal principal) {
+        if (principal == null) {
+            return ResponseEntity.status(401).body("Bạn cần đăng nhập để xem đánh giá của mình.");
+        }
+        User user = userService.getUserByUsername(principal.getName());
+        if (user == null) {
+            return ResponseEntity.status(404).body("Không tìm thấy thông tin người dùng.");
+        }
+        List<Review> myReviews = reviewService.getReviewsByUser(user);
+        return ResponseEntity.ok(myReviews);
+    }
+
 }

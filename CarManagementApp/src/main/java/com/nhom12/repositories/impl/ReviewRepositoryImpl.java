@@ -34,7 +34,7 @@ public class ReviewRepositoryImpl implements ReviewRepository {
         Session session = this.getSession();
         try {
             // Thay thế session.save(review) bằng session.persist(review)
-            session.persist(review); 
+            session.persist(review);
             // Sau khi persist, đối tượng review đã được gắn ID (nếu được tạo tự động)
             return review;
         } catch (Exception ex) {
@@ -66,16 +66,16 @@ public class ReviewRepositoryImpl implements ReviewRepository {
     }
 
     @Override
-    public boolean updateReview(Review review) {
+    public Review updateReview(Review review) { // ✅ Thay đổi kiểu trả về
         Session session = this.getSession();
         try {
-            // Thay thế session.update(review) bằng session.merge(review)
-            // merge trả về một instance mới đã được quản lý, nên bạn có thể cần gán lại
-            session.merge(review); 
-            return true;
+            // Sử dụng session.merge() để cập nhật đối tượng
+            session.merge(review);
+            // Trả về đối tượng đã được cập nhật
+            return review;
         } catch (Exception ex) {
             ex.printStackTrace();
-            return false;
+            return null; // ✅ Trả về null nếu có lỗi
         }
     }
 
@@ -111,7 +111,7 @@ public class ReviewRepositoryImpl implements ReviewRepository {
         hql.append(" ORDER BY r.createdAt DESC");
 
         // Khi dùng Hibernate 6+, nên dùng Query<T> để có kiểu an toàn
-        Query<Review> q = session.createQuery(hql.toString(), Review.class); 
+        Query<Review> q = session.createQuery(hql.toString(), Review.class);
 
         if (params != null && !params.isEmpty()) {
             String kw = params.get("kw");
@@ -119,7 +119,7 @@ public class ReviewRepositoryImpl implements ReviewRepository {
                 q.setParameter("kw", "%" + kw.trim() + "%");
             }
         }
-        
+
         if (params != null) {
             if (params.containsKey("page") && params.containsKey("pageSize")) {
                 try {

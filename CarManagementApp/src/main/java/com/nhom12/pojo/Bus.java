@@ -39,12 +39,6 @@ import java.util.Set;
     @NamedQuery(name = "Bus.findByIsActive", query = "SELECT b FROM Bus b WHERE b.isActive = :isActive")})
 public class Bus implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
     @Basic(optional = false)
     @NotNull
     @Size(min = 1, max = 20)
@@ -53,10 +47,6 @@ public class Bus implements Serializable {
     @Size(max = 50)
     @Column(name = "model")
     private String model;
-    @Column(name = "capacity")
-    private Integer capacity;
-    @Column(name = "yearManufacture")
-    private Integer yearManufacture;
     @Size(max = 20)
     @Column(name = "status")
     private String status;
@@ -64,6 +54,20 @@ public class Bus implements Serializable {
     @Size(max = 65535)
     @Column(name = "description")
     private String description;
+    @OneToMany(mappedBy = "busId")
+     @JsonIgnore 
+    private Set<DriverSchedule> driverScheduleSet;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
+    @Column(name = "capacity")
+    private Integer capacity;
+    @Column(name = "yearManufacture")
+    private Integer yearManufacture;
     @Column(name = "isActive")
     private Boolean isActive;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "busId")
@@ -90,21 +94,6 @@ public class Bus implements Serializable {
         this.id = id;
     }
 
-    public String getLicensePlate() {
-        return licensePlate;
-    }
-
-    public void setLicensePlate(String licensePlate) {
-        this.licensePlate = licensePlate;
-    }
-
-    public String getModel() {
-        return model;
-    }
-
-    public void setModel(String model) {
-        this.model = model;
-    }
 
     public Integer getCapacity() {
         return capacity;
@@ -122,21 +111,6 @@ public class Bus implements Serializable {
         this.yearManufacture = yearManufacture;
     }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public Boolean getIsActive() {
         return isActive;
@@ -177,6 +151,46 @@ public class Bus implements Serializable {
     @Override
     public String toString() {
         return "com.nhom12.pojo.Bus[ id=" + id + " ]";
+    }
+
+    public String getLicensePlate() {
+        return licensePlate;
+    }
+
+    public void setLicensePlate(String licensePlate) {
+        this.licensePlate = licensePlate;
+    }
+
+    public String getModel() {
+        return model;
+    }
+
+    public void setModel(String model) {
+        this.model = model;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public Set<DriverSchedule> getDriverScheduleSet() {
+        return driverScheduleSet;
+    }
+
+    public void setDriverScheduleSet(Set<DriverSchedule> driverScheduleSet) {
+        this.driverScheduleSet = driverScheduleSet;
     }
     
 }

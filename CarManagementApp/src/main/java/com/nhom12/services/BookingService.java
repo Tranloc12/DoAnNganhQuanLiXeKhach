@@ -4,6 +4,7 @@
  */
 package com.nhom12.services;
 
+import com.nhom12.dto.TicketDetailDto;
 import com.nhom12.pojo.Booking;
 import com.nhom12.pojo.Trip;
 import com.nhom12.pojo.User;
@@ -38,4 +39,9 @@ public interface BookingService {
     
     // Phương thức xóa booking, thay đổi dữ liệu, KHÔNG readOnly
     boolean deleteBooking(int bookingId);
+    
+    
+     // PHƯƠNG THỨC MỚI ĐỂ LẤY THÔNG TIN VÉ
+    
+   
 }

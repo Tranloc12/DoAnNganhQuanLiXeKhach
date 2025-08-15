@@ -51,7 +51,10 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     @Transactional
-    public boolean updateReview(Review review) {
+    public Review updateReview(Review review) {
+        // Cập nhật thời gian chỉnh sửa (nếu có trường updatedAt)
+        // review.setUpdatedAt(LocalDateTime.now());
+        // Giả sử reviewRepository.updateReview trả về đối tượng Review đã được cập nhật
         return reviewRepository.updateReview(review);
     }
 

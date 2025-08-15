@@ -20,11 +20,14 @@ import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 // import jakarta.persistence.Temporal; // LOẠI BỎ IMPORT NÀY
 // import jakarta.persistence.TemporalType; // LOẠI BỎ IMPORT NÀY
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.io.Serializable;
+import java.util.Date;
 // import java.util.Date; // LOẠI BỎ IMPORT NÀY!
 import java.util.Set;
 
@@ -46,20 +49,17 @@ import java.util.Set;
     @NamedQuery(name = "Trip.findByTotalBookedSeats", query = "SELECT t FROM Trip t WHERE t.totalBookedSeats = :totalBookedSeats")})
 public class Trip implements Serializable {
 
-    private static final long serialVersionUID = 1L;
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    @Column(name = "id")
-    private Integer id;
     @Basic(optional = false)
     @NotNull
     @Column(name = "departureTime")
+    @Temporal(TemporalType.TIMESTAMP)
     private LocalDateTime departureTime;
     @Column(name = "arrivalTime")
-    private LocalDateTime arrivalTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime  arrivalTime;
     @Column(name = "actualArrivalTime")
-    private LocalDateTime actualArrivalTime;
+    @Temporal(TemporalType.TIMESTAMP)
+    private LocalDateTime  actualArrivalTime;
     @Basic(optional = false)
     @NotNull
     @Column(name = "fare")
@@ -67,6 +67,16 @@ public class Trip implements Serializable {
     @Size(max = 20)
     @Column(name = "status")
     private String status;
+    @OneToMany(mappedBy = "tripId")
+    @JsonIgnore
+    private Set<DriverSchedule> driverScheduleSet;
+
+    private static final long serialVersionUID = 1L;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "id")
+    private Integer id;
     @Column(name = "availableSeats")
     private Integer availableSeats;
     @Column(name = "totalBookedSeats")
@@ -109,45 +119,6 @@ public class Trip implements Serializable {
         this.id = id;
     }
 
-    public LocalDateTime getDepartureTime() {
-        return departureTime;
-    }
-
-    public void setDepartureTime(LocalDateTime departureTime) {
-        this.departureTime = departureTime;
-    }
-
-    public LocalDateTime getArrivalTime() {
-        return arrivalTime;
-    }
-
-    public void setArrivalTime(LocalDateTime arrivalTime) {
-        this.arrivalTime = arrivalTime;
-    }
-
-    public LocalDateTime getActualArrivalTime() {
-        return actualArrivalTime;
-    }
-
-    public void setActualArrivalTime(LocalDateTime actualArrivalTime) {
-        this.actualArrivalTime = actualArrivalTime;
-    }
-
-    public double getFare() {
-        return fare;
-    }
-
-    public void setFare(double fare) {
-        this.fare = fare;
-    }
-
-    public String getStatus() {
-        return status;
-    }
-
-    public void setStatus(String status) {
-        this.status = status;
-    }
 
     public Integer getAvailableSeats() {
         return availableSeats;
@@ -228,6 +199,54 @@ public class Trip implements Serializable {
     @Override
     public String toString() {
         return "com.nhom12.pojo.Trip[ id=" + id + " ]";
+    }
+
+    public LocalDateTime  getDepartureTime() {
+        return departureTime;
+    }
+
+    public void setDepartureTime(LocalDateTime  departureTime) {
+        this.departureTime = departureTime;
+    }
+
+    public LocalDateTime  getArrivalTime() {
+        return arrivalTime;
+    }
+
+    public void setArrivalTime(LocalDateTime  arrivalTime) {
+        this.arrivalTime = arrivalTime;
+    }
+
+    public LocalDateTime  getActualArrivalTime() {
+        return actualArrivalTime;
+    }
+
+    public void setActualArrivalTime(LocalDateTime  actualArrivalTime) {
+        this.actualArrivalTime = actualArrivalTime;
+    }
+
+    public double getFare() {
+        return fare;
+    }
+
+    public void setFare(double fare) {
+        this.fare = fare;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public Set<DriverSchedule> getDriverScheduleSet() {
+        return driverScheduleSet;
+    }
+
+    public void setDriverScheduleSet(Set<DriverSchedule> driverScheduleSet) {
+        this.driverScheduleSet = driverScheduleSet;
     }
     
 }

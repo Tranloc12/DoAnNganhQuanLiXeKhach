@@ -23,7 +23,7 @@ public class DriverServiceImpl implements DriverService {
     public List<Driver> getDrivers(String kw) {
         return this.driverRepo.getDrivers(kw);
     }
-
+    
     @Override
     public Driver getDriverById(int id) {
         return this.driverRepo.getDriverById(id);
@@ -31,6 +31,10 @@ public class DriverServiceImpl implements DriverService {
     
     @Override
     public boolean addOrUpdateDriver(Driver driver) {
+        // Kiểm tra logic nghiệp vụ trước khi lưu
+        if (driverRepo.isLicenseNumberExists(driver.getLicenseNumber(), driver.getId())) {
+            throw new IllegalStateException("Số giấy phép '" + driver.getLicenseNumber() + "' đã tồn tại.");
+        }
         return driverRepo.addOrUpdateDriver(driver);
     }
 
@@ -39,9 +43,13 @@ public class DriverServiceImpl implements DriverService {
         return driverRepo.deleteDriver(id);
     }
     
-     @Override
+    @Override
     public long countDrivers() {
         return this.driverRepo.countDrivers();
     }
-
+    
+    @Override
+    public boolean isLicenseNumberExists(String licenseNumber, Integer driverId) {
+        return driverRepo.isLicenseNumberExists(licenseNumber, driverId);
+    }
 }

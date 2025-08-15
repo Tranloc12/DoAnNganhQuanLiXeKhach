@@ -68,19 +68,34 @@ public class ApiBookingController {
         User user = userService.getUserByUsername(principal.getName());
         Trip trip = tripService.getTripById(bookingRequest.getTripId());
 
+        // --- BẮT ĐẦU CÁC DÒNG LOG MỚI ĐỂ DEBUG ---
+        System.out.println("--- Debug Booking Creation from Controller ---");
+        System.out.println("Request body: tripId=" + bookingRequest.getTripId()
+                + ", numberOfSeats=" + bookingRequest.getNumberOfSeats()
+                + ", seatNumbers=" + bookingRequest.getSeatNumbers());
+        System.out.println("Principal Name: " + (principal != null ? principal.getName() : "NULL"));
+        System.out.println("User object fetched by username: " + (user != null ? "ID=" + user.getId() + ", Username=" + user.getUsername() : "NULL"));
+        System.out.println("Trip object fetched by ID: " + (trip != null ? "ID=" + trip.getId() + ", Route=" + trip.getRouteId() : "NULL"));
+        System.out.println("--------------------------------------------");
+        // --- KẾT THÚC CÁC DÒNG LOG MỚI ---
+
         if (trip == null) {
             return ResponseEntity.badRequest().body("Chuyến đi không tồn tại");
+        }
+        // Kiểm tra user ở đây để trả về lỗi 404 thay vì 500 nếu user null
+        if (user == null) {
+            return ResponseEntity.status(404).body("Không tìm thấy thông tin người dùng đang đăng nhập.");
         }
 
         Booking booking = bookingService.createBooking(
                 trip,
-                user,
+                user, // user đã được kiểm tra null ở trên
                 bookingRequest.getNumberOfSeats(),
                 bookingRequest.getSeatNumbers()
         );
 
         if (booking == null) {
-            return ResponseEntity.status(500).body("Đặt chỗ thất bại");
+            return ResponseEntity.status(500).body("Đặt chỗ thất bại. Vui lòng kiểm tra log server.");
         }
         return ResponseEntity.ok(booking);
     }
