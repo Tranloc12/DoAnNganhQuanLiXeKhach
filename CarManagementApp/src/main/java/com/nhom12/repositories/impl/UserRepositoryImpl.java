@@ -59,8 +59,9 @@ public class UserRepositoryImpl implements UserRepository {
     @Override
     public User updateUser(User user) {
         Session s = this.getSession();
-        s.merge(user);
-        return user;
+        User managedUser = (User) s.merge(user); // merge trả về entity được quản lý
+        s.flush(); // đảm bảo đẩy ngay xuống DB
+        return managedUser;
     }
 
     @Override
@@ -113,24 +114,23 @@ public class UserRepositoryImpl implements UserRepository {
 
         // Sử dụng org.hibernate.query.Query<Integer> và truyền kiểu cụ thể
         Query<Integer> queryWithPassengerInfoIds = session.createQuery(
-            "SELECT p.userId.id FROM PassengerInfo p WHERE p.userId.id IS NOT NULL", Integer.class);
+                "SELECT p.userId.id FROM PassengerInfo p WHERE p.userId.id IS NOT NULL", Integer.class);
         Set<Integer> usersWithPassengerInfoIds = queryWithPassengerInfoIds.getResultStream().collect(Collectors.toSet());
 
         return allUsers.stream()
-                       .filter(user -> user.getId() != null && !usersWithPassengerInfoIds.contains(user.getId()))
-                       .collect(Collectors.toList());
+                .filter(user -> user.getId() != null && !usersWithPassengerInfoIds.contains(user.getId()))
+                .collect(Collectors.toList());
     }
-    
-    
+
     @Override
     public List<Object[]> getUserRoleStats() {
         Session session = this.getSession();
         // Thống kê số lượng người dùng theo user_role
         Query<Object[]> q = session.createQuery(
-            "SELECT u.userRole, COUNT(u.id) " +
-            "FROM User u " +
-            "GROUP BY u.userRole " +
-            "ORDER BY u.userRole ASC", Object[].class);
+                "SELECT u.userRole, COUNT(u.id) "
+                + "FROM User u "
+                + "GROUP BY u.userRole "
+                + "ORDER BY u.userRole ASC", Object[].class);
         return q.getResultList();
     }
 }

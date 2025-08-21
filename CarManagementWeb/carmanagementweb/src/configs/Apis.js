@@ -20,6 +20,7 @@ export const endpoints = {
   passengers: "/passengers",
   staff: "/staff",
   usersByRole: (role) => `/users/role/${role}`,
+  myuploadAvatar: "/upload-avatar", 
 
 
   // Payment

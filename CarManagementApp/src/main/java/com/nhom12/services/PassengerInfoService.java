@@ -14,6 +14,7 @@ public interface PassengerInfoService {
     boolean addOrUpdatePassengerInfo(PassengerInfo passengerInfo);
     boolean deletePassengerInfo(int id);
     long countPassengerInfos();
+    PassengerInfo findByUser(User user); // Added this method 
     
  
 }

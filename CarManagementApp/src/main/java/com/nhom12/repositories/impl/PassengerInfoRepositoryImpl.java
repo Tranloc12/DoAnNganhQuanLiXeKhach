@@ -108,4 +108,12 @@ public class PassengerInfoRepositoryImpl implements PassengerInfoRepository {
         logger.warn("getUsersWithoutPassengerInfo() được gọi từ PassengerInfoRepositoryImpl. Nên được chuyển sang UserRepositoryImpl.");
         return List.of(); // Trả về danh sách rỗng để tránh lỗi biên dịch nếu interface vẫn yêu cầu.
     }
+    
+    @Override
+    public PassengerInfo getPassengerInfoByUser(User user) {
+        Session session = getSession();
+        Query<PassengerInfo> query = session.createQuery("FROM PassengerInfo p WHERE p.userId = :user", PassengerInfo.class)
+                                            .setParameter("user", user);
+        return query.uniqueResult();
+    }
 }

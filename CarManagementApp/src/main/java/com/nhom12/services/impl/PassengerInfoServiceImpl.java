@@ -79,4 +79,11 @@ public class PassengerInfoServiceImpl implements PassengerInfoService {
     public long countPassengerInfos() {
         return this.passengerInfoRepo.countPassengerInfos();
     }
+    
+     // ⭐ PHƯƠNG THỨC MỚI ĐÃ THÊM VÀO ⭐
+    @Override
+    public PassengerInfo findByUser(User user) {
+        // Gọi phương thức tương ứng từ repository để tìm PassengerInfo dựa trên User
+        return this.passengerInfoRepo.getPassengerInfoByUser(user);
+    }
 }

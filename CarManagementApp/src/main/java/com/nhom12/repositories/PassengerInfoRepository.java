@@ -19,4 +19,6 @@ public interface PassengerInfoRepository {
     // Nên để ở UserRepo hoặc một repo chung nếu dùng cho nhiều nơi
     // Nhưng nếu chỉ dùng ở đây thì có thể tạm thời đưa vào đây để đơn giản
     List<User> getUsersWithoutPassengerInfo(); // <-- Vị trí của method này có thể xem xét lại
+    
+    PassengerInfo getPassengerInfoByUser(User user);
 }

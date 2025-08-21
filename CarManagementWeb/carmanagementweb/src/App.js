@@ -57,6 +57,8 @@ import MyReviews from "./components/review/MyReviews.js";
 import BookingHistory from "./components/booking/BookingHistory.js";
 import TransactionHistory from "./components/payment/MyPayments.js";
 import MyPayments from "./components/payment/MyPayments.js";
+import Profile from "./components/passenger/Profile.js";
+import EditPassword from "./components/passenger/EditPassword.js";
 
 const App = () => {
   const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -211,7 +213,7 @@ const App = () => {
 
                   {/* Route để hiển thị đánh giá của người dùng hiện tại */}
                   <Route path="/my-reviews" element={
-                    <ProtectedRoute allowedRoles={[ROLES.PASSENGER, ROLES.ADMIN, ROLES.MANAGER, ROLES.DRIVER]}>
+                    <ProtectedRoute allowedRoles={[ROLES.PASSENGER, ROLES.ADMIN, ROLES.STAFF, ROLES.MANAGER, ROLES.DRIVER]}>
                       <MyReviews />
                     </ProtectedRoute>
                   } />
@@ -269,10 +271,24 @@ const App = () => {
                   } />
 
                   <Route path="/payments-history" element={
-                    <ProtectedRoute allowedRoles={[ ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF, ROLES.PASSENGER]}>
+                    <ProtectedRoute allowedRoles={[ ROLES.ADMIN, ROLES.MANAGER, ROLES.DRIVER, ROLES.STAFF, ROLES.PASSENGER]}>
                       <MyPayments />
                     </ProtectedRoute>
                   } />
+
+                  <Route path="/profile" element={
+                    <ProtectedRoute allowedRoles={[ ROLES.ADMIN, ROLES.MANAGER, ROLES.DRIVER,  ROLES.STAFF, ROLES.PASSENGER]}>
+                      <Profile />
+                    </ProtectedRoute>
+                  } />
+
+                   <Route path="/change-password" element={
+                    <ProtectedRoute allowedRoles={[ ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF, ROLES.PASSENGER]}>
+                      <EditPassword />
+                    </ProtectedRoute>
+                  } />
+
+                 
 
 
 

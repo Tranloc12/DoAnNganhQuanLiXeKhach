@@ -1,10 +1,15 @@
 package com.nhom12.controllers;
 
+import com.nhom12.dto.UserDetailDto;
 import com.nhom12.dto.UserForm; // Make sure UserForm has an 'id' field for updates
+import com.nhom12.pojo.PassengerInfo;
 import com.nhom12.pojo.User;
+import com.nhom12.services.CloudinaryService;
+import com.nhom12.services.PassengerInfoService;
 import com.nhom12.services.UserService;
 import com.nhom12.utils.JwtUtils;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -21,6 +26,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/api")
@@ -31,10 +37,16 @@ public class ApiUserController {
     private UserService userService;
 
     @Autowired
+    private PassengerInfoService passengerInfoService;
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
     private JwtUtils jwtUtils = new JwtUtils();
-    
+
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserForm userForm) {
         try {
@@ -84,53 +96,156 @@ public class ApiUserController {
     }
 
     // 📌 Lấy user đang đăng nhập
+    // 📌 Lấy thông tin chi tiết của người dùng hiện tại
     @GetMapping("/current-user")
-    public ResponseEntity<User> getCurrentUser(Principal principal) {
+    public ResponseEntity<UserDetailDto> getCurrentUser(Principal principal) {
         if (principal == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
-        return ResponseEntity.ok(userService.getUserByUsername(principal.getName()));
+
+        User user = userService.getUserByUsername(principal.getName());
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        PassengerInfo passengerInfo = passengerInfoService.findByUser(user);
+        UserDetailDto userDetails = new UserDetailDto(user, passengerInfo);
+
+        return ResponseEntity.ok(userDetails);
     }
 
-    // 📌 Cập nhật user
     @PatchMapping("/current-user")
     public ResponseEntity<?> updateUser(Principal principal, @RequestBody Map<String, String> params) {
         try {
             User currentUser = userService.getUserByUsername(principal.getName());
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy người dùng"));
+            }
+
+            // Cập nhật các trường User
             if (params.containsKey("email")) {
                 currentUser.setEmail(params.get("email"));
             }
-            if (params.containsKey("dob")) {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                currentUser.setDob(sdf.parse(params.get("dob")));
+
+            // ⭐ ĐIỀU CHỈNH: Xử lý ngoại lệ ParseException
+            if (params.containsKey("dob") && !params.get("dob").isEmpty()) {
+                try {
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    currentUser.setDob(sdf.parse(params.get("dob")));
+                } catch (ParseException e) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Định dạng ngày sinh không hợp lệ."));
+                }
             }
             userService.updateUser(currentUser);
-            return ResponseEntity.ok(Map.of("message", "Cập nhật thành công"));
+
+            // Cập nhật các trường PassengerInfo
+            PassengerInfo passengerInfo = passengerInfoService.findByUser(currentUser);
+            if (passengerInfo != null) {
+                // ⭐ ĐIỀU CHỈNH: Kiểm tra sự tồn tại của cả hai trường
+                if (params.containsKey("firstName") && params.containsKey("lastName")) {
+                    String newFullName = params.get("firstName") + " " + params.get("lastName");
+                    passengerInfo.setFullName(newFullName);
+                }
+
+                if (params.containsKey("phone")) {
+                    passengerInfo.setPhoneNumber(params.get("phone"));
+                }
+                if (params.containsKey("address")) {
+                    passengerInfo.setAddress(params.get("address"));
+                }
+
+                passengerInfoService.addOrUpdatePassengerInfo(passengerInfo);
+            }
+
+            UserDetailDto updatedDetails = new UserDetailDto(currentUser, passengerInfo);
+            return ResponseEntity.ok(updatedDetails);
+
         } catch (Exception e) {
+            System.err.println("Lỗi khi cập nhật thông tin: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Lỗi cập nhật"));
+                    .body(Map.of("error", "Lỗi cập nhật. Vui lòng thử lại."));
         }
     }
 
-    // 📌 Đổi mật khẩu
+    // 📌 Cập nhật thông tin chi tiết người dùng
     @PatchMapping("/change-password")
     public ResponseEntity<?> changePassword(Principal principal, @RequestBody Map<String, String> passwords) {
+        if (principal == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Vui lòng đăng nhập để thực hiện chức năng này."));
+        }
+
+        // Kiểm tra mật khẩu cũ và mật khẩu mới có tồn tại không
+        String oldPassword = passwords.get("oldPassword");
+        String newPassword = passwords.get("newPassword");
+
+        if (oldPassword == null || oldPassword.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Vui lòng nhập mật khẩu cũ."));
+        }
+
+        if (newPassword == null || newPassword.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Vui lòng nhập mật khẩu mới."));
+        }
+
         try {
             User user = userService.getUserByUsername(principal.getName());
-            if (!passwordEncoder.matches(passwords.get("oldPassword"), user.getPassword())) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Mật khẩu cũ không đúng"));
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy người dùng."));
             }
-            user.setPassword(passwordEncoder.encode(passwords.get("newPassword")));
+
+            if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Mật khẩu cũ không đúng."));
+            }
+
+            user.setPassword(passwordEncoder.encode(newPassword));
             userService.updateUser(user);
-            return ResponseEntity.ok(Map.of("message", "Đổi mật khẩu thành công"));
+
+            return ResponseEntity.ok(Map.of("message", "Đổi mật khẩu thành công."));
         } catch (Exception e) {
+            // Log lỗi chi tiết để dễ dàng gỡ lỗi trên server
+            System.err.println("Lỗi khi đổi mật khẩu: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(Map.of("error", "Lỗi hệ thống"));
+                    .body(Map.of("error", "Lỗi hệ thống. Vui lòng thử lại sau."));
         }
     }
 
-    // 📌 Lấy danh sách theo role
+    @PostMapping(value = "/upload-avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadAvatar(
+            @RequestParam("file") MultipartFile file,
+            Principal principal) {
 
+        System.out.println("File: " + (file != null ? file.getOriginalFilename() : "null"));
+        System.out.println("Size: " + (file != null ? file.getSize() : 0));
+
+        if (file == null || file.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "File không hợp lệ"));
+        }
+
+        try {
+            User currentUser = userService.getUserByUsername(principal.getName());
+            if (currentUser == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy người dùng."));
+            }
+
+            // 3. Tải ảnh lên Cloudinary
+            // ⭐ THAY ĐỔI TẠI ĐÂY: Truyền thêm ID người dùng vào service
+            String avatarUrl = cloudinaryService.uploadFile(file, currentUser.getUsername()); // SỬ DỤNG USERNAME LÀM ID DUY NHẤT
+
+            // 4. Cập nhật URL ảnh đại diện vào đối tượng User
+            currentUser.setAvatar(avatarUrl);
+            userService.updateUser(currentUser);
+
+            return ResponseEntity.ok(Map.of("message", "Tải ảnh lên và cập nhật thành công.", "url", avatarUrl));
+
+        } catch (IOException e) {
+            System.err.println("Lỗi khi tải ảnh lên: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Lỗi khi tải ảnh lên."));
+        }
+    }
+    
+    
+    
+
+    // 📌 Lấy danh sách theo role
     @GetMapping("/passengers")
     public List<User> getPassengers() {
         return userService.getUsersByRole("ROLE_PASSENGER");

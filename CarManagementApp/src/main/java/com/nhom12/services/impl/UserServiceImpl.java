@@ -100,9 +100,8 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public User updateUser(User user) {
-        Session s = this.factory.getObject().getCurrentSession();
-        s.update(user);
-        return user;
+        // Gọi phương thức từ Repository đã dùng merge
+        return this.userRepo.updateUser(user);
     }
 
     @Override
@@ -137,7 +136,7 @@ public class UserServiceImpl implements UserService {
         return this.userRepo.getUsers();
     }
 
-     @Override
+    @Override
     public List<Object[]> getUserRoleStats() {
         return this.userRepo.getUserRoleStats();
     }

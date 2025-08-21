@@ -62,7 +62,7 @@ const Header = () => {
             </RoleBasedComponent>
 
             <RoleBasedComponent allowedRoles={[ROLES.STAFF]}>
-               {/* ✨ Thêm link cho ScheduleManagement */}
+              {/* ✨ Thêm link cho ScheduleManagement */}
               <Nav.Link as={Link} to="/manager/schedules">Quản lý lịch trình</Nav.Link>
 
             </RoleBasedComponent>
@@ -112,7 +112,23 @@ const Header = () => {
 
                 <>
 
-                  <NavDropdown title={`Chào ${user.username}`} id="user-nav-dropdown">
+
+                  <NavDropdown
+                    title={
+                      <>
+                        <Image
+                          src={user.avatar} // Sử dụng URL ảnh đại diện
+                          alt="Avatar"
+                          roundedCircle // Giúp ảnh có hình tròn
+                          width="40"
+                          height="40"
+                          className="me-2" // Khoảng cách bên phải
+                        />
+                        <span className="fw-semibold">Chào {user.username}</span>
+                      </>
+                    }
+                    id="user-nav-dropdown"
+                  >
                     <NavDropdown.Item as={Link} to="/payments-history">
                       Lịch sử giao dịch
                     </NavDropdown.Item>
@@ -124,7 +140,7 @@ const Header = () => {
                     </NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/bookings-history">
                       Lịch sử mua vé
-                    </NavDropdown.Item>                    
+                    </NavDropdown.Item>
                     <NavDropdown.Item as={Link} to="/change-password">
                       Đặt lại mật khẩu
                     </NavDropdown.Item>

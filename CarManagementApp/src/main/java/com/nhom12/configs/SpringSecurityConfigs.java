@@ -89,6 +89,7 @@ public class SpringSecurityConfigs {
                 // Public endpoints
 
                 .requestMatchers(HttpMethod.POST, "/api/register", "/api/login").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/upload-avatar").hasAnyRole("PASSENGER", "ADMIN", "MANAGER", "DRIVER")
                 .requestMatchers(HttpMethod.GET, "/api/buses", "/api/buses/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/buses").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                 .requestMatchers(HttpMethod.PUT, "/api/buses/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
@@ -161,7 +162,7 @@ public class SpringSecurityConfigs {
                 .requestMatchers("/api/secure/statistics/**").hasRole("ADMIN")
                 // Admin and Manager endpoints (management operations)
                 // API endpoints với JWT authentication (đặt SAU các rule cụ thể)
-                .requestMatchers("/api/current-user").authenticated()
+                .requestMatchers("/api/current-user").hasAnyRole("PASSENGER", "ADMIN", "MANAGER", "DRIVER", "STAFF")
                 .requestMatchers(HttpMethod.GET, "/api/secure/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/secure/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/secure/**").authenticated()
@@ -176,7 +177,8 @@ public class SpringSecurityConfigs {
                 .requestMatchers("/api/secure/subscriptions/my").hasRole("MEMBER")
                 // Payment endpoints
                 .requestMatchers("/payment/**").authenticated()
-                .anyRequest().authenticated())
+                .anyRequest().authenticated()
+        )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form.loginPage("/login")
                 .loginProcessingUrl("/login")
@@ -190,16 +192,7 @@ public class SpringSecurityConfigs {
     public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
         return new HandlerMappingIntrospector();
     }
-
-    @Bean
-    public Cloudinary cloudinary() {
-        Cloudinary cloudinary = new Cloudinary(ObjectUtils.asMap(
-                "cloud_name", "dj4slrwsl",
-                "api_key", "179444416465962",
-                "api_secret", "FQBLsNVEVMPyozMSHih0PzYVxn8",
-                "secure", true));
-        return cloudinary;
-    }
+    
 
     @Bean
     @Order(0)

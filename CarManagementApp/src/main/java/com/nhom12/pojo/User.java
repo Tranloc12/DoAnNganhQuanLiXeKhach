@@ -88,6 +88,9 @@ public class User implements Serializable {
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "userId")
     @JsonIgnore
     private PassengerInfo passengerInfo;
+    @Column(name = "avatar") // ⭐ THÊM DÒNG NÀY
+    @Size(max = 255) // ⭐ VÀ DÒNG NÀY để giới hạn độ dài
+    private String avatar; // ⭐ VÀ DÒNG NÀY
 
     public User() {
     }
@@ -175,6 +178,15 @@ public class User implements Serializable {
         this.passengerInfo = passengerInfo;
     }
 
+    // ⭐ THÊM GETTER VÀ SETTER CHO AVATAR ⭐
+    public String getAvatar() {
+        return avatar;
+    }
+
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
+    }
+
     @Override
     public int hashCode() {
         int hash = 0;
@@ -223,7 +235,5 @@ public class User implements Serializable {
     public void setEmail(String email) {
         this.email = email;
     }
-
- 
 
 }
