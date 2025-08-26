@@ -30,6 +30,10 @@ public interface BookingRepository {
     
     void update(Booking booking);
     
+     List<Booking> findByTripId(int tripId);
+    
+    
+    
     
   
 }

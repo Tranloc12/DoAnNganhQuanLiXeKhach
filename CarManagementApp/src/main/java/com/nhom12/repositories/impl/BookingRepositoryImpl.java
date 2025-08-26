@@ -17,8 +17,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
-
-
 @Repository
 public class BookingRepositoryImpl implements BookingRepository {
 
@@ -135,9 +133,7 @@ public class BookingRepositoryImpl implements BookingRepository {
 
         }
     }
-    
-    
-    
+
     @Override
     public Booking findById(Integer id) {
         // Lấy một đối tượng Booking theo ID
@@ -149,15 +145,12 @@ public class BookingRepositoryImpl implements BookingRepository {
         // Cập nhật một đối tượng Booking trong database
         getCurrentSession().update(booking);
     }
-    
-    
-    
-    // Triển khai phương thức cập nhật trạng thái thanh toán
-    
 
-    // Trong file BookingRepositoryImpl.java
-   // TRIỂN KHAI PHƯƠNG THỨC MỚI ĐỂ LẤY THÔNG TIN VÉ XE
-   
+    @Override
+    public List<Booking> findByTripId(int tripId) {
+        Query<Booking> query = getCurrentSession().createQuery("SELECT b FROM Booking b JOIN FETCH b.userId u WHERE b.tripId.id = :tripId", Booking.class);
+        query.setParameter("tripId", tripId);
+        return query.getResultList();
+    }
+
 }
-
-

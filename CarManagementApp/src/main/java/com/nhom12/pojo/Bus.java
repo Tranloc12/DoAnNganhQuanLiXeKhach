@@ -55,8 +55,13 @@ public class Bus implements Serializable {
     @Column(name = "description")
     private String description;
     @OneToMany(mappedBy = "busId")
-     @JsonIgnore 
+    @JsonIgnore
     private Set<DriverSchedule> driverScheduleSet;
+    
+    // Thêm BusLocationSet vào đây
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "busId") 
+    @JsonIgnore
+    private Set<BusLocation> busLocationSet; 
 
     private static final long serialVersionUID = 1L;
     @Id
@@ -94,7 +99,6 @@ public class Bus implements Serializable {
         this.id = id;
     }
 
-
     public Integer getCapacity() {
         return capacity;
     }
@@ -110,7 +114,6 @@ public class Bus implements Serializable {
     public void setYearManufacture(Integer yearManufacture) {
         this.yearManufacture = yearManufacture;
     }
-
 
     public Boolean getIsActive() {
         return isActive;
@@ -191,6 +194,15 @@ public class Bus implements Serializable {
 
     public void setDriverScheduleSet(Set<DriverSchedule> driverScheduleSet) {
         this.driverScheduleSet = driverScheduleSet;
+    }
+
+    // Thêm getter và setter cho busLocationSet
+    public Set<BusLocation> getBusLocationSet() {
+        return busLocationSet;
+    }
+
+    public void setBusLocationSet(Set<BusLocation> busLocationSet) {
+        this.busLocationSet = busLocationSet;
     }
     
 }

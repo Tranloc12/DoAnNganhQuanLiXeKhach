@@ -18,5 +18,6 @@
     <class>com.nhom12.pojo.Route</class>
     <class>com.nhom12.pojo.Trip</class>
     <class>com.nhom12.pojo.DriverSchedule</class>
+    <class>com.nhom12.pojo.BusLocation</class>
   </persistence-unit>
 </persistence>

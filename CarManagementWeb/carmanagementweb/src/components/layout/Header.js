@@ -1,9 +1,10 @@
 import { useContext, useEffect, useState } from "react";
-import { Button, Container, Form, Image, Nav, Navbar, NavDropdown } from "react-bootstrap";
+import { Button, Container, Form, Image, Nav, Navbar, NavDropdown, Badge } from "react-bootstrap";
 import { Link, useNavigate } from "react-router-dom";
 import { MyDispatchContext, MyUserContext } from "../../contexts/Contexts";
 import RoleBasedComponent from "../common/RoleBasedComponent";
 import { ROLES } from "../../utils/roleUtils";
+import { FaBell } from 'react-icons/fa'; // Đã import biểu tượng chuông
 import "../../index.css";
 
 const Header = () => {
@@ -11,6 +12,36 @@ const Header = () => {
   const [kw, setKw] = useState("");
   const user = useContext(MyUserContext);
   const dispatch = useContext(MyDispatchContext);
+
+  const [unreadCount, setUnreadCount] = useState(0); // State để lưu số thông báo chưa đọc
+
+  // Hàm để tính toán số thông báo chưa đọc
+  const calculateUnreadCount = () => {
+    if (!user) return 0; // Không tính nếu chưa đăng nhập
+    const storedNotifications = JSON.parse(localStorage.getItem('notifications') || '[]');
+    const count = storedNotifications.filter(notif => !notif.read).length;
+    return count;
+  };
+
+  useEffect(() => {
+    // Cập nhật số thông báo chưa đọc khi component mount
+    setUnreadCount(calculateUnreadCount());
+
+    // Lắng nghe sự kiện storage để cập nhật UI khi có thay đổi trong localStorage
+    const handleStorageChange = (e) => {
+      // Chỉ cập nhật nếu key 'notifications' thay đổi hoặc khi localStorage bị xóa (e.key === null)
+      if (e.key === 'notifications' || e.key === null) {
+        setUnreadCount(calculateUnreadCount());
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+
+    // Dọn dẹp event listener khi component unmount
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, [user]); // Chạy lại khi trạng thái user thay đổi
 
 
 
@@ -30,7 +61,8 @@ const Header = () => {
 
             {/* ✨ Thêm menu Danh sách chuyến đi */}
             <Nav.Link as={Link} to="/trips">Danh sách chuyến đi</Nav.Link>
-            <Nav.Link as={Link} to="/routes">Danh sách tuyến</Nav.Link>
+           
+
 
             {/* Quản lý chỉ cho Admin và Manager */}
             <RoleBasedComponent allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
@@ -78,6 +110,21 @@ const Header = () => {
 
 
             </RoleBasedComponent>
+
+
+             <Nav.Link as={Link} to="/routes">Danh sách tuyến</Nav.Link>
+            {/* ✨ Link Thông báo với biểu tượng chuông và số lượng chưa đọc */}
+            {user && ( // Chỉ hiển thị nếu user đã đăng nhập
+              <Nav.Link as={Link} to="/notifi" className="d-flex align-items-center position-relative">
+                <FaBell className="me-1" />
+                {unreadCount > 0 && (
+                  <Badge pill bg="danger" className="ms-1 position-absolute top-0 start-100 translate-middle">
+                    {unreadCount}
+                    <span className="visually-hidden">thông báo chưa đọc</span>
+                  </Badge>
+                )}
+              </Nav.Link>
+            )}
 
 
 

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional; // Cần import Optional
+import java.util.stream.Collectors;
 
 @Service
 public class BookingServiceImpl implements BookingService {
@@ -61,76 +62,76 @@ public class BookingServiceImpl implements BookingService {
         return null;
     }
 
-        @Override
-        @Transactional(readOnly = true)
-        public List<Booking> getBookingsByUser
-        (User user
-        
-            ) {
+    @Override
+    @Transactional(readOnly = true)
+    public List<Booking> getBookingsByUser(User user
+    ) {
         return bookingRepo.getBookingsByUser(user);
-        }
+    }
 
-        @Override
-        @Transactional
-        public boolean cancelBooking
-        (int bookingId
-        
-            ) {
+    @Override
+    @Transactional
+    public boolean cancelBooking(int bookingId
+    ) {
         Optional<Booking> optionalBooking = bookingRepo.getBookingById(bookingId);
-            if (optionalBooking.isPresent()) {
-                Booking booking = optionalBooking.get();
-                if (!"Cancelled".equals(booking.getBookingStatus())) {
-                    if (tripService.increaseAvailableSeats(booking.getTripId().getId(), booking.getNumberOfSeats())) {
-                        booking.setBookingStatus("Cancelled");
-                        return bookingRepo.updateBooking(booking);
-                    } else {
-                        System.err.println("BookingServiceImpl: Không thể tăng số ghế có sẵn khi hủy booking.");
-                    }
+        if (optionalBooking.isPresent()) {
+            Booking booking = optionalBooking.get();
+            if (!"Cancelled".equals(booking.getBookingStatus())) {
+                if (tripService.increaseAvailableSeats(booking.getTripId().getId(), booking.getNumberOfSeats())) {
+                    booking.setBookingStatus("Cancelled");
+                    return bookingRepo.updateBooking(booking);
                 } else {
-                    System.err.println("BookingServiceImpl: Booking đã bị hủy.");
+                    System.err.println("BookingServiceImpl: Không thể tăng số ghế có sẵn khi hủy booking.");
                 }
             } else {
-                System.err.println("BookingServiceImpl: Booking không tồn tại.");
+                System.err.println("BookingServiceImpl: Booking đã bị hủy.");
             }
-            return false;
+        } else {
+            System.err.println("BookingServiceImpl: Booking không tồn tại.");
         }
+        return false;
+    }
 
-        @Override
-        public List<Booking> getAllBookings
-        (Map<String, String> params
-        
-            ) {
+    @Override
+    public List<Booking> getAllBookings(Map<String, String> params
+    ) {
         return bookingRepo.getAllBookings(params);
-        }
+    }
 
-        @Override
-        @Transactional
-        public boolean updateBooking
-        (Booking booking
-        
-            ) {
+    @Override
+    @Transactional
+    public boolean updateBooking(Booking booking
+    ) {
         return bookingRepo.updateBooking(booking);
-        }
+    }
 
-        @Override
-        @Transactional
-        public boolean deleteBooking
-        (int bookingId
-        
-            ) {
+    @Override
+    @Transactional
+    public boolean deleteBooking(int bookingId
+    ) {
         return bookingRepo.deleteBooking(bookingId);
-        }
+    }
 
-        @Override
-        public Booking getBookingById
-        (int bookingId
-        
-            ) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-        }
-        
-        
-        
-        
-    
+
+     @Override
+    @Transactional(readOnly = true)
+    public Booking getBookingById(int bookingId) {
+        // Vì BookingRepository.getBookingById() trả về Optional,
+        // nên ta cần lấy giá trị bên trong hoặc trả về null nếu không tìm thấy
+        Optional<Booking> booking = bookingRepo.getBookingById(bookingId);
+        return booking.orElse(null);
+    }
+
+    // ⭐ Triển khai phương thức từ interface
+    @Override
+    @Transactional(readOnly = true)
+    public List<String> getFcmTokensByTripId(int tripId) {
+        List<Booking> bookings = bookingRepo.findByTripId(tripId);
+
+        return bookings.stream()
+                .map(Booking::getUserId)
+                .map(User::getFcmToken)
+                .filter(token -> token != null && !token.isEmpty())
+                .collect(Collectors.toList());
+    }
 }

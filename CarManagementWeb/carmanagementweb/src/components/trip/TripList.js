@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import Apis, { endpoints } from "../../configs/Apis.js";
 import { useNavigate } from "react-router-dom";
 
+
 export default function TripList() {
     const [trips, setTrips] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -99,9 +100,17 @@ export default function TripList() {
                                     >
                                         Đặt vé ngay
                                     </button>
-                                    {/* Nút mới để xem đánh giá */}
+                                    {/* Nút mới để theo dõi vị trí */}
+                                    <button
+                                        style={styles.trackButton}
+                                        onClick={() => navigate(`/trips/${trip.id}/track`)}
+                                    >
+                                        Theo dõi vị trí 🗺️
+                                    </button>
+                                    {/* Nút hiện có để xem đánh giá */}
                                     <button
                                         style={styles.viewReviewsButton}
+                                        
                                         onClick={() => navigate(`/trips/${trip.id}/reviews`)}
                                     >
                                         Xem Đánh Giá
@@ -257,9 +266,9 @@ const styles = {
         paddingTop: '20px',
         borderTop: '1px solid #f0f0f0',
         textAlign: 'center',
-        display: 'flex', // Sử dụng flexbox để sắp xếp các nút
-        justifyContent: 'space-between', // Sắp xếp các nút cách đều nhau
-        gap: '10px', // Thêm khoảng cách giữa các nút
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        gap: '10px', 
     },
     viewDetailsButton: {
         backgroundColor: '#e75702',
@@ -272,10 +281,10 @@ const styles = {
         cursor: 'pointer',
         transition: 'all 0.3s ease',
         boxShadow: '0 4px 10px rgba(231, 87, 2, 0.4)',
-        flexGrow: 1, // Để nút chiếm hết không gian còn trống
+        flexGrow: 1, 
     },
     viewReviewsButton: {
-        backgroundColor: '#0d6efd', // Màu xanh dương cho nút review
+        backgroundColor: '#0d6efd',
         color: '#ffffff',
         border: 'none',
         borderRadius: '8px',
@@ -285,6 +294,20 @@ const styles = {
         cursor: 'pointer',
         transition: 'all 0.3s ease',
         boxShadow: '0 4px 10px rgba(13, 110, 253, 0.4)',
-        flexGrow: 1, // Để nút chiếm hết không gian còn trống
+        flexGrow: 1,
+    },
+    // Thêm style mới cho nút "Theo dõi vị trí"
+    trackButton: {
+        backgroundColor: '#ff9800',
+        color: '#ffffff',
+        border: 'none',
+        borderRadius: '8px',
+        padding: '10px 20px',
+        fontSize: '1em',
+        fontWeight: '700',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        boxShadow: '0 4px 10px rgba(255, 152, 0, 0.4)',
+        flexGrow: 1,
     },
 };

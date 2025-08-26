@@ -151,6 +151,12 @@
             <artifactId>rest-api-sdk</artifactId>
             <version>1.14.0</version>
         </dependency>
+        
+        <dependency>
+            <groupId>com.google.firebase</groupId>
+            <artifactId>firebase-admin</artifactId>
+            <version>9.1.1</version> <!-- Hoặc phiên bản mới nhất có sẵn -->
+        </dependency>
 
     </dependencies>
 

@@ -91,6 +91,9 @@ public class User implements Serializable {
     @Column(name = "avatar") // ⭐ THÊM DÒNG NÀY
     @Size(max = 255) // ⭐ VÀ DÒNG NÀY để giới hạn độ dài
     private String avatar; // ⭐ VÀ DÒNG NÀY
+    @Size(max = 255) // FCM tokens khá dài, nên set max = 255
+    @Column(name = "fcm_token")
+    private String fcmToken;    
 
     public User() {
     }
@@ -185,6 +188,14 @@ public class User implements Serializable {
 
     public void setAvatar(String avatar) {
         this.avatar = avatar;
+    }
+    
+    public String getFcmToken() {
+        return fcmToken;
+    }
+
+    public void setFcmToken(String fcmToken) {
+        this.fcmToken = fcmToken;
     }
 
     @Override

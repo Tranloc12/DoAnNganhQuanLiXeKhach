@@ -82,7 +82,7 @@ public class SpringSecurityConfigs {
                 .csrf(c -> c.disable())
                 // Chỉ STATELESS cho API endpoints, STATEFUL cho web endpoints
                 .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .maximumSessions(1)
                 .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(requests -> requests
@@ -142,6 +142,10 @@ public class SpringSecurityConfigs {
                 .requestMatchers(HttpMethod.POST, "/api/paypal/create-payment").authenticated() // Tạo thanh toán, cần xác thực người dùng
                 .requestMatchers(HttpMethod.GET, "/api/paypal/execute-payment").permitAll() // Endpoint PayPal redirect, cần public
                 .requestMatchers(HttpMethod.GET, "/api/payments/my").hasAnyRole("PASSENGER", "ADMIN", "MANAGER", "DRIVER")
+                //----Location BUS------
+                .requestMatchers(HttpMethod.POST, "/api/bus-locations/update").hasAnyRole("DRIVER", "STAFF", "ADMIN", "MANAGER")
+                .requestMatchers(HttpMethod.GET, "/api/bus-locations/latest/**").permitAll()
+                //---------------------------------------------------------------------------//
                 .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/gym-packages").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/gym-packages").permitAll()
@@ -163,6 +167,8 @@ public class SpringSecurityConfigs {
                 // Admin and Manager endpoints (management operations)
                 // API endpoints với JWT authentication (đặt SAU các rule cụ thể)
                 .requestMatchers("/api/current-user").hasAnyRole("PASSENGER", "ADMIN", "MANAGER", "DRIVER", "STAFF")
+                //----Notification----
+                .requestMatchers(HttpMethod.POST, "/api/users/save-fcm-token").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/secure/**").authenticated()
                 .requestMatchers(HttpMethod.POST, "/api/secure/**").authenticated()
                 .requestMatchers(HttpMethod.PUT, "/api/secure/**").authenticated()
@@ -178,7 +184,7 @@ public class SpringSecurityConfigs {
                 // Payment endpoints
                 .requestMatchers("/payment/**").authenticated()
                 .anyRequest().authenticated()
-        )
+                )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
                 .formLogin(form -> form.loginPage("/login")
                 .loginProcessingUrl("/login")
@@ -192,7 +198,6 @@ public class SpringSecurityConfigs {
     public HandlerMappingIntrospector mvcHandlerMappingIntrospector() {
         return new HandlerMappingIntrospector();
     }
-    
 
     @Bean
     @Order(0)

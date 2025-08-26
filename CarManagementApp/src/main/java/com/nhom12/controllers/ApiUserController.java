@@ -26,6 +26,9 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -241,9 +244,6 @@ public class ApiUserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Lỗi khi tải ảnh lên."));
         }
     }
-    
-    
-    
 
     // 📌 Lấy danh sách theo role
     @GetMapping("/passengers")
@@ -298,6 +298,29 @@ public class ApiUserController {
 
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(Map.of("message", "Thêm người dùng thành công"));
+    }
+
+    @PostMapping("/users/save-fcm-token")
+    public ResponseEntity<String> saveFcmToken(@RequestBody Map<String, String> payload) {
+        String fcmToken = payload.get("token");
+
+        // Lấy thông tin người dùng hiện tại từ Spring Security Context
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal().equals("anonymousUser")) {
+            return new ResponseEntity<>("Người dùng chưa được xác thực.", HttpStatus.UNAUTHORIZED);
+        }
+
+        // ⚡ Lấy username trực tiếp từ authentication
+        String username = authentication.getName();
+        User currentUser = userService.getUserByUsername(username);
+
+        if (currentUser != null) {
+            currentUser.setFcmToken(fcmToken);
+            userService.updateUser(currentUser);
+            return new ResponseEntity<>("FCM Token đã được lưu thành công!", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("Không tìm thấy người dùng.", HttpStatus.NOT_FOUND);
+        }
     }
 
 }

@@ -10,8 +10,10 @@ import com.nhom12.pojo.Bus;
 import com.nhom12.pojo.Driver;
 import com.nhom12.pojo.Route;
 import com.nhom12.pojo.Trip;
+import com.nhom12.services.BookingService;
 import com.nhom12.services.BusService;
 import com.nhom12.services.DriverService;
+import com.nhom12.services.FcmService;
 import com.nhom12.services.RouteService;
 import com.nhom12.services.TripService;
 
@@ -36,6 +38,10 @@ public class ApiTripController {
     private DriverService driverServ;
     @Autowired
     private RouteService routeServ;
+    @Autowired
+    private FcmService fcmService; // <-- Thêm dòng này
+    @Autowired
+    private BookingService bookingService; // <-- Thêm service để lấy booking
 
     // Lấy danh sách chuyến đi
     @GetMapping
@@ -51,8 +57,9 @@ public class ApiTripController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getTripById(@PathVariable("id") int id) {
         Trip trip = tripServ.getTripById(id);
-        if (trip == null)
+        if (trip == null) {
             return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(convertToDTO(trip));
     }
 
@@ -65,26 +72,52 @@ public class ApiTripController {
     // Cập nhật chuyến đi
     @PutMapping("/{id}")
     public ResponseEntity<?> updateTrip(@PathVariable("id") int id, @RequestBody TripForm tripForm) {
-        return saveOrUpdateTrip(tripForm, id);
+        Trip existingTrip = tripServ.getTripById(id);
+        if (existingTrip == null) {
+            return ResponseEntity.status(404).body("Không tìm thấy chuyến đi");
+        }
+        
+        // So sánh các trường để quyết định có gửi thông báo không
+        // Ví dụ: so sánh giờ khởi hành, giờ đến, tài xế, xe bus,...
+        boolean hasChanged = !existingTrip.getDepartureTime().equals(tripForm.getDepartureTime());
+        
+        // Gọi phương thức để lưu hoặc cập nhật chuyến đi
+        ResponseEntity<?> response = saveOrUpdateTrip(tripForm, id);
+
+        // Nếu cập nhật thành công và có thay đổi quan trọng, gửi thông báo
+        if (response.getStatusCode().is2xxSuccessful() && hasChanged) {
+            // Lấy danh sách FCM Tokens của những người đã đặt vé cho chuyến này
+            List<String> userTokens = bookingService.getFcmTokensByTripId(id);
+            
+            for (String token : userTokens) {
+                fcmService.sendNotification(
+                    token, 
+                    "Cập nhật lịch trình chuyến đi!", 
+                    "Chuyến xe " + existingTrip.getRouteId().getRouteName() + " đã có thay đổi về thời gian."
+                );
+            }
+        }
+        return response;
     }
 
     // Xóa chuyến đi
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteTrip(@PathVariable("id") int id) {
-        if (tripServ.deleteTrip(id))
+        if (tripServ.deleteTrip(id)) {
             return ResponseEntity.ok("Xóa chuyến đi thành công");
+        }
         return ResponseEntity.status(404).body("Không tìm thấy chuyến đi");
     }
 
     // ================== PRIVATE METHODS ==================
-
     private ResponseEntity<?> saveOrUpdateTrip(TripForm tripForm, Integer id) {
         try {
             Trip trip = new Trip();
             if (id != null) { // Cập nhật
                 Trip existingTrip = tripServ.getTripById(id);
-                if (existingTrip == null)
+                if (existingTrip == null) {
                     return ResponseEntity.status(404).body("Không tìm thấy chuyến đi");
+                }
                 BeanUtils.copyProperties(existingTrip, trip);
                 trip.setId(id);
             }
@@ -95,8 +128,9 @@ public class ApiTripController {
             Driver driver = driverServ.getDriverById(tripForm.getDriverId());
             Route route = routeServ.getRouteById(tripForm.getRouteId());
 
-            if (bus == null || driver == null || route == null)
+            if (bus == null || driver == null || route == null) {
                 return ResponseEntity.badRequest().body("Bus/Driver/Route không hợp lệ");
+            }
 
             trip.setBusId(bus);
             trip.setDriverId(driver);
@@ -107,8 +141,9 @@ public class ApiTripController {
                 trip.setTotalBookedSeats(0);
             }
 
-            if (tripServ.addOrUpdateTrip(trip))
+            if (tripServ.addOrUpdateTrip(trip)) {
                 return ResponseEntity.ok(convertToDTO(trip));
+            }
 
             return ResponseEntity.status(500).body("Lưu chuyến đi thất bại");
         } catch (Exception ex) {
