@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Trang chủ - Hệ thống quản lý xe khách</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+
+    <main class="container">
+        <div th:if="${currentUser != null and currentUser.userRole == 'ROLE_ADMIN'}" class="admin-dashboard">
+            <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                <h1 class="h2">Dashboard Quản trị viên</h1>
+                <div class="btn-toolbar mb-2 mb-md-0">
+                    <div class="btn-group me-2">
+                        <a th:href="@{/admin-statics}" class="btn btn-sm btn-outline-primary">
+                            <i class="fas fa-chart-bar"></i> Báo cáo thống kê
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mb-4">
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary h-100 py-2" style="border-left: 4px solid #4e73df;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Tổng người dùng
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalUsers}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-users fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-success h-100 py-2" style="border-left: 4px solid #1cc88a;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                        Hành khách
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalPassengers}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-user-friends fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info h-100 py-2" style="border-left: 4px solid #36b9cc;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Tài xế
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalDrivers}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-user-tie fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-warning h-100 py-2" style="border-left: 4px solid #f6c23e;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                        Nhân viên
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalStaff}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-dark h-100 py-2" style="border-left: 4px solid #6c757d;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-dark text-uppercase mb-1">
+                                        Quản lý
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalManagers}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-user-shield fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-danger h-100 py-2" style="border-left: 4px solid #dc3545;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                        Tổng số xe buýt
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalBuses}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-bus fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-primary h-100 py-2" style="border-left: 4px solid #007bff;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                        Tổng số chuyến đi
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalTrips}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-route fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-xl-3 col-md-6 mb-4">
+                    <div class="card border-left-info h-100 py-2" style="border-left: 4px solid #17a2b8;">
+                        <div class="card-body">
+                            <div class="row no-gutters align-items-center">
+                                <div class="col mr-2">
+                                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                        Tổng số tuyến đường
+                                    </div>
+                                    <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${totalRoutes}">0</div>
+                                </div>
+                                <div class="col-auto">
+                                    <i class="fas fa-map-marked-alt fa-2x text-gray-300"></i>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Danh sách người dùng</h6>
+                    <div class="dropdown no-arrow">
+                        <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="fas fa-ellipsis-v fa-sm fa-fw text-gray-400"></i>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-right shadow">
+                            <div class="dropdown-header">Hành động:</div>
+                            <a class="dropdown-item" th:href="@{/users/add}">Thêm người dùng</a>
+                            <a class="dropdown-item" th:href="@{/drivers}">Danh sách tài xế</a>
+                            <a class="dropdown-item" th:href="@{/passengers}">Danh sách hành khách</a>
+                            <a class="dropdown-item" th:href="@{/staff}">Danh sách nhân viên</a>
+                            <a class="dropdown-item" th:href="@{/managers}">Danh sách quản lý</a>
+                            <div class="dropdown-divider"></div>
+                            <a class="dropdown-item" th:href="@{/users}">Tất cả người dùng</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <div th:if="${users == null or users.isEmpty()}" class="alert alert-warning">
+                            Không có dữ liệu người dùng để hiển thị. Vui lòng kiểm tra cơ sở dữ liệu hoặc logic Controller.
+                        </div>
+                        <table class="table table-bordered" width="100%" cellspacing="0">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Vai trò</th>
+                                    <th>Trạng thái</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                
+                                <tr th:each="user : ${users}">
+                                    <td th:text="${user.id}"></td>
+                                    <td th:text="${user.username}"></td>
+                                    <td th:text="${user.email}"></td>
+                                    <td>
+                                        <span th:if="${user.userRole == 'ROLE_ADMIN'}" class="badge bg-danger">Quản trị viên</span>
+                                        <span th:if="${user.userRole == 'ROLE_MANAGER'}" class="badge bg-warning">Quản lý</span>
+                                        <span th:if="${user.userRole == 'ROLE_DRIVER'}" class="badge bg-info">Tài xế</span>
+                                        <span th:if="${user.userRole == 'ROLE_PASSENGER'}" class="badge bg-success">Hành khách</span>
+                                        <span th:if="${user.userRole == 'ROLE_STAFF'}" class="badge bg-primary">Nhân viên</span>
+                                    </td>
+                                    <td>
+                                        <span th:if="${user.isActive}" class="badge bg-success">Hoạt động</span>
+                                        <span th:unless="${user.isActive}" class="badge bg-secondary">Không hoạt động</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div th:unless="${currentUser != null and currentUser.userRole == 'ROLE_ADMIN'}">
+            <h1>Chào mừng bạn đến với hệ thống quản lý xe khách!</h1>
+            <p>Vui lòng đăng nhập hoặc liên hệ quản trị viên để biết thêm chi tiết.</p>
+        </div>
+    </main>
+
+    <div th:replace="base :: footer"></div>
+
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

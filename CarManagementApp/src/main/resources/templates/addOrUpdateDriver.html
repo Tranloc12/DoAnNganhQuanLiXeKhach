@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <title th:text="${driverForm.id != null and driverForm.id > 0 ? 'Cập nhật Tài xế' : 'Thêm Tài xế mới'}"></title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+
+    <main class="container mt-4">
+        <h1 class="h2 mb-3" th:text="${driverForm.id != null and driverForm.id > 0 ? 'Cập nhật Tài xế' : 'Thêm Tài xế mới'}"></h1>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <form th:action="@{/drivers/add-or-update}" th:object="${driverForm}" method="post" class="needs-validation" novalidate>
+            <input type="hidden" th:field="*{id}" />
+
+            <div class="mb-3">
+                <label for="userId" class="form-label">Người dùng liên kết (Tên đăng nhập):</label>
+                <select th:field="*{userId}" class="form-select" id="userId" required>
+                    <option value="">-- Chọn Người dùng --</option>
+                    <option th:each="user : ${users}"
+                            th:value="${user.id}"
+                            th:text="${user.username}"
+                            th:selected="${user.id == driverForm.userId}"></option>
+                </select>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="licenseNumber" class="form-label">Số giấy phép:</label>
+                <input type="text" th:field="*{licenseNumber}" class="form-control" id="licenseNumber" required />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('licenseNumber')}" th:errors="*{licenseNumber}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="licenseType" class="form-label">Loại giấy phép:</label>
+                <input type="text" th:field="*{licenseType}" class="form-control" id="licenseType" />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('licenseType')}" th:errors="*{licenseType}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="dateOfIssue" class="form-label">Ngày cấp:</label>
+                <input type="date" th:field="*{dateOfIssue}" class="form-control" id="dateOfIssue" />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('dateOfIssue')}" th:errors="*{dateOfIssue}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="dateOfExpiry" class="form-label">Ngày hết hạn:</label>
+                <input type="date" th:field="*{dateOfExpiry}" class="form-control" id="dateOfExpiry" />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('dateOfExpiry')}" th:errors="*{dateOfExpiry}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="contactNumber" class="form-label">Số điện thoại liên hệ:</label>
+                <input type="text" th:field="*{contactNumber}" class="form-control" id="contactNumber" />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('contactNumber')}" th:errors="*{contactNumber}"></div>
+            </div>
+
+            <div class="mb-3">
+                <label for="address" class="form-label">Địa chỉ:</label>
+                <input type="text" th:field="*{address}" class="form-control" id="address" />
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+            </div>
+
+            <div class="mb-3 form-check">
+                <input type="checkbox" th:field="*{isActive}" class="form-check-input" id="isActive" />
+                <label class="form-check-label" for="isActive">Tài xế đang hoạt động</label>
+                <div class="invalid-feedback" th:if="${#fields.hasErrors('isActive')}" th:errors="*{isActive}"></div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Lưu tài xế</button>
+            <a th:href="@{/drivers}" class="btn btn-secondary">Hủy</a>
+        </form>
+    </main>
+
+    <div th:replace="base :: footer"></div>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

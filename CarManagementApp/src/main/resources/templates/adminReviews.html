@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Quản lý Đánh giá</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <th:block th:replace="~{base :: header}"></th:block>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Danh sách Tất cả Đánh giá</h1>
+
+        <form th:action="@{/admin/reviews}" method="get" class="mb-3">
+            <div class="input-group">
+                <input type="text" name="kw" class="form-control" 
+                       placeholder="Tìm kiếm theo username, tuyến đường, nội dung..." 
+                       th:value="${kw}">
+                <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            </div>
+        </form>
+
+        <div th:if="${infoMessage}" class="alert alert-info" role="alert">
+            <p th:text="${infoMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <p th:text="${errorMessage}"></p>
+        </div>
+        <div th:if="${successMessage}" class="alert alert-success" role="alert">
+            <p th:text="${successMessage}"></p>
+        </div>
+
+        <div th:if="${reviews != null and not reviews.isEmpty()}">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Mã ĐG</th>
+                        <th>Người đánh giá</th>
+                        <th>Chuyến đi</th>
+                        <th>Xếp hạng</th>
+                        <th>Nội dung</th>
+                        <th>Ngày đánh giá</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="review : ${reviews}">
+                        <td th:text="${review.id}"></td>
+                        <td th:text="${review.userId != null ? review.userId.username : 'N/A'}"></td>
+                        <td th:text="${review.tripId != null && review.tripId.routeId != null ? 
+                                       review.tripId.routeId.origin + ' - ' + review.tripId.routeId.destination : 'N/A'}"></td>
+                        <td>
+                            <span th:each="i : ${#numbers.sequence(1, review.rating)}" class="text-warning">
+                                <i class="fas fa-star"></i>
+                            </span>
+                        </td>
+                        <td th:text="${review.comment}"></td>
+                        <td th:text="${#temporals.format(review.createdAt, 'dd-MM-yyyy HH:mm:ss')}"></td> <td>
+                            <form th:action="@{'/admin/reviews/delete/' + ${review.id}}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-danger btn-sm" 
+                                        onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này không? Đây là hành động không thể hoàn tác.');">Xóa</button>
+                            </form>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:unless="${reviews != null and not reviews.isEmpty()}" class="alert alert-info text-center mt-3">
+            Hiện chưa có đánh giá nào trong hệ thống.
+        </div>
+    </div>
+
+    <th:block th:replace="~{base :: footer}"></th:block>
+</body>
+</html>

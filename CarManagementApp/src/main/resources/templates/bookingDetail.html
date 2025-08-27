@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Chi tiết Đặt chỗ</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+    <style>
+        .card-header {
+            background-color: #007bff; /* Màu xanh dương cho header */
+            color: white;
+            font-weight: bold;
+            font-size: 1.25rem;
+        }
+        .card-body strong {
+            color: #343a40; /* Màu xám đậm cho các nhãn */
+        }
+        .detail-item {
+            margin-bottom: 0.75rem;
+        }
+        .detail-item strong {
+            display: inline-block;
+            width: 150px; /* Cố định chiều rộng nhãn để căn chỉnh */
+        }
+        ul.trip-info-list {
+            list-style: none; /* Bỏ dấu chấm đầu dòng */
+            padding-left: 0;
+        }
+        ul.trip-info-list li {
+            margin-bottom: 0.5rem;
+        }
+        .action-buttons {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px; /* Khoảng cách giữa các nút */
+        }
+    </style>
+</head>
+<body>
+    <th:block th:replace="~{base :: header}"></th:block>
+
+    <div class="container mt-5">
+        <h1 class="mb-4 text-center text-primary">Chi tiết Đặt chỗ</h1>
+
+        <div th:if="${booking == null}" class="alert alert-warning text-center" role="alert">
+            <i class="fas fa-exclamation-triangle"></i> Không tìm thấy thông tin đặt chỗ này.
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger text-center" role="alert">
+            <i class="fas fa-times-circle"></i> <span th:text="${errorMessage}"></span>
+        </div>
+
+        <div th:if="${booking != null}">
+            <div class="card shadow-lg border-0">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <span>Thông tin Đặt chỗ #<span th:text="${booking.id}"></span></span>
+                    <a th:href="@{/admin/bookings}" class="btn btn-light btn-sm">
+                        <i class="fas fa-arrow-left"></i> Quay lại Danh sách
+                    </a>
+                </div>
+                <div class="card-body p-4">
+                    <h5 class="card-title mb-4">
+                        <i class="fas fa-user-circle text-info me-2"></i> Khách hàng: 
+                        <span th:if="${booking.userId != null}" th:text="${booking.userId.username}" class="fw-bold text-dark"></span>
+                        <span th:unless="${booking.userId != null}" class="text-muted">N/A</span>
+                    </h5>
+                    
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="detail-item"><strong>Mã Đặt chỗ:</strong> <span th:text="${booking.id}"></span></div>
+                            <div class="detail-item">
+                                <strong>Chuyến đi:</strong> 
+                                <span th:if="${booking.tripId != null && booking.tripId.routeId != null}" 
+                                      th:text="${booking.tripId.routeId.origin + ' → ' + booking.tripId.routeId.destination}" class="fw-bold"></span>
+                                <span th:unless="${booking.tripId != null && booking.tripId.routeId != null}" class="text-muted">N/A</span>
+                                (<span th:text="${#temporals.format(booking.tripId.departureTime, 'dd-MM-yyyy HH:mm')}"></span>)
+                            </div>
+                            <div class="detail-item"><strong>Số ghế đã đặt:</strong> <span th:text="${booking.numberOfSeats}" class="fw-bold text-primary"></span></div>
+                            <div class="detail-item"><strong>Ghế cụ thể:</strong> <span th:text="${booking.seatNumbers}" class="fw-bold text-success"></span></div>
+                            <div class="detail-item">
+                                <strong>Tổng tiền:</strong> <span th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'" class="fw-bold text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="detail-item"><strong>Trạng thái Thanh toán:</strong> 
+                                <span th:text="${booking.paymentStatus}" 
+                                      th:classappend="${booking.paymentStatus == 'Paid' ? 'badge bg-success' : 'badge bg-warning text-dark'}"></span>
+                            </div>
+                            <div class="detail-item"><strong>Trạng thái Đặt chỗ:</strong> 
+                                <span th:text="${booking.bookingStatus}" 
+                                      th:classappend="${booking.bookingStatus == 'Confirmed' ? 'badge bg-success' : 
+                                                      (booking.bookingStatus == 'Cancelled' ? 'badge bg-danger' : 'badge bg-info')}"></span>
+                            </div>
+                            <div class="detail-item"><strong>Ngày đặt:</strong> <span th:text="${#temporals.format(booking.bookingDate, 'dd-MM-yyyy HH:mm:ss')}"></span></div>
+                        </div>
+                    </div>
+                    
+                    <hr class="my-4"/>
+                    
+                    <h6><i class="fas fa-info-circle text-primary me-2"></i> Thông tin thêm về Chuyến đi:</h6>
+                    <ul th:if="${booking.tripId != null}" class="trip-info-list">
+                        <li><strong>Tuyến:</strong> <span th:if="${booking.tripId.routeId != null}" th:text="${booking.tripId.routeId.routeName}"></span></li>
+                        <li><strong>Xe:</strong> <span th:if="${booking.tripId.busId != null}" th:text="${booking.tripId.busId.licensePlate}"></span></li>
+                        <li><strong>Tài xế:</strong> <span th:if="${booking.tripId.driverId != null}" th:text="${booking.tripId.driverId.username}"></span></li>
+                        <li><strong>Thời gian khởi hành:</strong> <span th:text="${#temporals.format(booking.tripId.departureTime, 'dd-MM-yyyy HH:mm')}"></span></li>
+                        <li><strong>Số ghế còn trống:</strong> <span th:text="${booking.tripId.availableSeats}"></span></li>
+                    </ul>
+                    <ul th:unless="${booking.tripId != null}" class="text-muted">
+                        <li>Không có thông tin chuyến đi chi tiết.</li>
+                    </ul>
+
+                    <hr class="my-4"/>
+
+                    <div class="action-buttons">
+                        <form th:action="@{'/admin/bookings/cancel/' + ${booking.id}}" method="post" style="display:inline;">
+                            <button type="submit" class="btn btn-warning" 
+                                    th:if="${booking.bookingStatus != 'Cancelled'}" 
+                                    onclick="return confirm('Bạn có chắc chắn muốn hủy đặt chỗ này không?');">
+                                <i class="fas fa-ban"></i> Hủy Đặt chỗ
+                            </button>
+                        </form>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:replace="~{base :: footer}"></th:block>
+</body>
+</html>

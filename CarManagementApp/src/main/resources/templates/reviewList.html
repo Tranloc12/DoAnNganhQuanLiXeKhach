@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Quản lý Đánh Giá</title>
+    <th:block th:replace="base :: styles"></th:block>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .table thead {
+            background-color: #f8f9fa;
+        }
+
+        h1, h3 {
+            color: #343a40;
+        }
+
+        .container {
+            max-width: 1200px; /* Tăng chiều rộng */
+        }
+
+        .alert {
+            margin-top: 1rem;
+        }
+
+        .btn-sm {
+            margin-right: 5px;
+        }
+
+        .rating-cell {
+            text-align: center;
+        }
+
+        .comment-cell {
+            max-width: 200px;
+            white-space: normal;
+            word-wrap: break-word;
+        }
+
+        .table tbody tr:hover {
+            background-color: #f1f3f5;
+        }
+
+        .tooltip-inner {
+            max-width: 300px;
+            text-align: left;
+        }
+
+        .table td:last-child {
+            min-width: 120px; /* Đảm bảo cột Hành động hiển thị */
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+    <div class="container mt-5 mb-5">
+        <div class="text-center mb-4">
+            <h1 class="display-6">Quản Lý Đánh Giá</h1>
+            <p class="text-muted">Theo dõi và quản lý các đánh giá từ người dùng</p>
+        </div>
+
+        
+
+        <!-- Hiển thị điểm đánh giá trung bình nếu có -->
+        <div th:if="${averageRating != null}" class="mb-3 p-3 bg-light border rounded">
+            <h5>Điểm Đánh Giá Trung Bình của Subscription 
+                <span th:text="${subscriptionId}">N/A</span> là: 
+                <span th:text="${#numbers.formatDecimal(averageRating, 1, 2)}"></span>
+            </h5>
+        </div>
+
+        <!-- Thông báo -->
+        <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
+        <div th:if="${errorMessage}" class="alert alert-danger" th:text="${errorMessage}"></div>
+
+        <!-- Bảng đánh giá -->
+        <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">Danh Sách Đánh Giá</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light text-center">
+                            <tr>
+                                <th>ID</th>
+                                <th>Mã Subscription</th>
+                                <th>Hội viên</th>
+                                <th>HLV</th>
+                                <th>Gói tập</th>
+                                <th>Đánh giá</th>
+                                <th>Đánh giá HLV</th>
+                                <th>Đánh giá Gói tập</th>
+                                <th>Đánh giá Phòng Gym</th>
+                                <th>Ngày tạo</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            <tr th:each="r : ${reviews}">
+                                <td class="text-center" th:text="${r.id}"></td>
+                                <td class="text-center" th:text="${r.subscriptionId?.id}"></td>
+                                <td class="text-center" th:text="${r.subscriptionId?.memberId?.username}">HV</td>
+                                <td class="text-center" th:text="${r.subscriptionId?.trainerId?.username}">PT</td>
+                                <td class="text-center" th:text="${r.subscriptionId?.packageId?.namePack}">Gói</td>
+                                <td class="rating-cell" th:text="${r.rating}"></td>
+                                <td class="comment-cell" th:text="${r.reviewTrainer}" data-bs-toggle="tooltip" th:title="${r.reviewTrainer}"></td>
+                                <td class="comment-cell" th:text="${r.reviewPack}" data-bs-toggle="tooltip" th:title="${r.reviewPack}"></td>
+                                <td class="comment-cell" th:text="${r.reviewGym}" data-bs-toggle="tooltip" th:title="${r.reviewGym}"></td>
+                                <td class="text-center">
+                                    <span th:if="${r.createdAt != null}" th:text="${#dates.format(r.createdAt, 'dd/MM/yyyy')}">N/A</span>
+                                    <span th:unless="${r.createdAt != null}">N/A</span>
+                                </td>
+                                <td class="text-center">
+                                    <span th:if="${r.id == null}">ID Null</span>
+                                    <a th:if="${r.id != null}" th:onclick="'showDeleteModal(\'' + @{/reviews/{id}/delete(id=${r.id})} + '\')'" 
+                                       class="btn btn-sm btn-danger">Xóa</a>
+                                </td>
+                            </tr>
+                            <tr th:if="${reviews.isEmpty()}">
+                                <td colspan="8" class="text-center">Không có đánh giá nào.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+    <!-- Modal xác nhận xóa -->
+    <div class="modal fade" id="deleteModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Xác nhận Xóa</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Bạn có chắc muốn xóa đánh giá này?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Hủy</button>
+                    <a id="confirmDelete" class="btn btn-danger">Xóa</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Khởi tạo tooltip
+        var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+            return new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+
+        // Hiển thị modal xóa
+        function showDeleteModal(url) {
+            console.log("Delete URL:", url); // Debug
+            document.getElementById('confirmDelete').setAttribute('href', url);
+            new bootstrap.Modal(document.getElementById('deleteModal')).show();
+        }
+    </script>
+    <div th:replace="base :: footer"></div>
+</body>
+</html>

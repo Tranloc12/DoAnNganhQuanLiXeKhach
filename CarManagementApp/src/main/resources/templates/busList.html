@@ -1,0 +1,98 @@
+
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+<head>
+    <title>Quản lý Xe buýt</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+
+<body>
+    <div th:replace="base :: header"></div>
+
+    <main class="container mt-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Quản lý Xe buýt</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <a th:href="@{/buses/add-or-update}" class="btn btn-sm btn-primary">
+                    <i class="fas fa-plus-circle"></i> Thêm xe buýt mới
+                </a>
+            </div>
+        </div>
+
+        <!-- Thanh tìm kiếm -->
+        <form th:action="@{/buses}" method="get" class="mb-3">
+            <div class="input-group">
+                <input type="text" name="kw" class="form-control" th:value="${kw}" placeholder="Tìm kiếm theo biển số, kiểu xe...">
+                <button class="btn btn-outline-secondary" type="submit">Tìm kiếm</button>
+            </div>
+        </form>
+
+        <!-- Thông báo thành công/thất bại -->
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Danh sách Xe buýt</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Biển số xe</th>
+                                <th>Kiểu xe</th>
+                                <th>Sức chứa</th>
+                                <th>Năm sản xuất</th>
+                                <th>Trạng thái</th>
+                                <th>Mô tả</th>
+                                <th>Hoạt động</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="bus : ${buses}">
+                                <td th:text="${bus.id}"></td>
+                                <td th:text="${bus.licensePlate}"></td>
+                                <td th:text="${bus.model}"></td>
+                                <td th:text="${bus.capacity}"></td>
+                                <td th:text="${bus.yearManufacture}"></td>
+                                <td th:text="${bus.status}"></td>
+                                <td th:text="${bus.description}"></td>
+                                <td>
+                                    <span th:if="${bus.isActive}" class="badge bg-success">Hoạt động</span>
+                                    <span th:unless="${bus.isActive}" class="badge bg-secondary">Không hoạt động</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/buses/add-or-update(id=${bus.id})}" class="btn btn-sm btn-warning me-2">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <a th:href="@{/buses/delete/{id}(id=${bus.id})}" class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa xe buýt này không?');">
+                                        <i class="fas fa-trash-alt"></i> Xóa
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${buses.isEmpty()}">
+                                <td colspan="9" class="text-center">Không có xe buýt nào.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="base :: footer"></div>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+
+</html>

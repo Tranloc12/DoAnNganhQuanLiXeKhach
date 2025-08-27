@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <title>Quản lý Tài xế</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+
+    <main class="container mt-4">
+        <h1 class="h2 mb-3">Danh sách Tài xế</h1>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="row mb-3">
+            <div class="col-md-6">
+                <form th:action="@{/drivers}" method="get" class="d-flex">
+                    <input type="text" name="kw" class="form-control me-2" placeholder="Tìm kiếm theo tên người dùng, số giấy phép, số điện thoại..." th:value="${kw}" />
+                    <button type="submit" class="btn btn-info">Tìm kiếm</button>
+                </form>
+            </div>
+            <div class="col-md-6 text-end">
+                <a th:href="@{/drivers/add-or-update}" class="btn btn-success">Thêm Tài xế mới</a>
+            </div>
+        </div>
+
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Tên người dùng</th>
+                    <th>Số giấy phép</th>
+                    <th>Loại giấy phép</th>
+                    <th>Ngày cấp</th>
+                    <th>Ngày hết hạn</th>
+                    <th>Liên hệ</th>
+                    <th>Địa chỉ</th>
+                    <th>Trạng thái hoạt động</th>
+                    <th>Hành động</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:if="${drivers == null or drivers.empty}">
+                    <td colspan="10" class="text-center text-muted">Không tìm thấy tài xế nào.</td>
+                </tr>
+                <tr th:each="driver : ${drivers}">
+                    <td th:text="${driver.id}"></td>
+                    <td th:text="${driver.userId != null ? driver.userId.username : 'N/A'}"></td>
+                    <td th:text="${driver.licenseNumber}"></td>
+                    <td th:text="${driver.licenseType}"></td>
+                    <td th:text="${driver.dateOfIssue != null ? #dates.format(driver.dateOfIssue, 'dd-MM-yyyy') : 'N/A'}"></td>
+                    <td th:text="${driver.dateOfExpiry != null ? #dates.format(driver.dateOfExpiry, 'dd-MM-yyyy') : 'N/A'}"></td>
+                    <td th:text="${driver.contactNumber}"></td>
+                    <td th:text="${driver.address}"></td>
+                    <td>
+                        <span th:if="${driver.isActive}" class="badge bg-success">Hoạt động</span>
+                        <span th:unless="${driver.isActive}" class="badge bg-danger">Không hoạt động</span>
+                    </td>
+                    <td>
+                        <a th:href="@{/drivers/add-or-update(id=${driver.id})}" class="btn btn-warning btn-sm">Sửa</a>
+                        <a th:href="@{/drivers/delete/{id}(id=${driver.id})}" class="btn btn-danger btn-sm"
+                           onclick="return confirm('Bạn có chắc chắn muốn xóa tài xế này không?');">Xóa</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </main>
+
+    <div th:replace="base :: footer"></div>
+    <script th:src="@{/js/main.js}"></script>
+</body>
+</html>

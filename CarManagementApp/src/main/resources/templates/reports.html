@@ -1,0 +1,257 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Báo cáo thống kê</title>
+    <th:block th:replace="base :: styles"></th:block>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .stats-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+        }
+        .stats-card:hover {
+            transform: translateY(-5px);
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+
+    <main class="container">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Báo cáo thống kê</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <form method="get" class="d-flex">
+                    <select name="month" class="form-select form-select-sm me-2">
+                        <option th:each="i : ${#numbers.sequence(1, 12)}" 
+                                th:value="${i}" 
+                                th:text="${'Tháng ' + i}"
+                                th:selected="${i == selectedMonth}"></option>
+                    </select>
+                    <select name="year" class="form-select form-select-sm me-2">
+                        <option th:each="i : ${#numbers.sequence(2020, 2030)}" 
+                                th:value="${i}" 
+                                th:text="${i}"
+                                th:selected="${i == selectedYear}"></option>
+                    </select>
+                    <button type="submit" class="btn btn-sm btn-primary">
+                        <i class="fas fa-search"></i> Xem
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Member Statistics -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3>Thống kê hội viên - Tháng <span th:text="${selectedMonth}"></span>/<span th:text="${selectedYear}"></span></h3>
+            </div>
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card stats-card border-left-primary h-100 py-2" style="border-left: 4px solid #4e73df;">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Tổng hội viên
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${memberStats.totalMembers}">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-users fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card stats-card border-left-success h-100 py-2" style="border-left: 4px solid #1cc88a;">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Hội viên mới
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${memberStats.newMembers}">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-plus fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card stats-card border-left-info h-100 py-2" style="border-left: 4px solid #36b9cc;">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Hội viên hoạt động
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${memberStats.activeMembers}">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-user-check fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Revenue Statistics -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3>Thống kê doanh thu</h3>
+            </div>
+            <div class="col-xl-6 col-md-6 mb-4">
+                <div class="card stats-card border-left-warning h-100 py-2" style="border-left: 4px solid #f6c23e;">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Tổng doanh thu
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${revenueStats.formattedRevenue + ' VNĐ'}">0 VNĐ</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-6 col-md-6 mb-4">
+                <div class="card stats-card border-left-danger h-100 py-2" style="border-left: 4px solid #e74a3b;">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
+                                    Gói tập mới
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${revenueStats.newSubscriptions}">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-shopping-cart fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Statistics -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <h3>Thống kê sử dụng phòng tập</h3>
+            </div>
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card stats-card border-left-success h-100 py-2" style="border-left: 4px solid #1cc88a;">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                    Tổng buổi tập
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${usageStats.totalWorkouts}">0</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-dumbbell fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-4 col-md-6 mb-4">
+                <div class="card stats-card border-left-info h-100 py-2" style="border-left: 4px solid #36b9cc;">
+                    <div class="card-body">
+                        <div class="row no-gutters align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Khung giờ peak
+                                </div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800" th:text="${usageStats.peakHour}">00:00</div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clock fa-2x text-gray-300"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Usage Chart -->
+        <div class="row">
+            <div class="col-12">
+                <div class="card shadow mb-4">
+                    <div class="card-header py-3">
+                        <h6 class="m-0 font-weight-bold text-primary">Mức độ sử dụng phòng tập theo khung giờ</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="chart-container">
+                            <canvas id="usageChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="base :: footer"></div>
+
+    <script th:src="@{/js/main.js}"></script>
+    <script th:inline="javascript">
+        // Dữ liệu từ server
+        const hourlyData = /*[[${usageStats.hourlyUsage}]]*/ [];
+        
+        // Tạo chart
+        const ctx = document.getElementById('usageChart').getContext('2d');
+        const usageChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: hourlyData.map(item => item.label),
+                datasets: [{
+                    label: 'Số buổi tập',
+                    data: hourlyData.map(item => item.count),
+                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                },
+                plugins: {
+                    title: {
+                        display: true,
+                        text: 'Mức độ sử dụng phòng tập theo khung giờ'
+                    },
+                    legend: {
+                        display: false
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>

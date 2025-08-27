@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Html.html to edit this template
+-->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title>Quản lý Đặt chỗ</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+</head>
+<body>
+    <th:block th:replace="~{base :: header}"></th:block>
+
+    <div class="container mt-4">
+        <h1 class="mb-4">Danh sách Tất cả Đặt chỗ</h1>
+
+        <form th:action="@{/admin/bookings}" method="get" class="mb-3">
+            <div class="input-group">
+                <input type="text" name="kw" class="form-control" 
+                       placeholder="Tìm kiếm theo username, email, điểm đi/đến..." 
+                       th:value="${kw}"> <button type="submit" class="btn btn-primary">Tìm kiếm</button>
+            </div>
+        </form>
+
+        <div th:if="${infoMessage}" class="alert alert-info" role="alert">
+            <p th:text="${infoMessage}"></p>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger" role="alert">
+            <p th:text="${errorMessage}"></p>
+        </div>
+
+        <div th:if="${bookings != null and not bookings.isEmpty()}">
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>Mã ĐC</th>
+                        <th>Khách hàng</th>
+                        <th>Chuyến đi</th>
+                        <th>Số ghế</th>
+                        <th>Số ghế cụ thể</th>
+                        <th>Tổng tiền</th>
+                        <th>Trạng thái TT</th>
+                        <th>Trạng thái ĐC</th>
+                        <th>Ngày đặt</th>
+                        <th>Thao tác</th> </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="booking : ${bookings}">
+                        <td th:text="${booking.id}"></td>
+                        <td th:text="${booking.userId != null ? booking.userId.username : 'N/A'}"></td>
+                        <td th:text="${booking.tripId != null && booking.tripId.routeId != null ? 
+                                       booking.tripId.routeId.origin + ' - ' + booking.tripId.routeId.destination : 'N/A'}"></td>
+                        <td th:text="${booking.numberOfSeats}"></td>
+                        <td th:text="${booking.seatNumbers}"></td>
+                        <td th:text="${#numbers.formatDecimal(booking.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' VNĐ'"></td>
+                        <td th:text="${booking.paymentStatus}"></td>
+                        <td th:text="${booking.bookingStatus}"></td>
+                        <td th:text="${#temporals.format(booking.bookingDate, 'dd-MM-yyyy HH:mm:ss')}"></td>
+                        <td>
+                           <a th:href="@{'/admin/bookings/detail/' + ${booking.id}}" class="btn btn-info btn-sm">Chi tiết</a>
+                            <form th:action="@{'/admin/bookings/cancel/' + ${booking.id}}" method="post" style="display:inline;">
+                                <button type="submit" class="btn btn-warning btn-sm" 
+                                        th:if="${booking.bookingStatus != 'Cancelled'}" 
+                                        onclick="return confirm('Bạn có chắc chắn muốn hủy đặt chỗ này không?');">Hủy</button>
+                            </form>
+                            </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div th:unless="${bookings != null and not bookings.isEmpty()}" class="alert alert-info text-center mt-3">
+            Hiện chưa có đặt chỗ nào trong hệ thống.
+        </div>
+    </div>
+
+    <th:block th:replace="~{base :: footer}"></th:block>
+</body>
+</html>
