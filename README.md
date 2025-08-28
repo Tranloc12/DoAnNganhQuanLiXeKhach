@@ -41,18 +41,11 @@ The system is built with **Spring Boot (backend)** and **ReactJS (frontend)**, a
 
 
 
-
-
 ##  Installation
 
 Clone the repository:
 ```bash
 git clone https://github.com/your-username/car-management-app.git
 cd car-management-app
-
-  
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for details.
 
 
