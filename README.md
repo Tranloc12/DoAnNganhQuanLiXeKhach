@@ -1,5 +1,4 @@
-<img width="1170" height="818" alt="image" src="https://github.com/user-attachments/assets/1803aace-0729-4fa3-afcd-416a2dab3f0e" />#  Car Management System 
-
+# Car Management System
 This project provides a **Car Management System** with features such as ticket booking, trip management, user management, driver assignment, and trip tracking.  
 The system is built with **Spring Boot (backend)** and **ReactJS (frontend)**, and supports multiple roles: **Admin, Staff, Driver, and Passenger**.
 
