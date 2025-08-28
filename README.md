@@ -1,4 +1,4 @@
-#  Car Management System (CarManagementApp)
+#  Car Management System 
 
 This project provides a **Car Management System** with features such as ticket booking, trip management, user management, driver assignment, and trip tracking.  
 The system is built with **Spring Boot (backend)** and **ReactJS (frontend)**, and supports multiple roles: **Admin, Staff, Driver, and Passenger**.
@@ -32,7 +32,6 @@ The system is built with **Spring Boot (backend)** and **ReactJS (frontend)**, a
 ### **Others**
 - Firebase (Notifications, Real-time trip tracking)  
 - PayPal API (Payment integration)
-- 
 
 ##  Installation
 
@@ -41,7 +40,9 @@ Clone the repository:
 git clone https://github.com/your-username/car-management-app.git
 cd car-management-app
 
-
+  
 ## License
 
 This project is licensed under the MIT License. See the LICENSE file for details.
+
+
