@@ -40,6 +40,38 @@ The system is built with **Spring Boot (backend)** and **ReactJS (frontend)**, a
 <img width="996" height="839" alt="image" src="https://github.com/user-attachments/assets/41515bcd-61ab-4cf3-bf0f-5cc3f35f708e" />
 
 
+## ⚙️ Configuration
+
+### **Backend (Spring Boot)**
+- IDE: **NetBeans 15+** (hoặc IntelliJ / Eclipse nếu cần)
+- Java version: **JDK 17+**
+- Build tool: **Maven**
+- Application server: Embedded **Tomcat**
+- Dependencies: Spring Boot, Spring Security (JWT), Spring Data JPA, MySQL Connector
+- Database: **MySQL 8.0+**
+  - Create a database named: `car_management`
+  - Update your `application.properties` (or `application.yml`):
+    ```properties
+    spring.datasource.url=jdbc:mysql://localhost:3306/car_management?useSSL=false&serverTimezone=UTC
+    spring.datasource.username=root
+    spring.datasource.password=your_password
+    spring.jpa.hibernate.ddl-auto=update
+    spring.jpa.show-sql=true
+    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+    jwt.secret=your_jwt_secret
+    ```
+
+### **Frontend (ReactJS)**
+- IDE: **Visual Studio Code**
+- Node.js: **v18+**
+- Package manager: **npm** hoặc **yarn**
+- Dependencies: React, React Router, Axios, TailwindCSS, ShadCN UI
+- Run the project:
+  ```bash
+  cd frontend
+  yarn install
+  yarn start
+
 
 ##  Installation
 
@@ -47,5 +79,10 @@ Clone the repository:
 ```bash
 git clone https://github.com/your-username/car-management-app.git
 cd car-management-app
+
+
+##  License
+
+This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
 
 
