@@ -1,4 +1,4 @@
-#  Car Management System 
+<img width="1170" height="818" alt="image" src="https://github.com/user-attachments/assets/1803aace-0729-4fa3-afcd-416a2dab3f0e" />#  Car Management System 
 
 This project provides a **Car Management System** with features such as ticket booking, trip management, user management, driver assignment, and trip tracking.  
 The system is built with **Spring Boot (backend)** and **ReactJS (frontend)**, and supports multiple roles: **Admin, Staff, Driver, and Passenger**.
@@ -15,23 +15,34 @@ The system is built with **Spring Boot (backend)** and **ReactJS (frontend)**, a
 -  **Notifications** (via Firebase if enabled)  
 
 
-## Technologies Used
-### **Frontend**
-- ReactJS, React Router  
-- Axios (API requests)  
-- TailwindCSS + ShadCN UI  
+## 🛠️ Technologies Used
 
-### **Backend**
-- Java Spring Boot  
-- Spring Security (JWT Authentication)  
-- RESTful API  
+### Frontend
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white)
+![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
+![ShadCN UI](https://img.shields.io/badge/Shadcn_UI-000000?style=for-the-badge&logo=shadcn&logoColor=white)
 
-### **Database**
-- MySQL 8.0+  
+### Backend
+![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
+![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
+![REST API](https://img.shields.io/badge/REST-02569B?style=for-the-badge&logo=rest&logoColor=white)
 
-### **Others**
-- Firebase (Notifications, Real-time trip tracking)  
-- PayPal API (Payment integration)
+### Database
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
+
+### Others
+![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
+![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)
+
+### Database
+<img width="996" height="839" alt="image" src="https://github.com/user-attachments/assets/41515bcd-61ab-4cf3-bf0f-5cc3f35f708e" />
+
+
+
+
 
 ##  Installation
 
