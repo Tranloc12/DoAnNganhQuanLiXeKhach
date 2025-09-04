@@ -14,4 +14,7 @@ public interface BusService {
     boolean deleteBus(int id);
     boolean isLicensePlateExist(String licensePlate, Integer excludeBusId);
     long countBuses(); // Thêm phương thức để đếm tổng số xe
+     // Đã cập nhật phương thức findBuses để khớp với POJO
+    List<Bus> findBuses(String licensePlate, String model, Integer capacity, Integer yearManufacture, String status);
+    
 }

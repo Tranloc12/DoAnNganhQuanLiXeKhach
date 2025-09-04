@@ -11,6 +11,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import com.nhom12.pojo.User;
 import com.nhom12.repositories.UserRepository;
+import java.util.HashMap;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -132,5 +134,42 @@ public class UserRepositoryImpl implements UserRepository {
                 + "GROUP BY u.userRole "
                 + "ORDER BY u.userRole ASC", Object[].class);
         return q.getResultList();
+    }
+
+    @Override
+    public List<User> findUsers(String username, String email, String userRole, Boolean isActive) {
+        Session session = this.getSession();
+
+        StringBuilder hql = new StringBuilder("SELECT u FROM User u WHERE 1=1");
+        Map<String, Object> params = new HashMap<>();
+
+        if (username != null && !username.isEmpty()) {
+            hql.append(" AND u.username LIKE :username");
+            params.put("username", "%" + username + "%");
+        }
+
+        if (email != null && !email.isEmpty()) {
+            hql.append(" AND u.email LIKE :email");
+            params.put("email", "%" + email + "%");
+        }
+
+        if (userRole != null && !userRole.isEmpty()) {
+            hql.append(" AND u.userRole = :userRole");
+            params.put("userRole", userRole);
+        }
+
+        if (isActive != null) {
+            hql.append(" AND u.isActive = :isActive");
+            params.put("isActive", isActive);
+        }
+
+        Query<User> query = session.createQuery(hql.toString(), User.class);
+
+        // Set các tham số vào truy vấn
+        for (Map.Entry<String, Object> entry : params.entrySet()) {
+            query.setParameter(entry.getKey(), entry.getValue());
+        }
+
+        return query.getResultList();
     }
 }

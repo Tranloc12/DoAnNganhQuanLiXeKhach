@@ -72,4 +72,11 @@ public class BusServiceImpl implements BusService {
         Query<Long> query = session.createQuery("SELECT COUNT(b) FROM Bus b", Long.class);
         return query.getSingleResult();
     }
+    
+    // Triển khai phương thức tìm kiếm chi tiết
+    @Override
+    public List<Bus> findBuses(String licensePlate, String model, Integer capacity,Integer yearManufacture, String status) {
+        // Ủy quyền trực tiếp cho repository để thực hiện truy vấn
+        return this.busRepo.findBuses(licensePlate, model, capacity, yearManufacture, status);
+    }
 }

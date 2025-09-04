@@ -7,6 +7,8 @@ package com.nhom12.repositories;
 import com.nhom12.pojo.Review;
 import com.nhom12.pojo.Trip;
 import com.nhom12.pojo.User;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -22,4 +24,5 @@ public interface ReviewRepository {
     Review updateReview(Review review); 
     boolean deleteReview(int reviewId);
     List<Review> getAllReviews(Map<String, String> params); // Dùng cho admin view
+    List<Review> findReviews(String keyword, String username, Integer rating, LocalDateTime startDate, LocalDateTime endDate);
 }

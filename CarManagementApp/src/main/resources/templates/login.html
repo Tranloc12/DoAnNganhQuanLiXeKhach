@@ -1,31 +1,567 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <title>Đăng nhập</title>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<head>
+    <title>Đăng nhập</title>
     <th:block th:replace="base :: styles"></th:block>
+
+    <!-- Google Fonts: Poppins (cho kiểu dáng hiện đại) và Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome cho các biểu tượng (mắt, Facebook, Twitter) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+        /* Reset và cấu hình cơ bản */
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', 'Roboto', sans-serif; /* Sử dụng Poppins làm font chính */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #f0f0f0; /* Màu chữ sáng cho nền tối */
+            overflow: hidden; /* Ngăn chặn scroll bar nếu ảnh nền quá lớn */
+
+            /* Hình nền phong cảnh và lớp phủ */
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.6)), /* Lớp phủ đen trong suốt */
+                        url('https://cdn-media.sforum.vn/storage/app/media/wp-content/uploads/2024/02/anh-phong-canh-66-1.jpg') no-repeat center center fixed; /* ẢNH CỦA BẠN ĐÃ ĐƯỢC THÊM VÀO */
+            background-size: cover;
+            position: relative;
+        }
+
+        /* Loại bỏ header và footer cho trang login này */
+        header, footer {
+            display: none;
+        }
+
+        /* Main container giữ form ở giữa màn hình */
+        main.container {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            width: 100%;
+            max-width: 90%;
+            box-sizing: border-box;
+        }
+
+        /* Form container styling - Form trong suốt, bo góc lớn */
+        .login-card {
+            background: rgba(255, 255, 255, 0.1); /* Nền trắng trong suốt */
+            backdrop-filter: blur(10px); /* Hiệu ứng làm mờ nền phía sau form */
+            border-radius: 25px; /* Bo góc lớn */
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.3); /* Đổ bóng mạnh hơn, màu tối */
+            padding: 60px 40px;
+            width: 100%;
+            max-width: 480px; /* Giữ form vừa phải */
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 20px; /* Khoảng cách giữa các phần tử trong form */
+            animation: fadeIn 1s ease-out; /* Hiệu ứng fade in khi tải trang */
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1.login-title {
+            color: #ffffff; /* Màu chữ trắng */
+            font-weight: 500;
+            font-size: 2.2rem;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        p.welcome-message {
+            color: rgba(255, 255, 255, 0.8); /* Màu chữ xám nhạt trong suốt */
+            font-size: 1.1rem;
+            margin-bottom: 25px;
+            font-weight: 300;
+        }
+        
+        /* Floating input fields */
+        .form-floating {
+            position: relative;
+            margin-bottom: 20px; /* Tăng khoảng cách dưới input */
+        }
+        .form-floating .form-control {
+            border-radius: 10px;
+            background-color: rgba(255, 255, 255, 0.15); /* Nền input trong suốt nhẹ nhàng hơn */
+            border: 1px solid rgba(255, 255, 255, 0.3); /* Border trắng trong suốt */
+            color: #ffffff; /* Chữ trắng */
+            padding: 1rem 1.2rem; /* Tăng padding để input trông lớn hơn */
+            height: auto;
+            font-size: 1.05rem;
+            transition: all 0.3s ease;
+            text-align: left; /* Chữ căn trái */
+        }
+        .form-floating .form-control::placeholder { /* Đảm bảo placeholder cũng có màu phù hợp */
+            color: rgba(255, 255, 255, 0.6);
+        }
+        /* Trạng thái khi focus */
+        .form-floating .form-control:focus {
+            background-color: rgba(255, 255, 255, 0.25); /* Nền nhạt và trong suốt hơn khi focus */
+            border-color: rgba(255, 255, 255, 0.6); /* Viền sáng hơn một chút khi focus */
+            box-shadow: none; /* LOẠI BỎ ĐỔ BÓNG (CỤC) KHI FOCUS */
+            color: #ffffff;
+            outline: none; /* Bỏ outline mặc định */
+        }
+        /* Trạng thái khi đã nhập xong (có nội dung) */
+        .form-floating .form-control:not(:placeholder-shown) {
+            background-color: rgba(255, 255, 255, 0.25); /* Nền trong suốt nhẹ nhàng hơn khi đã nhập */
+            border-color: rgba(255, 255, 255, 0.5); /* Viền rõ hơn một chút */
+        }
+        /* Đảm bảo trạng thái valid cũng trong suốt nhẹ */
+        .form-floating .form-control:valid {
+            background-color: rgba(255, 255, 255, 0.25); /* Nền trong suốt nhẹ nhàng hơn */
+            border-color: rgba(255, 255, 255, 0.5); /* Viền rõ hơn một chút */
+        }
+
+        /* FIX CHO AUTOFILLED STATE: Đảm bảo màu trong suốt khi trình duyệt tự động điền */
+        .form-floating .form-control:-webkit-autofill,
+        .form-floating .form-control:-webkit-autofill:hover, 
+        .form-floating .form-control:-webkit-autofill:focus, 
+        .form-floating .form-control:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0px 1000px rgba(255, 255, 255, 0.25) inset !important; /* Đặt màu nền trong suốt cho autofill */
+            -webkit-text-fill-color: #ffffff !important; /* Đảm bảo màu chữ vẫn là trắng */
+            border-color: rgba(255, 255, 255, 0.5) !important; /* Viền trong suốt */
+            transition: background-color 5000s ease-in-out 0s; /* Tránh thay đổi màu nền sau khi autofill */
+            outline: none !important;
+            box-shadow: none !important;
+            -webkit-appearance: none !important;
+        }
+
+        /* ĐÃ SỬA: Điều chỉnh label để loại bỏ "cục trắng" */
+        .form-floating label {
+            color: rgba(255, 255, 255, 0.7); /* Màu label trắng trong suốt */
+            padding-left: 1.2rem; /* Căn lề label khớp với input */
+            transition: all 0.2s ease-in-out;
+            pointer-events: none; /* Đảm bảo label không chặn click vào input */
+            top: 0; 
+            left: 0;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            background-color: transparent !important; /* Đảm bảo không có nền cho label */
+            /* Thêm z-index thấp hơn để label không "nổi" lên trên input */
+            z-index: 1; 
+        }
+        /* Điều chỉnh vị trí label khi nổi lên để không che mất input và không tạo "cục" */
+        .form-floating .form-control:focus ~ label,
+        .form-floating .form-control:not(:placeholder-shown) ~ label,
+        .form-floating .form-control:-webkit-autofill ~ label { 
+            transform: scale(0.8) translateY(-2.2rem) translateX(0.15rem); /* Di chuyển label cao hơn nữa */
+            color: #ffffff; /* Label màu trắng khi focus/điền */
+            background-color: transparent !important; /* Đảm bảo không có nền khi label nổi */
+            /* Đặt z-index của label cao hơn input nhưng vẫn thấp hơn password-toggle */
+            z-index: 2; 
+        }
+
+        /* Password toggle icon */
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            transition: color 0.2s ease;
+            z-index: 3; /* Đảm bảo icon nằm trên tất cả */
+        }
+        .password-toggle:hover {
+            color: #ffffff;
+        }
+
+        /* Buttons Wrapper */
+        .login-buttons-wrapper {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            margin-top: 10px;
+        }
+        
+        /* Base Button Styles for Magnetic Effect */
+        .btn.magnetic {
+            position: relative;
+            overflow: hidden; /* Cần thiết cho hiệu ứng hạt */
+            transition: all 0.3s ease, transform 0.1s ease;
+            min-width: 220px;
+            z-index: 1; /* Để hạt nằm dưới text */
+            padding: 15px 30px; /* Padding thống nhất */
+            font-size: 1.15rem; /* Font size thống nhất */
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border: none;
+            cursor: pointer;
+            display: flex; /* Để căn giữa text và particles-field */
+            align-items: center;
+            justify-content: center;
+            text-decoration: none; /* Cho thẻ <a> */
+            color: white; /* Màu chữ mặc định */
+            font-weight: 600;
+            border-radius: 30px; /* Bo góc tròn cho tất cả nút */
+        }
+
+        /* Specific styles for Login Button */
+        .btn.login-main-btn {
+            background: linear-gradient(45deg, #ff8a65, #e91e63); /* Gradient cam hồng */
+            box-shadow: 0 10px 30px rgba(255, 138, 101, 0.5); /* Đổ bóng phù hợp với gradient */
+        }
+        .btn.login-main-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(255, 138, 101, 0.7);
+        }
+        .btn.login-main-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(255, 138, 101, 0.3);
+        }
+
+        /* Specific styles for Register Button */
+        .btn.register-secondary-btn {
+            background: rgba(255, 255, 255, 0.15); /* Nền trong suốt nhẹ */
+            color: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            font-weight: 500;
+            box-shadow: none; /* Bỏ đổ bóng để trông nhẹ nhàng hơn */
+        }
+        .btn.register-secondary-btn:hover {
+            background: rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border-color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* Specific styles for Social Buttons */
+        .btn.social-btn {
+            background-color: rgba(255, 255, 255, 0.15); /* Nền trắng trong suốt nhẹ */
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 10px; /* Bo góc nhẹ hơn cho nút social */
+            padding: 12px 25px; /* Padding nhỏ hơn */
+            font-size: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            font-weight: normal; /* Giảm độ đậm của font */
+            min-width: unset; /* Bỏ min-width để nó tự điều chỉnh */
+        }
+        .btn.social-btn:hover {
+            background-color: rgba(255, 255, 255, 0.25);
+            border-color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .btn.social-btn i {
+            font-size: 1.2em;
+        }
+
+        /* Logout button style */
+        .btn.logout-btn { /* Đổi tên class để dễ quản lý */
+            background: linear-gradient(45deg, #dc3545, #c82333); /* Gradient đỏ */
+            box-shadow: 0 10px 30px rgba(220, 53, 69, 0.5);
+        }
+        .btn.logout-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 15px 40px rgba(220, 53, 69, 0.7);
+        }
+
+        /* Particle Field for Magnetic Effect */
+        .particles-field {
+            position: absolute;
+            inset: -100%; /* Kéo dài ra ngoài nút để hiệu ứng trông đẹp hơn */
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            overflow: hidden;
+            border-radius: inherit; /* Kế thừa bo góc của nút cha */
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fff;
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .btn.magnetic:hover .particles-field {
+            opacity: 1;
+        }
+
+        @keyframes particleFloat {
+            0% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+            50% { transform: translate(calc(var(--x) * -1), calc(var(--y) * -1)) scale(1); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
+        }
+
+        /* Checkbox and Forgot Password */
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95rem;
+            margin-top: 15px;
+            margin-bottom: 20px;
+        }
+        .form-options label {
+            color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+        }
+        .form-options input[type="checkbox"] {
+            margin-right: 8px;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.1);
+            position: relative;
+            top: 2px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .form-options input[type="checkbox"]:checked {
+            background-color: #ff8a65;
+            border-color: #ff8a65;
+        }
+        .form-options input[type="checkbox"]:checked::after {
+            content: "\f00c"; /* Font Awesome check icon */
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            color: white;
+            font-size: 12px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .form-options a {
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+        .form-options a:hover {
+            color: #ffffff;
+            text-decoration: underline;
+        }
+
+        /* Social Login options */
+        .social-login {
+            margin-top: 25px;
+        }
+        .social-login .divider {
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 20px;
+            position: relative;
+            font-size: 0.95rem;
+        }
+        .social-login .divider::before,
+        .social-login .divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 40%; /* Chiều dài đường kẻ */
+            height: 1px;
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .social-login .divider::before {
+            left: 0;
+        }
+        .social-login .divider::after {
+            right: 0;
+        }
+
+        .social-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+        }
+        /* Alert message styling - Điều chỉnh để phù hợp với nền tối */
+        .alert {
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 500;
+            color: #fff;
+            padding: 15px 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+        .alert-info {
+            background-color: rgba(40, 167, 69, 0.8); /* Màu xanh lá trong suốt */
+            border-color: rgba(33, 136, 56, 0.8);
+        }
+        .alert-danger {
+            background-color: rgba(220, 53, 69, 0.8); /* Màu đỏ trong suốt */
+            border-color: rgba(200, 35, 51, 0.8);
+        }
+        .alert .btn-close {
+            filter: invert(1);
+            color: white;
+            opacity: 0.8;
+        }
+        .alert .btn-close:hover {
+            opacity: 1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 576px) {
+            .login-card {
+                padding: 40px 25px;
+                border-radius: 20px;
+            }
+            h1.login-title {
+                font-size: 1.8rem;
+            }
+            p.welcome-message {
+                font-size: 1rem;
+            }
+            .btn.login-main-btn {
+                padding: 12px 25px;
+                font-size: 1rem;
+            }
+            .form-options {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+            .social-buttons {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div th:replace="base :: header"></div>
-
     <main class="container">
+        <!-- Messages -->
+        <div th:if="${param.logoutSuccess}" class="alert alert-info alert-dismissible fade show" role="alert">
+            Bạn đã đăng xuất thành công.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${param.registrationSuccess}" class="alert alert-info alert-dismissible fade show" role="alert">
+            Đăng ký tài khoản thành công! Vui lòng đăng nhập.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${param.error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            Tên đăng nhập hoặc mật khẩu không đúng.
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
-        <h1 class="text-center text-info mt-1">Đăng nhập</h1>
-        
-        <form th:action="@{/login}"  method="post" >
-            <div class="mb-3 mt-3">
-                
-                <input type="text" class="form-control" name="username" placeholder="Tên đăng nhập" />
-            </div>
-            <div class="mb-3 mt-3">
-                
-                <input type="password" class="form-control" name="password" placeholder="Mật khẩu" />
-            </div>
-           
-            <button type="submit" class="btn btn-primary">Đăng nhập</button>
-        </form>
+        <!-- Login Card -->
+        <div class="login-card">
+            <h1 class="login-title">Đăng nhập</h1>
+            <p class="welcome-message">Chào mừng trở lại!</p>
+            
+            <div th:if="${currentUser == null}">
+                <form th:action="@{/login}" method="post">
+                    <div class="form-floating">
+                        <input type="text" class="form-control" id="usernameInput" name="username" placeholder=" " required />
+                        <label for="usernameInput">Tên đăng nhập</label>
+                    </div>
+                    <div class="form-floating">
+                        <input type="password" class="form-control" id="passwordInput" name="password" placeholder=" " required />
+                        <label for="passwordInput">Mật khẩu</label>
+                        <i class="fas fa-eye password-toggle" id="password-toggle-icon"></i>
+                    </div>
 
+                    <div class="form-options">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="rememberMe" name="remember-me">
+                            <label class="form-check-label" for="rememberMe">
+                                Ghi nhớ tôi
+                            </label>
+                        </div>
+                        <a th:href="@{/forgot-password}" class="forgot-password-link">Quên mật khẩu?</a>
+                    </div>
+
+                    <div class="login-buttons-wrapper">
+                        <button type="submit" class="btn magnetic login-main-btn" id="particleFieldLogin">
+                            <span>Đăng nhập</span>
+                            <div class="particles-field"></div>
+                        </button>
+                        
+                    </div>
+                </form>
+
+            </div>
+
+            <div th:unless="${currentUser == null}" class="login-buttons-wrapper">
+                <p class="welcome-message">Chào mừng, <span th:text="${currentUser.username}"></span>!</p>
+                <form th:action="@{/logout}" method="post">
+                    <button type="submit" class="btn magnetic login-main-btn logout-btn" id="particleFieldLogout">
+                        <span>Đăng xuất</span>
+                        <div class="particles-field"></div>
+                    </button>
+                </form>
+            </div>
+        </div>
     </main>
 
-    <div th:replace="base :: footer"></div>
+    <script th:src="@{/js/main.js}"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hiển thị/ẩn mật khẩu
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordToggle = document.getElementById('password-toggle-icon');
+
+            if (passwordInput && passwordToggle) {
+                passwordToggle.addEventListener('click', function() {
+                    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                    passwordInput.setAttribute('type', type);
+                    this.classList.toggle('fa-eye');
+                    this.classList.toggle('fa-eye-slash');
+                });
+            }
+
+            // JavaScript cho hiệu ứng nút Magnetic
+            const createParticles = (buttonId) => {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    const particleField = button.querySelector('.particles-field');
+                    if (particleField) {
+                        for (let i = 0; i < 50; i++) {
+                            const particle = document.createElement('div');
+                            particle.className = 'particle';
+                            // Giá trị x, y ngẫu nhiên trong khoảng lớn hơn nút để hạt bay ra xa
+                            particle.style.setProperty('--x', `${Math.random() * 300 - 150}px`);
+                            particle.style.setProperty('--y', `${Math.random() * 300 - 150}px`);
+                            particle.style.animation = `particleFloat ${1 + Math.random() * 2}s infinite`;
+                            // Bắt đầu hạt từ giữa nút
+                            particle.style.left = '50%';
+                            particle.style.top = '50%';
+                            particleField.appendChild(particle);
+                        }
+                    }
+                }
+            };
+
+            // Tạo particles cho tất cả các nút magnetic
+            createParticles('particleFieldLogin');
+            createParticles('particleFieldRegister');
+            createParticles('particleFieldFacebook');
+            createParticles('particleFieldTwitter');
+            createParticles('particleFieldLogout');
+        });
+    </script>
+</body>
+</html>
+    </script>
 </body>
 </html>

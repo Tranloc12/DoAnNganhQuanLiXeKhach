@@ -1,18 +1,18 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 
-<head>
-    <title th:text="${busForm.id != null and busForm.id > 0 ? 'Cập nhật Xe buýt' : 'Thêm Xe buýt mới'}"></title>
+    <head>
+        <title th:text="${busForm.id != null and busForm.id > 0 ? 'Cập nhật Xe Khách' : 'Thêm Xe Khách mới'}"></title>
     <th:block th:replace="base :: styles"></th:block>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 
 <body>
     <div th:replace="base :: header"></div>
 
     <main class="container mt-4">
-        <h1 class="h2 mb-3" th:text="${busForm.id != null and busForm.id > 0 ? 'Cập nhật Xe buýt' : 'Thêm Xe buýt mới'}"></h1>
+        <h1 class="h2 mb-3" th:text="${busForm.id != null and busForm.id > 0 ? 'Cập nhật Xe Khách' : 'Thêm Xe Khách mới'}"></h1>
 
-        <!-- Thông báo lỗi/thành công -->
         <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
             <span th:text="${successMessage}"></span>
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -22,60 +22,74 @@
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
 
-        <form th:action="@{/buses/add-or-update}" th:object="${busForm}" method="post" class="needs-validation" novalidate>
-            <input type="hidden" th:field="*{id}" />
+        <div class="card shadow p-4">
+            <form th:action="@{/buses/add-or-update}" th:object="${busForm}" method="post" class="needs-validation" novalidate>
+                <input type="hidden" th:field="*{id}" />
 
-            <div class="mb-3">
-                <label for="licensePlate" class="form-label">Biển số xe:</label>
-                <input type="text" th:field="*{licensePlate}" class="form-control" id="licensePlate" required />
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('licensePlate')}" th:errors="*{licensePlate}"></div>
-            </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="licensePlate" class="form-label"><i class="fas fa-id-card me-2"></i>Biển số xe:</label>
+                        <input type="text" th:field="*{licensePlate}" class="form-control" id="licensePlate" required />
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('licensePlate')}" th:errors="*{licensePlate}"></div>
+                    </div>
 
-            <div class="mb-3">
-                <label for="model" class="form-label">Kiểu xe:</label>
-                <input type="text" th:field="*{model}" class="form-control" id="model" required />
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('model')}" th:errors="*{model}"></div>
-            </div>
+                    <div class="col-md-6">
+                        <label for="model" class="form-label"><i class="fas fa-bus-simple me-2"></i>Kiểu xe:</label>
+                        <input type="text" th:field="*{model}" class="form-control" id="model" required />
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('model')}" th:errors="*{model}"></div>
+                    </div>
 
-            <div class="mb-3">
-                <label for="capacity" class="form-label">Sức chứa (số ghế):</label>
-                <input type="number" th:field="*{capacity}" class="form-control" id="capacity" required min="1" />
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('capacity')}" th:errors="*{capacity}"></div>
-            </div>
+                    <div class="col-md-6">
+                        <label for="capacity" class="form-label"><i class="fas fa-chair me-2"></i>Sức chứa (số ghế):</label>
+                        <input type="number" th:field="*{capacity}" class="form-control" id="capacity" required min="1" />
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('capacity')}" th:errors="*{capacity}"></div>
+                    </div>
 
-            <div class="mb-3">
-                <label for="yearManufacture" class="form-label">Năm sản xuất:</label>
-                <input type="number" th:field="*{yearManufacture}" class="form-control" id="yearManufacture" required min="1900" th:max="${#dates.year(#dates.createNow()) + 1}" />
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('yearManufacture')}" th:errors="*{yearManufacture}"></div>
-            </div>
+                    <div class="col-md-6">
+                        <label for="yearManufacture" class="form-label"><i class="fas fa-calendar-alt me-2"></i>Năm sản xuất:</label>
+                        <input type="number" th:field="*{yearManufacture}" class="form-control" id="yearManufacture" required min="1900" th:max="${#dates.year(#dates.createNow()) + 1}" />
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('yearManufacture')}" th:errors="*{yearManufacture}"></div>
+                    </div>
 
-            <div class="mb-3">
-                <label for="status" class="form-label">Trạng thái:</label>
-                <select th:field="*{status}" class="form-select" id="status" required>
-                    <option value="">-- Chọn trạng thái --</option>
-                    <option th:each="s : ${busStatuses}" th:value="${s}" th:text="${s}"></option>
-                </select>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
-            </div>
+                    <div class="col-md-6">
+                        <label for="status" class="form-label"><i class="fas fa-list me-2"></i>Trạng thái:</label>
+                        <select th:field="*{status}" class="form-select" id="status" required>
+                            <option value="">-- Chọn trạng thái --</option>
+                            <option th:each="s : ${busStatuses}" th:value="${s}" th:text="${s}"></option>
+                        </select>
+                        <div class="invalid-feedback" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
+                    </div>
+                </div>
 
-            <div class="mb-3">
-                <label for="description" class="form-label">Mô tả:</label>
-                <textarea th:field="*{description}" class="form-control" id="description" rows="3"></textarea>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
-            </div>
+                <div class="mb-3 mt-3">
+                    <label for="description" class="form-label"><i class="fas fa-info-circle me-2"></i>Mô tả:</label>
+                    <textarea th:field="*{description}" class="form-control" id="description" rows="3"></textarea>
+                    <div class="invalid-feedback" th:if="${#fields.hasErrors('description')}" th:errors="*{description}"></div>
+                </div>
 
-            <div class="form-check mb-3">
-                <input type="checkbox" th:field="*{isActive}" class="form-check-input" id="isActive" />
-                <label class="form-check-label" for="isActive">Hoạt động</label>
-            </div>
+                <div class="form-check mb-3">
+                    <input type="checkbox" th:field="*{isActive}" class="form-check-input" id="isActive" />
+                    <label class="form-check-label" for="isActive"><i class="fas fa-check-circle me-2"></i>Hoạt động</label>
+                </div>
 
-            <button type="submit" class="btn btn-primary">Lưu</button>
-            <a th:href="@{/buses}" class="btn btn-secondary">Hủy</a>
-        </form>
+                <hr class="my-4">
+
+                <div class="d-flex justify-content-end">
+                    <button type="submit" class="btn btn-primary me-2">
+                        <i class="fas fa-save me-2"></i>Lưu
+                    </button>
+                    <a th:href="@{/buses}" class="btn btn-secondary">
+                        <i class="fas fa-times me-2"></i>Hủy
+                    </a>
+                </div>
+            </form>
+        </div>
     </main>
 
     <div th:replace="base :: footer"></div>
     <script th:src="@{/js/main.js}"></script>
+    <div th:replace="base :: theme-scripts"></div>
+
 </body>
 
 </html>

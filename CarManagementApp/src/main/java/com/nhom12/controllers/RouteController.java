@@ -46,16 +46,35 @@ public class RouteController {
     }
 
     // Hiển thị danh sách tuyến đường
-    @GetMapping("/routes")
-    public String listRoutes(Model model, @RequestParam(name = "kw", required = false) String kw, Principal principal) {
+     @GetMapping("/routes")
+    public String listRoutes(Model model,
+                             @RequestParam(name = "routeName", required = false) String routeName,
+                             @RequestParam(name = "origin", required = false) String origin,
+                             @RequestParam(name = "destination", required = false) String destination,
+                             @RequestParam(name = "distanceFrom", required = false) Double distanceFrom,
+                             @RequestParam(name = "distanceTo", required = false) Double distanceTo,
+                             @RequestParam(name = "priceFrom", required = false) Double priceFrom,
+                             @RequestParam(name = "priceTo", required = false) Double priceTo,
+                             @RequestParam(name = "isActive", required = false) Boolean isActive,
+                             Principal principal) {
         String accessCheck = checkAdminAccess(principal);
         if (accessCheck != null) {
             return accessCheck;
         }
 
-        List<Route> routes = routeServ.getRoutes(kw);
+        List<Route> routes = routeServ.findRoutes(routeName, origin, destination, distanceFrom, distanceTo, priceFrom, priceTo, isActive);
         model.addAttribute("routes", routes);
-        model.addAttribute("kw", kw); // Giữ lại từ khóa tìm kiếm trên form
+
+        // Giữ lại các giá trị lọc trên form để người dùng thấy
+        model.addAttribute("routeName", routeName);
+        model.addAttribute("origin", origin);
+        model.addAttribute("destination", destination);
+        model.addAttribute("distanceFrom", distanceFrom);
+        model.addAttribute("distanceTo", distanceTo);
+        model.addAttribute("priceFrom", priceFrom);
+        model.addAttribute("priceTo", priceTo);
+        model.addAttribute("isActive", isActive);
+
         return "routeList"; // Tên file template: routeList.html
     }
 

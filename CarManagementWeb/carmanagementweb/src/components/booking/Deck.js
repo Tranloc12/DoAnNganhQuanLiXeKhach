@@ -39,4 +39,4 @@ const Deck = ({ title, seats, onSeatClick, isMatrix }) => (
   </div>
 );
 
-export default Deck;
+export default Deck; 

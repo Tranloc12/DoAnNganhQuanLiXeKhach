@@ -13,10 +13,13 @@ import com.nhom12.services.TripService;
 import com.nhom12.services.UserService;
 import java.security.Principal;
 import java.time.LocalDateTime; // Đảm bảo import này
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Comparator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,7 +36,7 @@ public class ReviewController {
     @Autowired
     private UserService userService;
     @Autowired
-    private TripService tripService; 
+    private TripService tripService;
 
     // Phương thức kiểm tra quyền Admin/Manager/Staff
     private String checkManagementAccess(Principal principal) {
@@ -44,9 +47,9 @@ public class ReviewController {
         if (currentUser == null) {
             return "redirect:/access-denied";
         }
-        if (!"ROLE_ADMIN".equals(currentUser.getUserRole()) &&
-            !"ROLE_MANAGER".equals(currentUser.getUserRole()) &&
-            !"ROLE_STAFF".equals(currentUser.getUserRole())) {
+        if (!"ROLE_ADMIN".equals(currentUser.getUserRole())
+                && !"ROLE_MANAGER".equals(currentUser.getUserRole())
+                && !"ROLE_STAFF".equals(currentUser.getUserRole())) {
             return "redirect:/access-denied";
         }
         return null;
@@ -55,30 +58,38 @@ public class ReviewController {
     // Endpoint để hiển thị tất cả các đánh giá (dành cho admin/manager/staff)
     @GetMapping("/admin/reviews")
     public String showAllReviews(Model model, RedirectAttributes redirectAttributes, Principal principal,
-                                 @RequestParam(name = "kw", required = false) String kw) {
+            @RequestParam(name = "kw", required = false) String keyword,
+            @RequestParam(name = "username", required = false) String username,
+            @RequestParam(name = "rating", required = false) Integer rating,
+             @RequestParam(name = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam(name = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+
         String accessCheck = checkManagementAccess(principal);
         if (accessCheck != null) {
             return accessCheck;
         }
 
         try {
-            Map<String, String> params = new HashMap<>();
-            if (kw != null && !kw.trim().isEmpty()) {
-                params.put("kw", kw.trim());
-            }
+            // Call the service method with direct parameters
+            List<Review> reviews = this.reviewService.findReviews(keyword, username, rating, startDate, endDate);
+            
+            reviews.sort(Comparator.comparing(Review::getId));
 
-            List<Review> allReviews = reviewService.getAllReviews(params);
-            model.addAttribute("reviews", allReviews);
-            model.addAttribute("kw", kw);
+            model.addAttribute("reviews", reviews);
+            model.addAttribute("kw", keyword);
+            model.addAttribute("username", username);
+            model.addAttribute("rating", rating);
+            model.addAttribute("startDate", startDate);
+            model.addAttribute("endDate", endDate);
 
-            if (allReviews.isEmpty()) {
+            if (reviews.isEmpty()) {
                 model.addAttribute("infoMessage", "Hiện chưa có đánh giá nào trong hệ thống.");
             }
         } catch (Exception e) {
             System.err.println("Lỗi khi lấy tất cả đánh giá: " + e.getMessage());
-            e.printStackTrace(); // In stack trace để debug
+            e.printStackTrace();
             redirectAttributes.addFlashAttribute("errorMessage", "Không thể tải danh sách đánh giá. Vui lòng thử lại sau.");
-            return "redirect:/";
+            return "redirect:/admin/reviews";
         }
         return "adminReviews";
     }
@@ -108,10 +119,10 @@ public class ReviewController {
     // Ví dụ tạo Review (dành cho người dùng đã đăng nhập)
     @PostMapping("/trips/{tripId}/add-review")
     public String addReviewForTrip(@PathVariable("tripId") int tripId,
-                                   @RequestParam("rating") int rating,
-                                   @RequestParam("comment") String comment,
-                                   Principal connectedUser,
-                                   RedirectAttributes redirectAttributes) {
+            @RequestParam("rating") int rating,
+            @RequestParam("comment") String comment,
+            Principal connectedUser,
+            RedirectAttributes redirectAttributes) {
         if (connectedUser == null) {
             redirectAttributes.addFlashAttribute("errorMessage", "Bạn cần đăng nhập để đánh giá.");
             return "redirect:/login";

@@ -1,7 +1,7 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Báo cáo thống kê</title>
+    <head>
+        <title>Báo cáo thống kê</title>
     <th:block th:replace="base :: styles"></th:block>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -215,7 +215,7 @@
     <script th:inline="javascript">
         // Dữ liệu từ server
         const hourlyData = /*[[${usageStats.hourlyUsage}]]*/ [];
-        
+
         // Tạo chart
         const ctx = document.getElementById('usageChart').getContext('2d');
         const usageChart = new Chart(ctx, {
@@ -223,12 +223,12 @@
             data: {
                 labels: hourlyData.map(item => item.label),
                 datasets: [{
-                    label: 'Số buổi tập',
-                    data: hourlyData.map(item => item.count),
-                    backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                    borderColor: 'rgba(54, 162, 235, 1)',
-                    borderWidth: 1
-                }]
+                        label: 'Số buổi tập',
+                        data: hourlyData.map(item => item.count),
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        borderColor: 'rgba(54, 162, 235, 1)',
+                        borderWidth: 1
+                    }]
             },
             options: {
                 responsive: true,
@@ -253,5 +253,7 @@
             }
         });
     </script>
+    <div th:replace="base :: theme-scripts"></div>
+
 </body>
 </html>

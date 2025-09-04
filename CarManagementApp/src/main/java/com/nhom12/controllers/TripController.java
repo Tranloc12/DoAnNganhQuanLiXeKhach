@@ -19,8 +19,10 @@ import jakarta.validation.Valid;
 import java.security.Principal;
 import java.time.LocalDateTime; // Đảm bảo import này có mặt
 import java.util.List;
+import java.util.Comparator;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -63,20 +65,55 @@ public class TripController {
     }
     // Hiển thị danh sách chuyến đi
 
-    @GetMapping("/trips")
-
-    public String listTrips(Model model, @RequestParam(name = "kw", required = false) String kw, Principal principal) {
+     @GetMapping("/trips")
+    public String listTrips(Model model,
+            @RequestParam(name = "departureTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime departureTime,
+            @RequestParam(name = "arrivalTime", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm") LocalDateTime arrivalTime,
+            @RequestParam(name = "routeId", required = false) Integer routeId,
+            @RequestParam(name = "busId", required = false) Integer busId,
+            @RequestParam(name = "driverId", required = false) Integer driverId,
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "origin", required = false) String origin,
+            @RequestParam(name = "destination", required = false) String destination,
+            Principal principal) {
+         
         String accessCheck = checkAdminAccess(principal);
         if (accessCheck != null) {
             return accessCheck;
         }
 
-        List<Trip> trips = tripServ.getTrips(kw);
+        // Gọi phương thức service mới với các tham số trực tiếp
+        List<Trip> trips = tripServ.findTrips(departureTime, arrivalTime, routeId, busId, driverId, status,origin, destination);
+        
+        // --- Bổ sung đoạn code sắp xếp tại đây ---
+        // Sắp xếp danh sách trips theo ID tăng dần
+        trips.sort(Comparator.comparing(Trip::getId));
+        // --- Kết thúc đoạn bổ sung ---
+        
         model.addAttribute("trips", trips);
-        model.addAttribute("kw", kw);
+
+        // Thêm các tham số tìm kiếm vào model để giữ lại trên form
+        model.addAttribute("departureTime", departureTime);
+        model.addAttribute("arrivalTime", arrivalTime);
+        model.addAttribute("routeId", routeId);
+        model.addAttribute("busId", busId);
+        model.addAttribute("driverId", driverId);
+        model.addAttribute("status", status);
+
+        // Thêm danh sách các tùy chọn cho dropdowns
+        List<Route> routes = routeServ.getRoutes("");
+        List<Bus> buses = busServ.getBuses("");
+        List<Driver> drivers = driverServ.getDrivers("");
+
+        model.addAttribute("routes", routes);
+        model.addAttribute("buses", buses);
+        model.addAttribute("drivers", drivers);
+        model.addAttribute("tripStatuses", new String[]{"Scheduled", "In Progress", "Completed", "Cancelled"});
+         
         // Để hiển thị thời gian theo định dạng dễ đọc trên bảng
         model.addAttribute("formatter", java.time.format.DateTimeFormatter.ofPattern("HH:mm dd-MM-yyyy"));
-        return "tripList"; // Tên file template: tripList.html
+         
+        return "tripList"; //Tên file template: tripList.html
 
     }
 

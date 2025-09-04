@@ -12,6 +12,7 @@ import com.nhom12.pojo.User;
 import com.nhom12.repositories.ReviewRepository;
 import com.nhom12.services.ReviewService;
 import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,5 +69,10 @@ public class ReviewServiceImpl implements ReviewService {
     @Transactional(readOnly = true)
     public List<Review> getAllReviews(Map<String, String> params) {
         return reviewRepository.getAllReviews(params);
+    }
+
+    @Override
+    public List<Review> findReviews(String keyword, String username, Integer rating, LocalDateTime startDate, LocalDateTime endDate) {
+        return reviewRepository.findReviews(keyword, username, rating, startDate, endDate);
     }
 }

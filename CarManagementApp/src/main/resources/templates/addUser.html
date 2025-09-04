@@ -1,119 +1,125 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org">
     <head>
-        <title>Đăng ký thành viên Gym</title>
-        <th:block th:replace="base :: styles"></th:block>
-    </head>
-    <body>
-        <div th:replace="base :: header"></div>
-        <div class="container mt-5" style="max-width: 600px;">
-            <h1 class="text-center text-primary mb-4">ĐĂNG KÝ NGƯỜI DÙNG MỚI</h1>
-            <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-                <span th:text="${successMessage}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-            <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-                <span th:text="${errorMessage}"></span>
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-
-            <form method="post" th:action="@{/add-user}" th:object="${userForm}" enctype="multipart/form-data" class="border p-4 rounded shadow">
-                
-                <div class="form-floating mb-3">
-                    <input type="text" class="form-control" 
-                           th:field="*{username}" 
-                           id="username" 
-                           placeholder="Tên đăng nhập"/>
-                    <label for="username">Tên đăng nhập</label>
-                    <small class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input type="email" class="form-control" 
-                           th:field="*{email}" 
-                           id="email" 
-                           placeholder="Địa chỉ email"/>
-                    <label for="email">Địa chỉ email</label>
-                    <small class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input type="password" class="form-control" 
-                           th:field="*{password}" 
-                           id="password" 
-                           placeholder="Mật khẩu"/>
-                    <label for="password">Mật khẩu</label>
-                    <small class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input type="password" class="form-control" 
-                           th:field="*{confirmPassword}" 
-                           id="confirmPassword" 
-                           placeholder="Xác nhận mật khẩu"/>
-                    <label for="confirmPassword">Xác nhận mật khẩu</label>
-                    <small class="text-danger" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></small>
-                </div>
-
-                <div class="form-floating mb-3">
-                    <input type="date" class="form-control" 
-                           th:field="*{dob}" 
-                           id="dob"/>
-                    <label for="dob">Ngày sinh</label>
-                    <small class="text-danger" th:if="${#fields.hasErrors('dob')}" th:errors="*{dob}"></small>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Vai trò</label>
-                    <div class="d-flex flex-wrap gap-3"> <div class="form-check form-check-inline">
-                            <input class="form-check-input" 
-                                   type="radio" 
-                                   th:field="*{userRole}" 
-                                   value="ROLE_ADMIN" 
-                                   id="adminRole">
-                            <label class="form-check-label" for="adminRole">Admin</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" 
-                                   type="radio" 
-                                   th:field="*{userRole}" 
-                                   value="ROLE_MANAGER" 
-                                   id="managerRole">
-                            <label class="form-check-label" for="managerRole">Quản lý</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" 
-                                   type="radio" 
-                                   th:field="*{userRole}" 
-                                   value="ROLE_STAFF" 
-                                   id="staffRole">
-                            <label class="form-check-label" for="staffRole">Nhân viên</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" 
-                                   type="radio" 
-                                   th:field="*{userRole}" 
-                                   value="ROLE_DRIVER" 
-                                   id="driverRole">
-                            <label class="form-check-label" for="driverRole">Tài xế</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" 
-                                   type="radio" 
-                                   th:field="*{userRole}" 
-                                   value="ROLE_PASSENGER" 
-                                   id="passengerRole">
-                            <label class="form-check-label" for="passengerRole">Hành khách</label>
-                        </div>
-                    </div>
-                    <small class="text-danger" th:if="${#fields.hasErrors('userRole')}" th:errors="*{userRole}"></small>
-                </div>
-
-                <div class="d-grid">
-                    <button type="submit" class="btn btn-primary btn-lg">Đăng ký</button>
-                </div>
-            </form>
+        <title>Đăng ký thành viên </title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+<body>
+    <div th:replace="base :: header"></div>
+    <div class="container mt-5" style="max-width: 600px;">
+        <h1 class="text-center text-primary mb-4">ĐĂNG KÝ NGƯỜI DÙNG MỚI</h1>
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
-        <div th:replace="base :: footer"></div>
-    </body>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <form method="post" th:action="@{/add-user}" th:object="${userForm}" enctype="multipart/form-data" class="border p-4 rounded shadow">
+
+            <div class="form-floating mb-3">
+                <input type="text" class="form-control" 
+                       th:field="*{username}" 
+                       id="username" 
+                       placeholder="Tên đăng nhập"/>
+                <label for="username">Tên đăng nhập</label>
+                <small class="text-danger" th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></small>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="email" class="form-control" 
+                       th:field="*{email}" 
+                       id="email" 
+                       placeholder="Địa chỉ email"/>
+                <label for="email">Địa chỉ email</label>
+                <small class="text-danger" th:if="${#fields.hasErrors('email')}" th:errors="*{email}"></small>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" 
+                       th:field="*{password}" 
+                       id="password" 
+                       placeholder="Mật khẩu"/>
+                <label for="password">Mật khẩu</label>
+                <small class="text-danger" th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></small>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="password" class="form-control" 
+                       th:field="*{confirmPassword}" 
+                       id="confirmPassword" 
+                       placeholder="Xác nhận mật khẩu"/>
+                <label for="confirmPassword">Xác nhận mật khẩu</label>
+                <small class="text-danger" th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}"></small>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input type="date" class="form-control" 
+                       th:field="*{dob}" 
+                       id="dob"/>
+                <label for="dob">Ngày sinh</label>
+                <small class="text-danger" th:if="${#fields.hasErrors('dob')}" th:errors="*{dob}"></small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Vai trò</label>
+                <div class="d-flex flex-wrap gap-3"> <div class="form-check form-check-inline">
+                        <input class="form-check-input" 
+                               type="radio" 
+                               th:field="*{userRole}" 
+                               value="ROLE_ADMIN" 
+                               id="adminRole">
+                        <label class="form-check-label" for="adminRole">Admin</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" 
+                               type="radio" 
+                               th:field="*{userRole}" 
+                               value="ROLE_MANAGER" 
+                               id="managerRole">
+                        <label class="form-check-label" for="managerRole">Quản lý</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" 
+                               type="radio" 
+                               th:field="*{userRole}" 
+                               value="ROLE_STAFF" 
+                               id="staffRole">
+                        <label class="form-check-label" for="staffRole">Nhân viên</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" 
+                               type="radio" 
+                               th:field="*{userRole}" 
+                               value="ROLE_DRIVER" 
+                               id="driverRole">
+                        <label class="form-check-label" for="driverRole">Tài xế</label>
+                    </div>
+                    <div class="form-check form-check-inline">
+                        <input class="form-check-input" 
+                               type="radio" 
+                               th:field="*{userRole}" 
+                               value="ROLE_PASSENGER" 
+                               id="passengerRole">
+                        <label class="form-check-label" for="passengerRole">Hành khách</label>
+                    </div>
+                </div>
+                <small class="text-danger" th:if="${#fields.hasErrors('userRole')}" th:errors="*{userRole}"></small>
+            </div>
+
+            <div class="d-grid">
+                <button type="submit" class="btn btn-primary btn-lg">Đăng ký</button>
+
+                <a href="/CarManagementApp/users" class="btn btn-outline-secondary">
+                    Hủy
+                </a>
+            </div>
+        </form>
+    </div>
+    <div th:replace="base :: footer"></div>
+    <div th:replace="base :: theme-scripts"></div>
+
+</body>
 </html>

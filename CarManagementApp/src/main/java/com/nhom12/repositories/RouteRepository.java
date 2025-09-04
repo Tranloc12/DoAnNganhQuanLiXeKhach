@@ -18,4 +18,7 @@ public interface RouteRepository {
     
     // Thêm phương thức để truy cập sessionFactory nếu bạn cần trong lớp ServiceImpl
     LocalSessionFactoryBean getSessionFactory(); // Ví dụ: để dùng trong ServiceImpl cho countRoutes
+    
+     List<Route> findRoutes(String routeName, String origin, String destination, Double distanceFrom, Double distanceTo, Double priceFrom, Double priceTo, Boolean isActive);
+
 }

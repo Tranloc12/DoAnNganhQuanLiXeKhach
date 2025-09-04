@@ -54,4 +54,9 @@ public class RouteServiceImpl implements RouteService {
     public long countRoutes() {
         return this.routeRepo.countRoutes();
     }
+
+    @Override
+    public List<Route> findRoutes(String routeName, String origin, String destination, Double distanceFrom, Double distanceTo, Double priceFrom, Double priceTo, Boolean isActive) {
+        return this.routeRepo.findRoutes(routeName, origin, destination, distanceFrom, distanceTo, priceFrom, priceTo, isActive);
+    }
 }

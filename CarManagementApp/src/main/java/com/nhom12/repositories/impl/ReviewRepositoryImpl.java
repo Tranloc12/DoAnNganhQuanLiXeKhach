@@ -5,6 +5,9 @@ import com.nhom12.pojo.Review;
 import com.nhom12.pojo.Trip;
 import com.nhom12.pojo.User;
 import com.nhom12.repositories.ReviewRepository;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -134,5 +137,67 @@ public class ReviewRepositoryImpl implements ReviewRepository {
         }
 
         return q.getResultList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Review> findReviews(String keyword, String username, Integer rating, LocalDateTime startDate, LocalDateTime endDate) {
+        Session session = this.getSession();
+        try {
+            StringBuilder hql = new StringBuilder(
+                    "SELECT r FROM Review r "
+                    + "JOIN FETCH r.userId u "
+                    + "JOIN FETCH r.tripId t "
+                    + "JOIN FETCH t.routeId ro "
+                    + // Khai báo alias ro ở đây
+                    "WHERE 1=1");
+            
+            List<String> paramNames = new ArrayList<>();
+            List<Object> paramValues = new ArrayList<>();
+
+            // Lọc theo từ khóa trong comment
+            if (keyword != null && !keyword.isEmpty()) {
+                hql.append(" AND (LOWER(CAST(r.comment as string)) LIKE :keyword "
+                        + "OR LOWER(ro.origin) LIKE :keyword "
+                        + "OR LOWER(ro.destination) LIKE :keyword)");
+            }
+
+            // Lọc theo username
+            if (username != null && !username.isEmpty()) {
+                hql.append(" AND LOWER(u.username) LIKE :username");
+                paramNames.add("username");
+                paramValues.add("%" + username.toLowerCase() + "%");
+            }
+
+            // Lọc theo rating
+            if (rating != null) {
+                hql.append(" AND r.rating = :rating");
+                paramNames.add("rating");
+                paramValues.add(rating);
+            }
+
+            // Lọc theo khoảng thời gian
+            if (startDate != null) {
+                hql.append(" AND r.createdAt >= :startDate");
+                paramNames.add("startDate");
+                paramValues.add(startDate);
+            }
+            if (endDate != null) {
+                hql.append(" AND r.createdAt <= :endDate");
+                paramNames.add("endDate");
+                paramValues.add(endDate);
+            }
+
+            hql.append(" ORDER BY r.createdAt DESC");
+
+            Query<Review> query = session.createQuery(hql.toString(), Review.class);
+            for (int i = 0; i < paramNames.size(); i++) {
+                query.setParameter(paramNames.get(i), paramValues.get(i));
+            }
+
+            return query.getResultList();
+        } catch (Exception ex) {
+            throw new RuntimeException("Error finding reviews", ex);
+        }
     }
 }

@@ -58,7 +58,7 @@
             <p class="text-muted">Theo dõi và quản lý các đánh giá từ người dùng</p>
         </div>
 
-        
+
 
         <!-- Hiển thị điểm đánh giá trung bình nếu có -->
         <div th:if="${averageRating != null}" class="mb-3 p-3 bg-light border rounded">
@@ -166,5 +166,7 @@
         }
     </script>
     <div th:replace="base :: footer"></div>
+    <div th:replace="base :: theme-scripts"></div>
+
 </body>
 </html>

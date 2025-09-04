@@ -33,5 +33,9 @@ public interface UserRepository {
     // Di chuyển từ PassengerInfoRepository
     List<User> getUsersWithoutPassengerInfo();
     
+     // Thêm phương thức tìm kiếm linh hoạt vào đây
+    List<User> findUsers(String username, String email, String userRole, Boolean isActive);
+
+    
     
 }

@@ -1,29 +1,77 @@
 <!DOCTYPE html>
-<!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 
-<head>
-    <title>Quản lý Chuyến đi</title>
+    <head>
+        <title>Quản lý Chuyến đi</title>
     <th:block th:replace="~{base :: styles}"></th:block>
 </head>
 
 <body>
     <div th:replace="~{base :: header}"></div>
 
-    <main class="container-fluid mt-4">
+    <main class="container mt-4">
         <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
             <h1 class="h2">Quản lý Chuyến đi</h1>
             <div class="btn-toolbar mb-2 mb-md-0">
-                <a th:href="@{/trips/add-or-update}" class="btn btn-sm btn-primary">
-                    <i class="fas fa-plus-circle"></i> Thêm chuyến đi mới
+                <a th:href="@{/trips/add-or-update}" type="button" class="btn btn-outline-success">
+                    <i></i> Thêm chuyến đi mới
                 </a>
             </div>
         </div>
 
         <form th:action="@{/trips}" method="get" class="mb-3">
-            <div class="input-group">
-                <input type="text" name="kw" class="form-control" th:value="${kw}" placeholder="Tìm kiếm theo biển số xe, tài xế, tuyến đường...">
-                <button class="btn btn-outline-secondary" type="submit">Tìm kiếm</button>
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Tìm kiếm Chuyến đi</h6>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="departureTime" class="form-label">Thời gian khởi hành:</label>
+                            <input type="datetime-local" name="departureTime" class="form-control" id="departureTime" th:value="${departureTime}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="arrivalTime" class="form-label">Thời gian dự kiến đến:</label>
+                            <input type="datetime-local" name="arrivalTime" class="form-control" id="arrivalTime" th:value="${arrivalTime}">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="routeId" class="form-label">Tuyến đường:</label>
+                            <select name="routeId" class="form-select" id="routeId">
+                                <option value="">--- Chọn tuyến đường ---</option>
+                                <option th:each="route : ${routes}" th:value="${route.id}" th:text="${route.routeName + ' (' + route.origin + ' - ' + route.destination + ')'}" th:selected="${routeId != null and route.id == routeId}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="busId" class="form-label">Xe buýt:</label>
+                            <select name="busId" class="form-select" id="busId">
+                                <option value="">--- Chọn xe buýt ---</option>
+                                <option th:each="bus : ${buses}" th:value="${bus.id}" th:text="${bus.licensePlate + ' (' + bus.model + ')'}" th:selected="${busId != null and bus.id == busId}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="driverId" class="form-label">Tài xế:</label>
+                            <select name="driverId" class="form-select" id="driverId">
+                                <option value="">--- Chọn tài xế ---</option>
+                                <option th:each="driver : ${drivers}" th:value="${driver.id}" th:text="${driver.userId.username + ' (' + driver.licenseNumber + ')'}" th:selected="${driverId != null and driver.id == driverId}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Trạng thái:</label>
+                            <select name="status" class="form-select" id="status">
+                                <option value="">--- Chọn trạng thái ---</option>
+                                <option th:each="s : ${tripStatuses}" th:value="${s}" th:text="${s}" th:selected="${s == status}"></option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="mt-3 text-end">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Tìm kiếm
+                        </button>
+                        <a th:href="@{/trips}" class="btn btn-secondary">
+                            <i class="fas fa-filter-circle-xmark"></i> Xóa bộ lọc
+                        </a>
+                    </div>
+                </div>
             </div>
         </form>
 
@@ -94,6 +142,8 @@
 
     <div th:replace="~{base :: footer}"></div>
     <script th:src="@{/js/main.js}"></script>
+    <div th:replace="base :: theme-scripts"></div>
+
 </body>
 
 </html>

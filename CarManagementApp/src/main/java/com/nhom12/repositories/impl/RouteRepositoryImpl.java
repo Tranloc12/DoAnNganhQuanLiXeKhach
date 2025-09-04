@@ -12,6 +12,10 @@ import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import org.hibernate.query.Query;
+import java.util.Map;
+import java.util.HashMap;
+
+
 
 import java.util.List;
 
@@ -110,4 +114,61 @@ public class RouteRepositoryImpl implements RouteRepository {
         Query<Long> query = session.createQuery("SELECT COUNT(r) FROM Route r", Long.class);
         return query.getSingleResult();
     }
+    
+    @Override
+    public List<Route> findRoutes(String routeName, String origin, String destination, Double distanceFrom, Double distanceTo, Double priceFrom, Double priceTo, Boolean isActive) {
+        Session session = sessionFactory.getObject().getCurrentSession();
+        StringBuilder hql = new StringBuilder("FROM Route r WHERE 1=1");
+        Map<String, Object> queryParams = new HashMap<>();
+
+        if (routeName != null && !routeName.isEmpty()) {
+            hql.append(" AND r.routeName LIKE :routeName");
+            queryParams.put("routeName", "%" + routeName + "%");
+        }
+
+        if (origin != null && !origin.isEmpty()) {
+            hql.append(" AND r.origin LIKE :origin");
+            queryParams.put("origin", "%" + origin + "%");
+        }
+
+        if (destination != null && !destination.isEmpty()) {
+            hql.append(" AND r.destination LIKE :destination");
+            queryParams.put("destination", "%" + destination + "%");
+        }
+        
+        if (distanceFrom != null) {
+            hql.append(" AND r.distanceKm >= :distanceFrom");
+            queryParams.put("distanceFrom", distanceFrom);
+        }
+
+        if (distanceTo != null) {
+            hql.append(" AND r.distanceKm <= :distanceTo");
+            queryParams.put("distanceTo", distanceTo);
+        }
+
+        if (priceFrom != null) {
+            hql.append(" AND r.pricePerKm >= :priceFrom");
+            queryParams.put("priceFrom", priceFrom);
+        }
+
+        if (priceTo != null) {
+            hql.append(" AND r.pricePerKm <= :priceTo");
+            queryParams.put("priceTo", priceTo);
+        }
+
+        if (isActive != null) {
+            hql.append(" AND r.isActive = :isActive");
+            queryParams.put("isActive", isActive);
+        }
+
+        Query<Route> query = session.createQuery(hql.toString(), Route.class);
+        
+        // Gán các tham số
+        for (Map.Entry<String, Object> entry : queryParams.entrySet()) {
+            query.setParameter(entry.getKey(), entry.getValue());
+        }
+
+        return query.getResultList();
+    }
+
 }

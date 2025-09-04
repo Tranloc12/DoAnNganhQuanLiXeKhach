@@ -13,4 +13,7 @@ public interface BusRepository {
     boolean addOrUpdateBus(Bus bus); // Thêm hoặc cập nhật xe
     boolean deleteBus(int id);
     boolean isLicensePlateExist(String licensePlate, Integer excludeBusId); // Kiểm tra biển số xe có trùng không
+    // Thêm phương thức tìm kiếm chi tiết
+    // Đã sửa tên tham số để khớp với các thuộc tính trong POJO Bus
+    List<Bus> findBuses(String licensePlate, String model, Integer capacity, Integer yearManufacture, String status);    
 }

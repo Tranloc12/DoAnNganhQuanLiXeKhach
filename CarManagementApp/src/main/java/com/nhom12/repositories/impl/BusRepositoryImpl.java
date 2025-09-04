@@ -6,15 +6,20 @@ package com.nhom12.repositories.impl;
 
 import com.nhom12.pojo.Bus;
 import com.nhom12.repositories.BusRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
+import java.util.ArrayList;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.hibernate.query.Query; // Đảm bảo import đúng Query
- // Hoặc jakarta.persistence.NoResultException
+import org.hibernate.query.Query; 
+
 
 import java.util.List;
+import java.util.function.Predicate;
 
 @Repository
 @Transactional
@@ -98,5 +103,47 @@ public class BusRepositoryImpl implements BusRepository {
         }
 
         return query.getSingleResult() > 0;
+    }
+    
+    @Override
+    public List<Bus> findBuses(String licensePlate, String model, Integer capacity, Integer yearManufacture, String status) {
+        Session session = sessionFactory.getObject().getCurrentSession();
+        StringBuilder hql = new StringBuilder("FROM Bus b WHERE 1=1");
+
+        if (licensePlate != null && !licensePlate.trim().isEmpty()) {
+            hql.append(" AND LOWER(b.licensePlate) LIKE :licensePlate");
+        }
+        if (model != null && !model.trim().isEmpty()) {
+            hql.append(" AND LOWER(b.model) LIKE :model");
+        }
+        if (capacity != null) {
+            hql.append(" AND b.capacity = :capacity");
+        }
+        if (yearManufacture != null) { // Thêm điều kiện mới
+            hql.append(" AND b.yearManufacture = :yearManufacture");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            hql.append(" AND LOWER(b.status) = :status");
+        }
+        
+        Query<Bus> query = session.createQuery(hql.toString(), Bus.class);
+
+        if (licensePlate != null && !licensePlate.trim().isEmpty()) {
+            query.setParameter("licensePlate", "%" + licensePlate.trim().toLowerCase() + "%");
+        }
+        if (model != null && !model.trim().isEmpty()) {
+            query.setParameter("model", "%" + model.trim().toLowerCase() + "%");
+        }
+        if (capacity != null) {
+            query.setParameter("capacity", capacity);
+        }
+        if (yearManufacture != null) { // Thiết lập tham số
+            query.setParameter("yearManufacture", yearManufacture);
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            query.setParameter("status", status.trim().toLowerCase());
+        }
+
+        return query.getResultList();
     }
 }

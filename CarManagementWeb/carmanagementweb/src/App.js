@@ -131,77 +131,77 @@ const App = () => {
 
                     {/* Route cho TripManagement */}
                     <Route path="/trip-management" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <TripManagement />
                       </ProtectedRoute>
                     } />
 
                     <Route path="/manager/trips/add" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <AddTripForm />
                       </ProtectedRoute>
                     } />
 
                     <Route path="/manager/trips/edit/:id" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <EditTripForm />
                       </ProtectedRoute>
                     } />
 
                     {/* Thêm route cho UserManagement */}
                     <Route path="/user-management" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <UserManagement />
                       </ProtectedRoute>
                     } />
 
                     {/* Thêm route cho UserManagement */}
                     <Route path="/manager/routes" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <RouteManagement />
                       </ProtectedRoute>
                     } />
 
                     <Route path="/manager/routes/add" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <AddRouteForm />
                       </ProtectedRoute>
                     } />
 
                     <Route path="/manager/routes/edit/:id" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <EditRouteForm />
                       </ProtectedRoute>
                     } />
 
                     {/* Thêm route cho BusManagement từ vị trí mới */}
                     <Route path="/bus-management" element={
-                      <ProtectedRoute allowedRoles={[ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.MANAGER, ROLES.STAFF]}>
                         <BusManagement />
                       </ProtectedRoute>
                     } />
 
 
                     <Route path="/manager/buses/add" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <AddBusForm />
                       </ProtectedRoute>
                     } />
 
                     <Route path="/manager/buses/edit/:id" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER,  ROLES.STAFF]}>
                         <EditBusForm />
                       </ProtectedRoute>
                     } />
 
                     <Route path="/manager/users/add" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <AddUserForm />
                       </ProtectedRoute>
                     } />
 
                     <Route path="/manager/users/edit/:id" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <EditUserForm />
                       </ProtectedRoute>
                     } />
@@ -212,7 +212,7 @@ const App = () => {
 
                     {/* Routes cho Review Management */}
                     <Route path="/manager/reviews" element={
-                      <ProtectedRoute allowedRoles={[ROLES.MANAGER, ROLES.ADMIN]}>
+                      <ProtectedRoute allowedRoles={[ROLES.MANAGER, ROLES.ADMIN, ROLES.STAFF]}>
                         <ReviewManagement />
                       </ProtectedRoute>
                     } />
@@ -242,20 +242,20 @@ const App = () => {
 
                     {/* Routes cho Schedule Management */}
                     <Route path="/manager/schedules" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER,  ROLES.STAFF]}>
                         <ScheduleManagement />
                       </ProtectedRoute>
                     } />
 
                     <Route path="/manager/schedules/add" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         {/* Component để thêm lịch trình mới */}
                         <AddScheduleForm />
                       </ProtectedRoute>
                     } />
 
                     <Route path="/manager/schedules/edit/:id" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         {/* Component để sửa lịch trình */}
                         <EditScheduleForm />
                       </ProtectedRoute>
@@ -271,7 +271,7 @@ const App = () => {
 
                     {/* Routes cho Review Management */}
                     <Route path="/manager/reviews" element={
-                      <ProtectedRoute allowedRoles={[ROLES.MANAGER, ROLES.ADMIN]}>
+                      <ProtectedRoute allowedRoles={[ROLES.MANAGER, ROLES.ADMIN, ROLES.STAFF]}>
                         <ReviewManagement />
                       </ProtectedRoute>
                     } />
@@ -289,7 +289,7 @@ const App = () => {
                     } />
 
                     <Route path="/change-password" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF, ROLES.PASSENGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF, ROLES.DRIVER, ROLES.PASSENGER]}>
                         <EditPassword />
                       </ProtectedRoute>
                     } />
@@ -299,7 +299,7 @@ const App = () => {
 
 
                     <Route path="/notifi" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF, ROLES.PASSENGER]}>
+                      <ProtectedRoute allowedRoles={[ ROLES.PASSENGER]}>
                         <NotificationList />
                       </ProtectedRoute>
                     } />

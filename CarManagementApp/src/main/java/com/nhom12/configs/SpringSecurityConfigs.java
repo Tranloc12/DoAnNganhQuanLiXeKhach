@@ -82,7 +82,7 @@ public class SpringSecurityConfigs {
                 .csrf(c -> c.disable())
                 // Chỉ STATELESS cho API endpoints, STATEFUL cho web endpoints
                 .sessionManagement(session -> session
-                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.IF_REQUIRED)
                 .maximumSessions(1)
                 .maxSessionsPreventsLogin(false))
                 .authorizeHttpRequests(requests -> requests
@@ -142,6 +142,8 @@ public class SpringSecurityConfigs {
                 .requestMatchers(HttpMethod.POST, "/api/paypal/create-payment").authenticated() // Tạo thanh toán, cần xác thực người dùng
                 .requestMatchers(HttpMethod.GET, "/api/paypal/execute-payment").permitAll() // Endpoint PayPal redirect, cần public
                 .requestMatchers(HttpMethod.GET, "/api/payments/my").hasAnyRole("PASSENGER", "ADMIN", "MANAGER", "DRIVER")
+                .requestMatchers(HttpMethod.GET, "/api/paypal/success").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/paypal/cancel").permitAll()
                 //----Location BUS------
                 .requestMatchers(HttpMethod.POST, "/api/bus-locations/update").hasAnyRole("DRIVER", "STAFF", "ADMIN", "MANAGER")
                 .requestMatchers(HttpMethod.GET, "/api/bus-locations/latest/**").permitAll()

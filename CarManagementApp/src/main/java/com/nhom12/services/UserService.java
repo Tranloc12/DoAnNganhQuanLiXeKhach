@@ -34,5 +34,7 @@ public interface UserService extends UserDetailsService {
     List<User> getUsers();
     
      List<Object[]> getUserRoleStats();
+     
+     List<User> findUsers(String username, String email, String userRole, Boolean isActive);
 
 }
