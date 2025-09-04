@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Thống kê phòng tập</title>
+    <head>
+        <meta charset="UTF-8">
+        <title>Thống kê phòng tập</title>
     <th:block th:replace="~{base :: styles}"></th:block>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -130,15 +130,15 @@
                 </tr>
             </thead>
             <tbody>
-                <th:block th:if="${gymUsage != null and not gymUsage.isEmpty()}">
-                    <tr th:each="entry : ${gymUsage}">
-                        <td th:text="${entry.key}"></td>
-                        <td th:text="${entry.value}"></td>
-                    </tr>
-                </th:block>
-                <tr th:if="${gymUsage == null or gymUsage.isEmpty()}">
-                    <td colspan="2" style="text-align: center;">Không có dữ liệu</td>
+            <th:block th:if="${gymUsage != null and not gymUsage.isEmpty()}">
+                <tr th:each="entry : ${gymUsage}">
+                    <td th:text="${entry.key}"></td>
+                    <td th:text="${entry.value}"></td>
                 </tr>
+            </th:block>
+            <tr th:if="${gymUsage == null or gymUsage.isEmpty()}">
+                <td colspan="2" style="text-align: center;">Không có dữ liệu</td>
+            </tr>
             </tbody>
         </table>
 
@@ -151,7 +151,7 @@
             /*<![CDATA[*/
             // Đảm bảo gymUsage luôn là một đối tượng JavaScript, ngay cả khi nó rỗng từ Thymeleaf
             const gymUsageMap = /*[[${gymUsage}]]*/ {}; // Mặc định là một đối tượng rỗng nếu null/empty
-            
+
             const labels = Object.keys(gymUsageMap).length ? Object.keys(gymUsageMap) : ['Sáng (6:00-12:00)', 'Chiều (12:00-18:00)', 'Tối (18:00-23:00)', 'Khác'];
             const data = Object.keys(gymUsageMap).length ? Object.values(gymUsageMap) : [0, 0, 0, 0];
 
@@ -161,12 +161,12 @@
                 data: {
                     labels: labels,
                     datasets: [{
-                        label: 'Số buổi tập',
-                        data: data,
-                        backgroundColor: ['#3498db', '#e74c3c', '#f1c40f', '#2ecc71'],
-                        borderRadius: 6,
-                        borderWidth: 1
-                    }]
+                            label: 'Số buổi tập',
+                            data: data,
+                            backgroundColor: ['#3498db', '#e74c3c', '#f1c40f', '#2ecc71'],
+                            borderRadius: 6,
+                            borderWidth: 1
+                        }]
                 },
                 options: {
                     responsive: true,
@@ -184,7 +184,7 @@
                         },
                         tooltip: {
                             callbacks: {
-                                label: function(context) {
+                                label: function (context) {
                                     let label = context.dataset.label || '';
                                     if (label) {
                                         label += ': ';
@@ -222,5 +222,7 @@
     </div>
 
     <div th:replace="~{base :: footer}"></div>
+    <div th:replace="base :: theme-scripts"></div>
+
 </body>
 </html>

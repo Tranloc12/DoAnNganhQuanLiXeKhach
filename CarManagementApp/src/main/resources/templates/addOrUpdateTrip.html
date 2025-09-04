@@ -2,106 +2,116 @@
 <!doctype html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
 
-<head>
-    <title th:text="${tripForm.id != null and tripForm.id > 0 ? 'Cập nhật Chuyến đi' : 'Thêm Chuyến đi mới'}"></title>
-    <th:block th:replace="base :: styles"></th:block>
+    <head>
+        <title th:text="${tripForm.id != null and tripForm.id > 0 ? 'Cập nhật Chuyến đi' : 'Thêm Chuyến đi mới'}"></title>
+    <th:block th:replace="base :: styles"></th:block>
 </head>
 
 <body>
-    <div th:replace="base :: header"></div>
+    <div th:replace="base :: header"></div>
 
-    <main class="container mt-4">
-        <h1 class="h2 mb-3" th:text="${tripForm.id != null and tripForm.id > 0 ? 'Cập nhật Chuyến đi' : 'Thêm Chuyến đi mới'}"></h1>
+    <main class="container mt-4">
+        <h1 class="h2 mb-3" th:text="${tripForm.id != null and tripForm.id > 0 ? 'Cập nhật Chuyến đi' : 'Thêm Chuyến đi mới'}"></h1>
 
-        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
-            <span th:text="${successMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <span th:text="${errorMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
 
-        <form th:action="@{/trips/add-or-update}" th:object="${tripForm}" method="post" class="needs-validation" novalidate>
-            <input type="hidden" th:field="*{id}" />
+        <div class="card shadow p-4 mb-4">
+            <div class="card-body">
+                <form th:action="@{/trips/add-or-update}" th:object="${tripForm}" method="post" class="needs-validation" novalidate>
+                    <input type="hidden" th:field="*{id}" />
 
-            <div class="mb-3">
-                <label for="busId" class="form-label">Xe buýt:</label>
-                <select th:field="*{busId}" class="form-select" id="busId" required>
-                    <option value="">-- Chọn xe buýt --</option>
-                    <option th:each="bus : ${buses}" th:value="${bus.id}" th:text="${bus.licensePlate + ' (' + bus.model + ')'}"></option>
-                </select>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('busId')}" th:errors="*{busId}"></div>
-            </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label for="busId" class="form-label">Xe buýt:</label>
+                            <select th:field="*{busId}" class="form-select" id="busId" required>
+                                <option value="">-- Chọn xe buýt --</option>
+                                <option th:each="bus : ${buses}" th:value="${bus.id}" th:text="${bus.licensePlate + ' (' + bus.model + ')'}"></option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('busId')}" th:errors="*{busId}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="driverId" class="form-label">Tài xế:</label>
+                            <select th:field="*{driverId}" class="form-select" id="driverId" required>
+                                <option value="">-- Chọn tài xế --</option>
+                                <option th:each="driver : ${drivers}" th:value="${driver.id}" th:text="${driver.userId.username + ' (' + driver.licenseNumber + ')'}"></option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('driverId')}" th:errors="*{driverId}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="routeId" class="form-label">Tuyến đường:</label>
+                            <select th:field="*{routeId}" class="form-select" id="routeId" required>
+                                <option value="">-- Chọn tuyến đường --</option>
+                                <option th:each="route : ${routes}" th:value="${route.id}" th:text="${route.routeName + ' (' + route.origin + ' - ' + route.destination + ')'}"></option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('routeId')}" th:errors="*{routeId}"></div>
+                        </div>
+                    </div>
 
-            <div class="mb-3">
-                <label for="driverId" class="form-label">Tài xế:</label>
-                <select th:field="*{driverId}" class="form-select" id="driverId" required>
-                    <option value="">-- Chọn tài xế --</option>
-                    <option th:each="driver : ${drivers}" th:value="${driver.id}" th:text="${driver.userId.username + ' (' + driver.licenseNumber + ')'}"></option>
-                </select>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('driverId')}" th:errors="*{driverId}"></div>
-            </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-4">
+                            <label for="departureTime" class="form-label">Thời gian khởi hành:</label>
+                            <input type="datetime-local" th:field="*{departureTime}" class="form-control" id="departureTime" required />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('departureTime')}" th:errors="*{departureTime}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="arrivalTime" class="form-label">Thời gian dự kiến đến:</label>
+                            <input type="datetime-local" th:field="*{arrivalTime}" class="form-control" id="arrivalTime" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('arrivalTime')}" th:errors="*{arrivalTime}"></div>
+                        </div>
+                        <div class="col-md-4">
+                            <label for="actualArrivalTime" class="form-label">Thời gian thực tế đến:</label>
+                            <input type="datetime-local" th:field="*{actualArrivalTime}" class="form-control" id="actualArrivalTime" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('actualArrivalTime')}" th:errors="*{actualArrivalTime}"></div>
+                        </div>
+                    </div>
 
-            <div class="mb-3">
-                <label for="routeId" class="form-label">Tuyến đường:</label>
-                <select th:field="*{routeId}" class="form-select" id="routeId" required>
-                    <option value="">-- Chọn tuyến đường --</option>
-                    <option th:each="route : ${routes}" th:value="${route.id}" th:text="${route.routeName + ' (' + route.origin + ' - ' + route.destination + ')'}"></option>
-                </select>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('routeId')}" th:errors="*{routeId}"></div>
-            </div>
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label for="fare" class="form-label">Giá vé (VNĐ):</label>
+                            <input type="number" step="1000" th:field="*{fare}" class="form-control" id="fare" required min="0" />
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('fare')}" th:errors="*{fare}"></div>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="status" class="form-label">Trạng thái:</label>
+                            <select th:field="*{status}" class="form-select" id="status" required>
+                                <option value="">-- Chọn trạng thái --</option>
+                                <option th:each="s : ${tripStatuses}" th:value="${s}" th:text="${s}"></option>
+                            </select>
+                            <div class="invalid-feedback" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
+                        </div>
+                    </div>
 
-            <div class="mb-3">
-                <label for="departureTime" class="form-label">Thời gian khởi hành:</label>
-                <input type="datetime-local" th:field="*{departureTime}" class="form-control" id="departureTime" required />
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('departureTime')}" th:errors="*{departureTime}"></div>
-            </div>
+                    <div class="row g-3 mb-3" th:if="${tripForm.id != null and tripForm.id > 0}">
+                        <div class="col-md-6">
+                            <label for="availableSeats" class="form-label">Số ghế trống:</label>
+                            <input type="number" th:field="*{availableSeats}" class="form-control" id="availableSeats" readonly />
+                        </div>
+                        <div class="col-md-6">
+                            <label for="totalBookedSeats" class="form-label">Tổng số ghế đã đặt:</label>
+                            <input type="number" th:field="*{totalBookedSeats}" class="form-control" id="totalBookedSeats" readonly />
+                        </div>
+                    </div>
 
-            <div class="mb-3">
-                <label for="arrivalTime" class="form-label">Thời gian dự kiến đến:</label>
-                <input type="datetime-local" th:field="*{arrivalTime}" class="form-control" id="arrivalTime" />
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('arrivalTime')}" th:errors="*{arrivalTime}"></div>
-            </div>
+                    <div class="d-flex justify-content-end mt-4">
+                        <button type="submit" class="btn btn-primary me-2"><i class="fas fa-save"></i> Lưu</button>
+                        <a th:href="@{/trips}" class="btn btn-secondary"><i class="fas fa-times"></i> Hủy</a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
 
-            <div class="mb-3">
-                <label for="actualArrivalTime" class="form-label">Thời gian thực tế đến:</label>
-                <input type="datetime-local" th:field="*{actualArrivalTime}" class="form-control" id="actualArrivalTime" />
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('actualArrivalTime')}" th:errors="*{actualArrivalTime}"></div>
-            </div>
+    <div th:replace="base :: footer"></div>
+    <script th:src="@{/js/main.js}"></script>
+    <div th:replace="base :: theme-scripts"></div>
 
-            <div class="mb-3">
-                <label for="fare" class="form-label">Giá vé:</label>
-                <input type="number" step="0.01" th:field="*{fare}" class="form-control" id="fare" required min="0" />
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('fare')}" th:errors="*{fare}"></div>
-            </div>
-
-            <div class="mb-3">
-                <label for="status" class="form-label">Trạng thái:</label>
-                <select th:field="*{status}" class="form-select" id="status" required>
-                    <option value="">-- Chọn trạng thái --</option>
-                    <option th:each="s : ${tripStatuses}" th:value="${s}" th:text="${s}"></option>
-                </select>
-                <div class="invalid-feedback" th:if="${#fields.hasErrors('status')}" th:errors="*{status}"></div>
-            </div>
-
-            <div class="mb-3" th:if="${tripForm.id != null and tripForm.id > 0}">
-                <label for="availableSeats" class="form-label">Số ghế trống:</label>
-                <input type="number" th:field="*{availableSeats}" class="form-control" id="availableSeats" readonly />
-            </div>
-            <div class="mb-3" th:if="${tripForm.id != null and tripForm.id > 0}">
-                <label for="totalBookedSeats" class="form-label">Tổng số ghế đã đặt:</label>
-                <input type="number" th:field="*{totalBookedSeats}" class="form-control" id="totalBookedSeats" readonly />
-            </div>
-
-
-            <button type="submit" class="btn btn-primary">Lưu</button>
-            <a th:href="@{/trips}" class="btn btn-secondary">Hủy</a>
-        </form>
-    </main>
-
-    <div th:replace="base :: footer"></div>
-    <script th:src="@{/js/main.js}"></script>
 </body>
 
 </html>

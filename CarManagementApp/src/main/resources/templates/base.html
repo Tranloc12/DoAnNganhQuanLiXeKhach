@@ -1,7 +1,7 @@
 <!doctype html>
-<html xmlns:th="http://www.thymeleaf.org" 
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      data-bs-theme="light">
 
     <head>
         <title>Trang chủ - Hệ thống quản lý xe khách</title>
@@ -12,9 +12,8 @@
                 integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-
-
     </th:block>
+
 </head>
 
 <body>
@@ -31,8 +30,7 @@
                         <li class="nav-item">
                             <a class="nav-link" th:href="@{/}">Trang chủ</a>
                         </li>
-
-                        <li class="nav-item dropdown" >
+                        <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownAdmin" role="button"
                                data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-tools"></i> Quản lý hệ thống
@@ -44,55 +42,86 @@
                                 <li><a class="dropdown-item" th:href="@{/drivers}"><i class="fas fa-id-card"></i> Danh sách Tài xế</a></li>
                                 <li><a class="dropdown-item" th:href="@{/staff}"><i class="fas fa-user-alt"></i> Danh sách Nhân viên</a></li>
                                 <li><a class="dropdown-item" th:href="@{/managers}"><i class="fas fa-user-shield"></i> Danh sách Quản lý</a></li>
-
                                 <li><hr class="dropdown-divider"></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" th:href="@{/routes}"><i class="fas fa-map-marked-alt"></i> Quản lý Tuyến đường</a></li>
                                 <li><a class="dropdown-item" th:href="@{/buses}"><i class="fas fa-bus"></i> Quản lý Xe khách</a></li>
-                                <li><a class="dropdown-item" th:href="@{/trips}"><i class="fas fa-calendar-alt"></i> Quản lý Lịch trình & Chuyến đi</a></li>
-
+                                <li><a class="dropdown-item" th:href="@{/trips}"><i class="fas fa-calendar-alt"></i> Quản lý Chuyến đi</a></li>
                                 <li><hr class="dropdown-divider"></li>
                                 <li><a class="dropdown-item" th:href="@{/admin/bookings}"><i class="fas fa-ticket-alt"></i> Quản lý Đơn đặt vé</a></li>
                                 <li><a class="dropdown-item" th:href="@{/admin/reviews}"><i class="fas fa-star"></i> Quản lý Đánh giá</a></li>
                                 <li><hr class="dropdown-divider"></li>
-
                                 <li><a class="dropdown-item" th:href="@{/admin-statics}"><i class="fas fa-chart-line"></i> Thống kê & Báo cáo</a></li>
                             </ul>
                         </li>
-
-                        <li class="nav-item"  >
-                            <a class="nav-link d-flex align-items-center"  role="button" style="color: rgba(255,255,255,0.6);" th:href="@{/buses}">
-                                <i class=""></i><span>Quản lý Xe khách</span>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" role="button" style="color: rgba(255,255,255,0.6);" th:href="@{/buses}">
+                                <span>Quản lý Xe khách</span>
                             </a>
                         </li>
-
-                        <li class="nav-item"  >
-                            <a class="nav-link d-flex align-items-center"  role="button" style="color: rgba(255,255,255,0.6);" th:href="@{/routes}">
-                                <i class=""></i><span>Quản lý Tuyến đường</span>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" role="button" style="color: rgba(255,255,255,0.6);" th:href="@{/routes}">
+                                <span>Quản lý Tuyến đường</span>
                             </a>
                         </li>
-
-                        <li class="nav-item" >
-                            <a class="nav-link d-flex align-items-center"  role="button"style="color: rgba(255,255,255,0.6);" th:href="@{/trips}">
-                                <i class=""></i><span>Quản lý Chuyến đi</span>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" role="button" style="color: rgba(255,255,255,0.6);" th:href="@{/trips}">
+                                <span>Quản lý Chuyến đi</span>
                             </a>
                         </li>
-
-                        <li class="nav-item" >
-                            <a class="nav-link d-flex align-items-center"  role="button" style="color: rgba(255,255,255,0.6);" th:href="@{/admin-statics}">
-                                <i class=""></i><span>Thống kê Báo Cáo</span>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" role="button" style="color: rgba(255,255,255,0.6);" th:href="@{/admin/bookings}">
+                                <span>Quản lý Đơn đặt vé</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" role="button" style="color: rgba(255,255,255,0.6);" th:href="@{/admin/reviews}">
+                                <span>Quản lý Đánh giá</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link d-flex align-items-center" role="button" style="color: rgba(255,255,255,0.6);" th:href="@{/admin-statics}">
+                                <span>Thống kê Báo Cáo</span>
                             </a>
                         </li>
                     </ul>
                     <ul class="navbar-nav ms-auto">
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownTheme" role="button"
+                               data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="fas fa-palette"></i> Tiện Ích 
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdownTheme">
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center" data-bs-theme-value="light">
+                                        <i class="fas fa-sun me-2"></i> Sáng
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center" data-bs-theme-value="dark">
+                                        <i class="fas fa-moon me-2"></i> Tối
+                                    </button>
+                                </li>
+
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center" id="zoom-in-button">
+                                        <i class="fas fa-plus me-2"></i> Phóng To
+                                    </button>
+                                </li>
+                                <li>
+                                    <button class="dropdown-item d-flex align-items-center" id="zoom-out-button">
+                                        <i class="fas fa-minus me-2"></i> Thu Nhỏ
+                                    </button>
+                                </li>
+                            </ul>
+
+                        </li>
                         <li class="nav-item me-2" sec:authorize="!isAuthenticated()">
                             <a class="nav-link text-success" th:href="@{/login}">Đăng nhập</a>
                         </li>
-
                         <li class="nav-item me-2" sec:authorize="isAuthenticated()">
                             <a class="nav-link text-danger" th:href="@{/logout}">Đăng xuất</a>
                         </li>
-
                         <li class="nav-item me-2" sec:authorize="isAuthenticated()">
                             <a class="nav-link" href="#">
                                 Xin chào, <span sec:authentication="name">User</span>!
@@ -110,6 +139,91 @@
             <p>CarManagement &copy; 2025</p>
         </div>
     </footer>
+<th:block th:fragment="theme-scripts">
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const getStoredTheme = () => localStorage.getItem('theme');
+            const setStoredTheme = theme => localStorage.setItem('theme', theme);
+            const getPreferredTheme = () => {
+                const storedTheme = getStoredTheme();
+                if (storedTheme) {
+                    return storedTheme;
+                }
+                return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+            };
+            const setTheme = theme => {
+                if (theme === 'auto') {
+                    document.documentElement.setAttribute('data-bs-theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                } else {
+                    document.documentElement.setAttribute('data-bs-theme', theme);
+                }
+            };
+            setTheme(getPreferredTheme());
+            const showActiveTheme = theme => {
+                const themeTogglers = document.querySelectorAll('[data-bs-theme-value]');
+                themeTogglers.forEach(toggler => {
+                    toggler.classList.remove('active');
+                    toggler.setAttribute('aria-pressed', 'false');
+                    if (toggler.getAttribute('data-bs-theme-value') === theme) {
+                        toggler.classList.add('active');
+                        toggler.setAttribute('aria-pressed', 'true');
+                    }
+                });
+            };
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+                const storedTheme = getStoredTheme();
+                if (storedTheme !== 'light' && storedTheme !== 'dark') {
+                    setTheme(getPreferredTheme());
+                }
+            });
+            window.addEventListener('load', () => {
+                showActiveTheme(getPreferredTheme());
+                document.querySelectorAll('[data-bs-theme-value]').forEach(toggle => {
+                    toggle.addEventListener('click', () => {
+                        const theme = toggle.getAttribute('data-bs-theme-value');
+                        setStoredTheme(theme);
+                        setTheme(theme);
+                        showActiveTheme(theme);
+                    });
+                });
+            });
+        });
+    </script>
+    <script>
+                        document.addEventListener('DOMContentLoaded', () => {
+                                const html = document.documentElement;
+                                const zoomInButton = document.getElementById('zoom-in-button');
+                                const zoomOutButton = document.getElementById('zoom-out-button');
+                                const localStorageKey = 'zoom-level';
+
+                                // Lấy giá trị zoom đã lưu trong localStorage, nếu không có thì mặc định là 16
+                                let currentFontSize = parseFloat(localStorage.getItem(localStorageKey)) || 16;
+                                html.style.fontSize = `${currentFontSize}px`;
+
+                                const changeZoom = (factor) => {
+                                        const newSize = currentFontSize * factor;
+
+                                        // Giới hạn kích thước để không quá to hoặc quá nhỏ
+                                        if (newSize > 24 || newSize < 12) {
+                                                return;
+                                        }
+
+                                        currentFontSize = newSize;
+                                        html.style.fontSize = `${currentFontSize}px`;
+                                        localStorage.setItem(localStorageKey, currentFontSize);
+                                };
+
+                                zoomInButton.addEventListener('click', () => {
+                                        changeZoom(1.15); // Phóng to 15%
+                                });
+
+                                zoomOutButton.addEventListener('click', () => {
+                                        changeZoom(0.85); // Thu nhỏ 15%
+                                });
+                        });
+            </script>
+</th:block>
+
 </body>
 
 </html>

@@ -1,9 +1,101 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Trang chủ - Hệ thống quản lý xe khách</title>
-    <th:block th:replace="base :: styles"></th:block>
+    <head>
+        <title>Trang chủ - Hệ thống quản lý xe khách</title>
+        <link rel="stylesheet" th:replace="~{base :: styles}">
 </head>
+<style>
+    body {
+        font-family: 'Poppins', sans-serif; /* Hoặc Inter, Rubik */
+        background-color: #f0f2f5; /* Nền xám nhạt */
+    }
+
+    /* Các card chung */
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border: none; /* Bỏ viền mặc định của Bootstrap */
+    }
+
+    /* Card header chung */
+    .card-header {
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05); /* Viền dưới nhẹ nhàng */
+        background-color: #ffffff; /* Nền trắng */
+        border-radius: 12px 12px 0 0; /* Chỉ bo góc trên */
+    }
+
+    /* Cải thiện input và select trong form */
+    .form-control, .form-select {
+        border-radius: 8px;
+        border: 1px solid #dee2e6;
+        background-color: #ffffff;
+        color: #495057;
+    }
+    .form-control:focus, .form-select:focus {
+        border-color: #007bff; /* Màu viền khi focus */
+        box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.15); /* Đổ bóng nhẹ khi focus */
+        outline: none;
+    }
+
+    /* Đảm bảo label của form-floating hoạt động tốt trên nền sáng */
+    .form-floating label {
+        color: #6c757d;
+    }
+    .form-floating .form-control:focus ~ label,
+    .form-floating .form-control:not(:placeholder-shown) ~ label {
+        color: #007bff; /* Màu label khi nổi/focus */
+        background-color: transparent; /* Đảm bảo không có nền trắng */
+        transform: scale(0.85) translateY(-0.7rem) translateX(0.15rem); /* Điều chỉnh vị trí nổi */
+    }
+
+    /* Nút */
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        border-radius: 25px; /* Nút bầu dục */
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+        border-color: #0056b3;
+        transform: translateY(-1px);
+    }
+    .btn-secondary {
+        background-color: #6c757d;
+        border-color: #6c757d;
+        border-radius: 25px; /* Nút bầu dục */
+        padding: 10px 20px;
+        font-weight: 500;
+        transition: all 0.2s ease;
+    }
+    .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #5a6268;
+        transform: translateY(-1px);
+    }
+
+    /* Table styling */
+    .table-bordered {
+        border: 1px solid #e3e6f0;
+        border-radius: 8px; /* Bo góc cho bảng */
+        overflow: hidden; /* Để bo góc của bảng được hiển thị */
+    }
+    .table-dark th {
+        background-color: #343a40; /* Màu nền header bảng */
+        color: white;
+        border-color: #454d55;
+    }
+    .table th, .table td {
+        padding: 12px 15px; /* Tăng padding trong ô */
+        vertical-align: middle;
+        border-top: 1px solid #e3e6f0;
+    }
+    .table-bordered th, .table-bordered td {
+        border: 1px solid #e3e6f0;
+    }
+</style>
 <body>
     <div th:replace="base :: header"></div>
 
@@ -167,6 +259,59 @@
             </div>
 
             <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Bộ lọc Tìm kiếm</h6>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/users}" method="get">
+                        <div class="row g-3">
+                            <div class="col-md-6 col-lg-3">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="usernameFilter" name="username" th:value="${username}" placeholder="Tên người dùng">
+                                    <label for="usernameFilter">Tên người dùng</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="form-floating mb-3">
+                                    <input type="text" class="form-control" id="emailFilter" name="email" th:value="${email}" placeholder="Email">
+                                    <label for="emailFilter">Email</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="roleFilter" name="userRole" aria-label="Vai trò">
+                                        <option value="">-- Tất cả --</option>
+                                        <option value="ROLE_ADMIN" th:selected="${userRole == 'ROLE_ADMIN'}">Quản trị viên</option>
+                                        <option value="ROLE_MANAGER" th:selected="${userRole == 'ROLE_MANAGER'}">Quản lý</option>
+                                        <option value="ROLE_DRIVER" th:selected="${userRole == 'ROLE_DRIVER'}">Tài xế</option>
+                                        <option value="ROLE_PASSENGER" th:selected="${userRole == 'ROLE_PASSENGER'}">Hành khách</option>
+                                        <option value="ROLE_STAFF" th:selected="${userRole == 'ROLE_STAFF'}">Nhân viên</option>
+                                    </select>
+                                    <label for="roleFilter">Vai trò</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="form-floating mb-3">
+                                    <select class="form-select" id="statusFilter" name="isActive" aria-label="Trạng thái">
+                                        <option value="">-- Tất cả --</option>
+                                        <option value="true" th:selected="${isActive != null && isActive}">Hoạt động</option>
+                                        <option value="false" th:selected="${isActive != null && !isActive}">Không hoạt động</option>
+                                    </select>
+                                    <label for="statusFilter">Trạng thái</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12 d-flex justify-content-end">
+                                <button type="submit" class="btn btn-primary me-2">Tìm kiếm</button>
+                                <a th:href="@{/users}" class="btn btn-secondary">Xóa bộ lọc</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
                     <h6 class="m-0 font-weight-bold text-primary">Danh sách người dùng</h6>
                     <div class="dropdown no-arrow">
@@ -176,10 +321,10 @@
                         <div class="dropdown-menu dropdown-menu-right shadow">
                             <div class="dropdown-header">Hành động:</div>
                             <a class="dropdown-item" th:href="@{/users/add}">Thêm người dùng</a>
-                            <a class="dropdown-item" th:href="@{/drivers}">Danh sách tài xế</a>
-                            <a class="dropdown-item" th:href="@{/passengers}">Danh sách hành khách</a>
-                            <a class="dropdown-item" th:href="@{/staff}">Danh sách nhân viên</a>
-                            <a class="dropdown-item" th:href="@{/managers}">Danh sách quản lý</a>
+                            <a class="dropdown-item" th:href="@{/users(userRole='ROLE_DRIVER')}">Danh sách tài xế</a>
+                            <a class="dropdown-item" th:href="@{/users(userRole='ROLE_PASSENGER')}">Danh sách hành khách</a>
+                            <a class="dropdown-item" th:href="@{/users(userRole='ROLE_STAFF')}">Danh sách nhân viên</a>
+                            <a class="dropdown-item" th:href="@{/users(userRole='ROLE_MANAGER')}">Danh sách quản lý</a>
                             <div class="dropdown-divider"></div>
                             <a class="dropdown-item" th:href="@{/users}">Tất cả người dùng</a>
                         </div>
@@ -201,7 +346,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                
+
                                 <tr th:each="user : ${users}">
                                     <td th:text="${user.id}"></td>
                                     <td th:text="${user.username}"></td>
@@ -234,5 +379,7 @@
     <div th:replace="base :: footer"></div>
 
     <script th:src="@{/js/main.js}"></script>
+    <div th:replace="base :: theme-scripts"></div>
+
 </body>
 </html>

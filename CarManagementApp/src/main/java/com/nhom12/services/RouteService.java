@@ -8,10 +8,19 @@ import com.nhom12.pojo.Route;
 import java.util.List;
 
 public interface RouteService {
+
     List<Route> getRoutes(String kw);
+
     Route getRouteById(int id);
+
     boolean addOrUpdateRoute(Route route);
+
     boolean deleteRoute(int id);
+
     boolean isRouteNameExist(String routeName, Integer excludeRouteId);
+
     long countRoutes();
+
+    List<Route> findRoutes(String routeName, String origin, String destination, Double distanceFrom, Double distanceTo, Double priceFrom, Double priceTo, Boolean isActive);
+
 }

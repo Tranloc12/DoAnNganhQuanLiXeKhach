@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import Deck from './Deck'; // Import từ file riêng
@@ -8,6 +8,9 @@ import './SeatBooking.css'; // Import CSS riêng
 import apis, { authApis, endpoints } from "../../configs/Apis"; // Import từ configs/Apis
 import QRCode from "react-qr-code"; // Import từ thư viện (cần cài đặt: npm install react-qr-code)
 import { createPayPalPayment, executePayPalPayment } from "../../services/paypalService";
+import { useNavigate } from 'react-router-dom';
+import { AuthLoadingContext, MyUserContext } from "../../contexts/Contexts";
+
 
 
 
@@ -23,6 +26,12 @@ const SeatBooking = () => {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("vietqr"); // Default selected
     const [remainingTime, setRemainingTime] = useState(1200); // 1200 giây = 20 phút
     const [bookingId, setBookingId] = useState(null); // Lưu bookingId sau khi đặt vé thành công
+    const navigate = useNavigate();
+
+    // Access context
+    const user = useContext(MyUserContext);
+    const authLoading = useContext(AuthLoadingContext);
+
 
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
@@ -110,24 +119,67 @@ const SeatBooking = () => {
         }
     };
 
+    const generateSeatsFromCapacity = (capacity) => {
+        // Giả sử chia đều 2 tầng
+        const lowerDeckCount = Math.ceil(capacity / 2);
+        const upperDeckCount = capacity - lowerDeckCount;
+
+        const lowerDeckRows = [];
+        const upperDeckRows = [];
+
+        // Ví dụ mỗi hàng tối đa 4 ghế (có thể điều chỉnh)
+        const seatsPerRow = 3;
+
+        // Tạo ghế tầng dưới
+        let seatIndex = 1;
+        let remaining = lowerDeckCount;
+        while (remaining > 0) {
+            const rowSeats = Math.min(seatsPerRow, remaining);
+            lowerDeckRows.push(
+                Array.from({ length: rowSeats }, () => ({
+                    seatNumber: `A${seatIndex++}`,
+                }))
+            );
+            remaining -= rowSeats;
+        }
+
+        // Tạo ghế tầng trên
+        remaining = upperDeckCount;
+        seatIndex = 1;
+        while (remaining > 0) {
+            const rowSeats = Math.min(seatsPerRow, remaining);
+            upperDeckRows.push(
+                Array.from({ length: rowSeats }, () => ({
+                    seatNumber: `B${seatIndex++}`,
+                }))
+            );
+            remaining -= rowSeats;
+        }
+
+        setLowerDeckSeats(lowerDeckRows);
+        setUpperDeckSeats(upperDeckRows);
+    };
+
+
     // Lấy dữ liệu chuyến đi và các ghế đã đặt
     useEffect(() => {
-        generateInitialSeatsStructure();
         const fetchData = async () => {
             if (!id) return;
             try {
                 const tripRes = await apis.get(`${endpoints.trips}/${id}`);
                 setTrip(tripRes.data);
 
+                // Sinh ghế dựa vào busCapacity
+                generateSeatsFromCapacity(tripRes.data.busCapacity);
+
                 const bookingsRes = await apis.get(`${endpoints.bookings}?status=CONFIRMED`);
                 const allBookings = Array.isArray(bookingsRes.data) ? bookingsRes.data : (bookingsRes.data ? [bookingsRes.data] : []);
                 const booked = allBookings
                     .filter(b => b.tripId?.id === parseInt(id))
                     .flatMap(b => b.seatNumbers?.split(",").map(s => s.trim()) || []);
-                console.log("Booked Seats:", booked);
                 setBookedSeats(booked);
             } catch (err) {
-                console.error("Lỗi khi tải dữ liệu chuyến đi hoặc bookings:", err);
+                console.error(err);
                 setMessage("Lỗi khi tải dữ liệu chuyến đi và ghế đã đặt.");
             }
         };
@@ -148,6 +200,7 @@ const SeatBooking = () => {
 
     // Bước 1: Xử lý tạo booking (Sau khi chọn ghế và điền thông tin)
     const handleBooking = async () => {
+        // Các bước kiểm tra ban đầu không thay đổi
         if (selectedSeats.length === 0) {
             setMessage("Vui lòng chọn ít nhất 1 ghế.");
             return;
@@ -157,21 +210,22 @@ const SeatBooking = () => {
             return;
         }
 
+
+        // THÊM: Kiểm tra lỗi và chuyển hướng đến trang đăng nhập
         setLoading(true);
         setMessage("Đang xử lý đặt chỗ...");
 
         try {
-            // Tính toán số lượng ghế chính xác từ mảng selectedSeats
             const numberOfSeats = selectedSeats.length;
 
-            // SỬ DỤNG authApis() ĐỂ ĐẢM BẢO HEADER AUTHORIZATION ĐƯỢC GỬI
+            // Sử dụng authApis() để đảm bảo header Authorization được gửi
             const response = await authApis().post(endpoints.bookings, {
-                tripId: trip.id, // Đảm bảo bạn chỉ gửi ID của trip
-                numberOfSeats: numberOfSeats, // <-- Đã thêm và sửa lỗi ở đây
+                tripId: trip.id,
+                numberOfSeats: numberOfSeats,
                 seatNumbers: selectedSeats.join(",")
             });
 
-            const newBookingId = response.data.id || response.data.bookingId; // Backend có thể trả về 'id' hoặc 'bookingId'
+            const newBookingId = response.data.id || response.data.bookingId;
 
             console.log("Phản hồi từ API đặt chỗ:", response.data);
             console.log("ID booking đã lấy:", newBookingId);
@@ -180,7 +234,7 @@ const SeatBooking = () => {
                 setBookingId(newBookingId);
                 setCurrentStep(2); // Chuyển sang bước chọn phương thức thanh toán
                 setMessage("Đặt chỗ thành công! Vui lòng chọn phương thức thanh toán.");
-                setRemainingTime(1200); // Đặt lại thời gian giữ chỗ
+                setRemainingTime(1200);
             } else {
                 setMessage("Đặt chỗ thất bại: Không nhận được ID đặt vé từ hệ thống.");
                 console.error("Phản hồi API đặt chỗ không chứa 'id' hoặc 'bookingId':", response.data);
@@ -188,7 +242,21 @@ const SeatBooking = () => {
 
         } catch (err) {
             console.error("Lỗi khi đặt chỗ:", err);
-            setMessage(`Đặt chỗ thất bại: ${err.response?.data?.message || err.message}. Vui lòng thử lại.`);
+            // THAY ĐỔI: Kiểm tra lỗi 401 (Unauthorized) và chuyển hướng
+            if (err.response && err.response.status === 401) {
+                setMessage("Vui lòng đăng nhập để đặt vé.");
+                // Chuyển hướng người dùng đến trang đăng nhập
+                // Giả sử bạn có một hàm `Maps` từ React Router
+                navigate('/login');
+            } else {
+                // Xử lý các lỗi khác
+                if (!user) {
+                    setMessage("Vui lòng đăng nhập để đặt vé.");
+                    navigate("/login");
+                    return;
+                }
+                setMessage(`Đặt chỗ thất bại: vui lòng đăng nhập . Vui lòng thử lại.`);
+            }
         } finally {
             setLoading(false);
         }
@@ -288,7 +356,6 @@ const SeatBooking = () => {
             setMessage(`Vui lòng hoàn tất thanh toán bằng phương thức ${selectedPaymentMethod}. Quét mã QR hoặc làm theo hướng dẫn.`);
         }
     };
-    
 
 
     const mappedLowerDeckSeats = lowerDeckSeats.map(row =>
@@ -531,7 +598,7 @@ const SeatBooking = () => {
                             </h3>
                             <p><strong>Tuyến:</strong> {trip.routeName}</p>
                             <p><strong>Biển số xe:</strong> {trip.busLicensePlate}</p>
-                            <p><strong>Giờ khởi hành:</strong> {trip.departureTime[3]}:{String(trip.departureTime[4]).padStart(2, '0')} ngày {trip.departureTime[2]}/${trip.departureTime[1]}/${trip.departureTime[0]}</p>
+                            <p><strong>Giờ khởi hành:</strong> {trip.departureTime[3]}:{String(trip.departureTime[4]).padStart(2, '0')} ngày {trip.departureTime[2]}/{trip.departureTime[1]}/{trip.departureTime[0]}</p>
                             <p><strong>Giá vé:</strong> <span style={{ color: "#e74c3c", fontWeight: 700 }}>{trip.fare?.toLocaleString('vi-VN')} VNĐ</span></p>
                         </div>
                     )}

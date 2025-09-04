@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 export default function TripList() {
     const [trips, setTrips] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [hoveredTripId, setHoveredTripId] = useState(null); // Thêm state để theo dõi hover
     const navigate = useNavigate();
 
     const loadTrips = async () => {
@@ -54,22 +55,36 @@ export default function TripList() {
         }
     };
 
-    if (loading) return <p style={styles.loadingMessage}>Đang tải danh sách chuyến đi...</p>;
+    if (loading) return (
+        <div style={styles.loadingContainer}>
+            <p style={styles.loadingMessage}>Đang tải danh sách chuyến đi...</p>
+        </div>
+    );
 
     return (
         <div style={styles.container}>
             <h2 style={styles.heading}>Danh sách Chuyến đi</h2>
 
             {!trips.length ? (
-                <p style={styles.noDataMessage}>🚨 Không có dữ liệu chuyến đi nào để hiển thị.</p>
+                <div style={styles.noDataMessageBox}>
+                    <p style={styles.noDataMessage}>🚨 Không có dữ liệu chuyến đi nào để hiển thị.</p>
+                </div>
             ) : (
                 <div style={styles.cardGrid}>
                     {trips.map((trip) => {
                         const { time, date } = formatDepartureTime(trip.departureTime);
                         const statusInfo = getStatusTextAndStyle(trip.status);
 
+                        // Áp dụng style hover nếu id của chuyến đi khớp với id đang được hover
+                        const cardStyle = hoveredTripId === trip.id ? { ...styles.card, ...styles.cardHover } : styles.card;
+
                         return (
-                            <div key={trip.id} style={styles.card}>
+                            <div
+                                key={trip.id}
+                                style={cardStyle}
+                                onMouseEnter={() => setHoveredTripId(trip.id)} // Thêm sự kiện khi di chuột vào
+                                onMouseLeave={() => setHoveredTripId(null)} // Thêm sự kiện khi di chuột ra
+                            >
                                 <div style={styles.cardHeader}>
                                     <h3 style={styles.cardTitle}>{trip.routeName}</h3>
                                     <span style={statusInfo.style}>
@@ -95,22 +110,19 @@ export default function TripList() {
                                 </div>
                                 <div style={styles.cardFooter}>
                                     <button
-                                        style={styles.viewDetailsButton}
+                                        style={styles.outlineButton}
                                         onClick={() => navigate(`/book/${trip.id}`)}
                                     >
                                         Đặt vé ngay
                                     </button>
-                                    {/* Nút mới để theo dõi vị trí */}
                                     <button
-                                        style={styles.trackButton}
+                                        style={styles.outlineSuccessButton}
                                         onClick={() => navigate(`/trips/${trip.id}/track`)}
                                     >
                                         Theo dõi vị trí 🗺️
                                     </button>
-                                    {/* Nút hiện có để xem đánh giá */}
                                     <button
-                                        style={styles.viewReviewsButton}
-                                        
+                                        style={styles.outlineDangerButton}
                                         onClick={() => navigate(`/trips/${trip.id}/reviews`)}
                                     >
                                         Xem Đánh Giá
@@ -128,44 +140,48 @@ export default function TripList() {
 // Khai báo lại styles với các cập nhật
 const styles = {
     container: {
-        fontFamily: "'Quicksand', sans-serif",
+        fontFamily: "'Inter', sans-serif", 
         padding: '40px',
         maxWidth: '1200px',
         margin: '40px auto',
         backgroundColor: '#f8f9fa',
         borderRadius: '16px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+        boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
     },
-    loadingMessage: {
+    loadingContainer: {
         textAlign: 'center',
-        fontSize: '1.4em',
-        color: '#6c757d',
         padding: '40px 20px',
         backgroundColor: '#e9ecef',
         borderRadius: '12px',
         boxShadow: '0 4px 10px rgba(0,0,0,0.05)',
         fontWeight: '500',
     },
+    loadingMessage: {
+        fontSize: '1.4em',
+        color: '#6c757d',
+    },
     heading: {
         textAlign: 'center',
-        color: '#e75702',
+        color: '#333', 
         marginBottom: '50px',
-        fontSize: '3.5em',
-        fontWeight: '800',
+        fontSize: '2.8em', 
+        fontWeight: '700', 
         textTransform: 'uppercase',
-        letterSpacing: '0.1em',
-        textShadow: '2px 2px 5px rgba(0,0,0,0.15)',
+        letterSpacing: '0.05em', 
+        textShadow: '1px 1px 3px rgba(0,0,0,0.08)',
     },
-    noDataMessage: {
+    noDataMessageBox: {
         textAlign: 'center',
-        fontSize: '1.6em',
-        color: '#dc3545',
         padding: '30px',
         backgroundColor: '#fff0f3',
         border: '2px dashed #ffcccb',
         borderRadius: '12px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
         fontWeight: '600',
+    },
+    noDataMessage: {
+        fontSize: '1.6em',
+        color: '#dc3545',
     },
     cardGrid: {
         display: 'grid',
@@ -175,18 +191,19 @@ const styles = {
     },
     card: {
         backgroundColor: '#ffffff',
-        border: '1px solid #e9ecef',
+        border: '2px solid transparent', // Đặt viền trong suốt ban đầu
         borderRadius: '16px',
-        boxShadow: '0 6px 20px rgba(0,0,0,0.08)',
+        boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
         padding: '30px',
         transition: 'all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1)',
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'space-between',
-        '&:hover': {
-            transform: 'translateY(-8px)',
-            boxShadow: '0 12px 30px rgba(0,0,0,0.15)',
-        }
+    },
+    cardHover: { // Style khi hover
+        transform: 'translateY(-5px)', 
+        boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
+        border: '2px solid #e75702', // Đổi màu viền khi hover
     },
     cardHeader: {
         display: 'flex',
@@ -197,117 +214,130 @@ const styles = {
         marginBottom: '20px',
     },
     cardTitle: {
-        fontSize: '2em',
+        fontSize: '1.6em',
         color: '#343a40',
         fontWeight: '700',
         margin: 0,
-        letterSpacing: '0.02em',
+        letterSpacing: '0.01em',
     },
     cardBody: {
         flexGrow: 1,
         marginBottom: '20px',
     },
     cardDetail: {
-        fontSize: '1.1em',
+        fontSize: '1em',
         color: '#555',
         marginBottom: '10px',
         lineHeight: '1.6',
     },
     strongText: {
         color: '#343a40',
-        fontWeight: '700',
+        fontWeight: '600',
     },
     statusScheduled: {
         color: '#ffffff',
-        fontWeight: '600',
-        backgroundColor: '#17a2b8',
-        padding: '6px 14px',
-        borderRadius: '25px',
-        fontSize: '0.9em',
+        fontWeight: '500',
+        backgroundColor: '#4a90e2', 
+        padding: '5px 12px',
+        borderRadius: '20px',
+        fontSize: '0.8em',
         textTransform: 'uppercase',
         letterSpacing: '0.05em',
-        boxShadow: '0 2px 5px rgba(23, 162, 184, 0.3)',
+        boxShadow: '0 2px 5px rgba(74, 144, 226, 0.3)',
     },
     statusCompleted: {
         color: '#ffffff',
-        fontWeight: '600',
-        backgroundColor: '#28a745',
-        padding: '6px 14px',
-        borderRadius: '25px',
-        fontSize: '0.9em',
+        fontWeight: '500',
+        backgroundColor: '#7ed321', 
+        padding: '5px 12px',
+        borderRadius: '20px',
+        fontSize: '0.8em',
         textTransform: 'uppercase',
         letterSpacing: '0.05em',
-        boxShadow: '0 2px 5px rgba(40, 167, 69, 0.3)',
+        boxShadow: '0 2px 5px rgba(126, 211, 33, 0.3)',
     },
     statusCancelled: {
         color: '#ffffff',
-        fontWeight: '600',
-        backgroundColor: '#dc3545',
-        padding: '6px 14px',
-        borderRadius: '25px',
-        fontSize: '0.9em',
+        fontWeight: '500',
+        backgroundColor: '#d0021b', 
+        padding: '5px 12px',
+        borderRadius: '20px',
+        fontSize: '0.8em',
         textTransform: 'uppercase',
         letterSpacing: '0.05em',
-        boxShadow: '0 2px 5px rgba(220, 53, 69, 0.3)',
+        boxShadow: '0 2px 5px rgba(208, 2, 27, 0.3)',
     },
     statusUnknown: {
         color: '#ffffff',
-        fontWeight: '600',
-        backgroundColor: '#6c757d',
-        padding: '6px 14px',
-        borderRadius: '25px',
-        fontSize: '0.9em',
+        fontWeight: '500',
+        backgroundColor: '#9b9b9b',
+        padding: '5px 12px',
+        borderRadius: '20px',
+        fontSize: '0.8em',
         textTransform: 'uppercase',
         letterSpacing: '0.05em',
-        boxShadow: '0 2px 5px rgba(108, 117, 125, 0.3)',
+        boxShadow: '0 2px 5px rgba(155, 155, 155, 0.3)',
     },
     cardFooter: {
         marginTop: 'auto',
         paddingTop: '20px',
         borderTop: '1px solid #f0f0f0',
         textAlign: 'center',
-        display: 'flex', 
-        justifyContent: 'space-between', 
-        gap: '10px', 
+        display: 'flex',
+        justifyContent: 'space-between',
+        gap: '10px',
     },
-    viewDetailsButton: {
-        backgroundColor: '#e75702',
-        color: '#ffffff',
-        border: 'none',
+    
+    // Styles cho nút outline
+    outlineButton: {
+        backgroundColor: 'transparent',
+        border: '2px solid #e75702',
+        color: '#e75702',
         borderRadius: '8px',
-        padding: '10px 20px',
-        fontSize: '1em',
-        fontWeight: '700',
+        padding: '8px 16px',
+        fontSize: '0.9em',
+        fontWeight: '600',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
-        boxShadow: '0 4px 10px rgba(231, 87, 2, 0.4)',
-        flexGrow: 1, 
-    },
-    viewReviewsButton: {
-        backgroundColor: '#0d6efd',
-        color: '#ffffff',
-        border: 'none',
-        borderRadius: '8px',
-        padding: '10px 20px',
-        fontSize: '1em',
-        fontWeight: '700',
-        cursor: 'pointer',
-        transition: 'all 0.3s ease',
-        boxShadow: '0 4px 10px rgba(13, 110, 253, 0.4)',
         flexGrow: 1,
+        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+        '&:hover': {
+            backgroundColor: '#e75702',
+            color: '#fff',
+        },
     },
-    // Thêm style mới cho nút "Theo dõi vị trí"
-    trackButton: {
-        backgroundColor: '#ff9800',
-        color: '#ffffff',
-        border: 'none',
+    outlineSuccessButton: {
+        backgroundColor: 'transparent',
+        border: '2px solid #28a745',
+        color: '#28a745',
         borderRadius: '8px',
-        padding: '10px 20px',
-        fontSize: '1em',
-        fontWeight: '700',
+        padding: '8px 16px',
+        fontSize: '0.9em',
+        fontWeight: '600',
         cursor: 'pointer',
         transition: 'all 0.3s ease',
-        boxShadow: '0 4px 10px rgba(255, 152, 0, 0.4)',
         flexGrow: 1,
+        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+        '&:hover': {
+            backgroundColor: '#28a745',
+            color: '#fff',
+        },
+    },
+    outlineDangerButton: {
+        backgroundColor: 'transparent',
+        border: '2px solid #dc3545',
+        color: '#dc3545',
+        borderRadius: '8px',
+        padding: '8px 16px',
+        fontSize: '0.9em',
+        fontWeight: '600',
+        cursor: 'pointer',
+        transition: 'all 0.3s ease',
+        flexGrow: 1,
+        boxShadow: '0 2px 5px rgba(0,0,0,0.1)',
+        '&:hover': {
+            backgroundColor: '#dc3545',
+            color: '#fff',
+        },
     },
 };

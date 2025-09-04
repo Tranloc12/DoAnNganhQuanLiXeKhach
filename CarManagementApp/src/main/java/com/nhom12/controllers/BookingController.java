@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Comparator;
+
+
 @Controller
 public class BookingController {
 
@@ -42,9 +45,9 @@ public class BookingController {
             return "redirect:/access-denied"; // Chuyển hướng đến trang báo lỗi quyền truy cập
         }
         // Kiểm tra xem người dùng có vai trò phù hợp không
-        if (!"ROLE_ADMIN".equals(currentUser.getUserRole()) &&
-            !"ROLE_MANAGER".equals(currentUser.getUserRole()) &&
-            !"ROLE_STAFF".equals(currentUser.getUserRole())) {
+        if (!"ROLE_ADMIN".equals(currentUser.getUserRole())
+                && !"ROLE_MANAGER".equals(currentUser.getUserRole())
+                && !"ROLE_STAFF".equals(currentUser.getUserRole())) {
             return "redirect:/access-denied"; // Không có quyền truy cập
         }
         return null; // Có quyền truy cập
@@ -76,10 +79,10 @@ public class BookingController {
 
     @PostMapping("/trips/{tripId}/book")
     public String processBooking(@PathVariable("tripId") int tripId,
-                                 @RequestParam("numberOfSeats") int numberOfSeats,
-                                 @RequestParam("seatNumbers") String seatNumbers,
-                                 Principal connectedUser,
-                                 RedirectAttributes redirectAttributes) {
+            @RequestParam("numberOfSeats") int numberOfSeats,
+            @RequestParam("seatNumbers") String seatNumbers,
+            Principal connectedUser,
+            RedirectAttributes redirectAttributes) {
 
         User user = userService.getUserByUsername(connectedUser.getName());
         if (user == null) {
@@ -97,7 +100,7 @@ public class BookingController {
             redirectAttributes.addFlashAttribute("errorMessage", "Số lượng ghế không hợp lệ.");
             return "redirect:/trips/" + tripId + "/book";
         }
-        
+
         Booking newBooking = bookingService.createBooking(trip, user, numberOfSeats, seatNumbers);
 
         if (newBooking != null) {
@@ -116,10 +119,10 @@ public class BookingController {
             redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.");
             return "redirect:/login";
         }
-        
+
         List<Booking> userBookings = bookingService.getBookingsByUser(user);
         model.addAttribute("bookings", userBookings);
-        
+
         if (userBookings.isEmpty()) {
             model.addAttribute("infoMessage", "Bạn chưa có đặt chỗ nào.");
         }
@@ -136,7 +139,7 @@ public class BookingController {
         }
 
         Booking bookingToCancel = bookingService.getBookingById(bookingId);
-        
+
         if (bookingToCancel == null || !bookingToCancel.getUserId().getId().equals(user.getId())) {
             redirectAttributes.addFlashAttribute("errorMessage", "Bạn không có quyền hoặc đặt chỗ này không tồn tại.");
             return "redirect:/my-bookings";
@@ -147,54 +150,59 @@ public class BookingController {
         } else {
             redirectAttributes.addFlashAttribute("errorMessage", "Không thể hủy đặt chỗ này. Có thể đã bị hủy trước đó, đã khởi hành, hoặc có lỗi.");
         }
-        
+
         return "redirect:/my-bookings";
     }
 
-
-    @GetMapping("/admin/bookings") // Đã đổi endpoint thành /admin/bookings
-    public String showAllBookings(Model model, RedirectAttributes redirectAttributes, Principal principal,
-                                  @RequestParam(name = "kw", required = false) String kw) { // Thêm @RequestParam cho từ khóa tìm kiếm
-        // Kiểm tra quyền truy cập bằng phương thức riêng
-        String accessCheck = checkManagementAccess(principal);
-        if (accessCheck != null) {
-            return accessCheck; // Chuyển hướng nếu người dùng không có quyền
-        }
+    @GetMapping("/admin/bookings")
+    public String showAllBookings(Model model, Principal principal,
+            @RequestParam(name = "bookingStatus", required = false) String bookingStatus,
+            @RequestParam(name = "paymentStatus", required = false) String paymentStatus,
+            @RequestParam(name = "tripId", required = false) Integer tripId,
+            @RequestParam(name = "userId", required = false) Integer userId,
+            @RequestParam(name = "origin", required = false) String origin,
+            @RequestParam(name = "destination", required = false) String destination,
+            @RequestParam(name = "username", required = false) String username,
+            @RequestParam(name = "numberOfSeats", required = false) Integer numberOfSeats,
+            @RequestParam(name = "seatNumbers", required = false) String seatNumbers,
+            @RequestParam(name = "totalAmount", required = false) Double totalAmount
+    ) {
 
         try {
-            // Khởi tạo Map để truyền các tham số tìm kiếm/phân trang
-            Map<String, String> params = new HashMap<>();
-            if (kw != null && !kw.trim().isEmpty()) {
-                params.put("kw", kw.trim()); // Đảm bảo trim() để loại bỏ khoảng trắng thừa
-            }
-            // Bạn có thể thêm các tham số khác vào map ở đây nếu muốn lọc thêm
-            // Ví dụ: params.put("status", "Confirmed");
-            // params.put("page", "1"); // Ví dụ cho phân trang
-            // params.put("pageSize", "10"); // Ví dụ cho phân trang
-
-            // Gọi service với các tham số đã chuẩn bị
-            List<Booking> allBookings = bookingService.getAllBookings(params);
+            // Lấy danh sách đặt chỗ với các bộ lọc
+            List<Booking> allBookings = bookingService.findBookings(bookingStatus, paymentStatus, tripId, userId, origin, destination, username, numberOfSeats, seatNumbers, totalAmount);
+            allBookings.sort(Comparator.comparing(Booking::getId));
+            // Thêm các thuộc tính để hiển thị lại trên giao diện người dùng
             model.addAttribute("bookings", allBookings);
-            model.addAttribute("kw", kw); // Truyền lại từ khóa tìm kiếm để giữ giá trị trên form
+            model.addAttribute("bookingStatus", bookingStatus);
+            model.addAttribute("paymentStatus", paymentStatus);
+            model.addAttribute("tripId", tripId);
+            model.addAttribute("userId", userId);
+            model.addAttribute("origin", origin);
+            model.addAttribute("destination", destination);
+            model.addAttribute("username", username);
+            model.addAttribute("numberOfSeats", numberOfSeats);
+            model.addAttribute("seatNumbers", seatNumbers);
+            model.addAttribute("totalAmount", totalAmount);
 
             if (allBookings.isEmpty()) {
-                model.addAttribute("infoMessage", "Hiện chưa có đặt chỗ nào trong hệ thống.");
+                model.addAttribute("infoMessage", "Không tìm thấy đặt chỗ nào phù hợp với các tiêu chí tìm kiếm.");
             }
         } catch (Exception e) {
-            // Ghi log lỗi để phục vụ việc debug
             System.err.println("Lỗi khi lấy tất cả đặt chỗ: " + e.getMessage());
-            redirectAttributes.addFlashAttribute("errorMessage", "Không thể tải danh sách đặt chỗ. Vui lòng thử lại sau.");
-            return "redirect:/"; // Chuyển hướng về trang chủ hoặc trang lỗi
+            model.addAttribute("errorMessage", "Không thể tải danh sách đặt chỗ. Vui lòng thử lại sau.");
+            // Không chuyển hướng, trả về trang hiện tại để hiển thị lỗi
+            return "allBookings";
         }
-        return "allBookings"; // Tên file Thymeleaf để hiển thị danh sách này
+        return "allBookings"; // Trả về trang khi mọi thứ OK
     }
-    
-    
+
     @GetMapping("/admin/bookings/detail/{bookingId}")
     public String viewBookingDetail(@PathVariable("bookingId") int bookingId,
-                                    Model model,
-                                    RedirectAttributes redirectAttributes,
-                                    Principal principal) {
+            Model model,
+             RedirectAttributes redirectAttributes,
+            Principal principal
+    ) {
         // Kiểm tra quyền truy cập
         String accessCheck = checkManagementAccess(principal);
         if (accessCheck != null) {
@@ -217,4 +225,5 @@ public class BookingController {
             return "redirect:/admin/bookings";
         }
     }
+
 }

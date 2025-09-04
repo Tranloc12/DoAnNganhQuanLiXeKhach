@@ -1,66 +1,68 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
-<head>
+    <head>
     <th:block th:replace="~{base :: title(title='Thêm/Cập nhật Hành khách')}"></th:block>
     <th:block th:replace="~{base :: styles}"></th:block>
 </head>
 <body>
-    <th:block th:replace="~{base :: header}"></th:block>
+<th:block th:replace="~{base :: header}"></th:block>
 
-    <main class="container mt-4">
-        <h1 class="h2 mb-3" th:text="${passengerInfoForm.id == null ? 'Thêm Hành khách mới' : 'Cập nhật Thông tin Hành khách'}"></h1>
+<main class="container mt-4">
+    <h1 class="h2 mb-3" th:text="${passengerInfoForm.id == null ? 'Thêm Hành khách mới' : 'Cập nhật Thông tin Hành khách'}"></h1>
 
-        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
-            <span th:text="${errorMessage}"></span>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <span th:text="${errorMessage}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+
+    <form th:action="@{/passengers/add-or-update}" th:object="${passengerInfoForm}" method="post">
+        <input type="hidden" th:field="*{id}" />
+
+        <div class="mb-3">
+            <label for="fullName" class="form-label">Họ và tên</label>
+            <input type="text" id="fullName" th:field="*{fullName}" class="form-control" />
+            <div class="text-danger" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
         </div>
 
-        <form th:action="@{/passengers/add-or-update}" th:object="${passengerInfoForm}" method="post">
-            <input type="hidden" th:field="*{id}" />
+        <div class="mb-3">
+            <label for="phoneNumber" class="form-label">Số điện thoại</label>
+            <input type="text" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" />
+            <div class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
+        </div>
 
-            <div class="mb-3">
-                <label for="fullName" class="form-label">Họ và tên</label>
-                <input type="text" id="fullName" th:field="*{fullName}" class="form-control" />
-                <div class="text-danger" th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}"></div>
-            </div>
+        <div class="mb-3">
+            <label for="address" class="form-label">Địa chỉ</label>
+            <input type="text" id="address" th:field="*{address}" class="form-control" />
+            <div class="text-danger" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
+        </div>
 
-            <div class="mb-3">
-                <label for="phoneNumber" class="form-label">Số điện thoại</label>
-                <input type="text" id="phoneNumber" th:field="*{phoneNumber}" class="form-control" />
-                <div class="text-danger" th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}"></div>
-            </div>
+        <div class="mb-3">
+            <label for="nationalId" class="form-label">CMND/CCCD</label>
+            <input type="text" id="nationalId" th:field="*{nationalId}" class="form-control" />
+            <div class="text-danger" th:if="${#fields.hasErrors('nationalId')}" th:errors="*{nationalId}"></div>
+        </div>
 
-            <div class="mb-3">
-                <label for="address" class="form-label">Địa chỉ</label>
-                <input type="text" id="address" th:field="*{address}" class="form-control" />
-                <div class="text-danger" th:if="${#fields.hasErrors('address')}" th:errors="*{address}"></div>
-            </div>
+        <div class="mb-3">
+            <label for="userId" class="form-label">Người dùng liên kết</label>
+            <select id="userId" th:field="*{userId}" class="form-control">
+                <option value="">-- Chọn Người Dùng --</option>
+                <option th:each="u : ${usersAvailableForPassengerInfo}"
+                        th:value="${u.id}"
+                        th:text="${u.username}"
+                        th:selected="${passengerInfoForm.userId != null and passengerInfoForm.userId == u.id}">
+                </option>
+            </select>
+            <div class="text-danger" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
+        </div>
 
-            <div class="mb-3">
-                <label for="nationalId" class="form-label">CMND/CCCD</label>
-                <input type="text" id="nationalId" th:field="*{nationalId}" class="form-control" />
-                <div class="text-danger" th:if="${#fields.hasErrors('nationalId')}" th:errors="*{nationalId}"></div>
-            </div>
+        <button type="submit" class="btn btn-primary me-2">Lưu Thông tin</button>
+        <a th:href="@{/passengers}" class="btn btn-secondary">Hủy</a>
+    </form>
+</main>
 
-            <div class="mb-3">
-                <label for="userId" class="form-label">Người dùng liên kết</label>
-                <select id="userId" th:field="*{userId}" class="form-control">
-                    <option value="">-- Chọn Người Dùng --</option>
-                    <option th:each="u : ${usersAvailableForPassengerInfo}"
-                            th:value="${u.id}"
-                            th:text="${u.username}"
-                            th:selected="${passengerInfoForm.userId != null and passengerInfoForm.userId == u.id}">
-                    </option>
-                </select>
-                <div class="text-danger" th:if="${#fields.hasErrors('userId')}" th:errors="*{userId}"></div>
-            </div>
+<th:block th:replace="~{base :: footer}"></th:block>
+<th:block th:replace="~{base :: scripts}"></th:block>
+<div th:replace="base :: theme-scripts"></div>
 
-            <button type="submit" class="btn btn-primary me-2">Lưu Thông tin</button>
-            <a th:href="@{/passengers}" class="btn btn-secondary">Hủy</a>
-        </form>
-    </main>
-
-    <th:block th:replace="~{base :: footer}"></th:block>
-    <th:block th:replace="~{base :: scripts}"></th:block>
 </body>
 </html>

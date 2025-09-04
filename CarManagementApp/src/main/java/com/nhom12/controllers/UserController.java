@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.security.Principal;
+import java.util.List;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @Controller
@@ -169,16 +170,21 @@ public class UserController {
         return "managerList";
     }
 
-    @GetMapping("/users")
-    public String listAllUsers(Model model, Principal principal) {
-        if (principal == null) {
-            return "redirect:/login";
-        }
-        User currentUser = userServ.getUserByUsername(principal.getName());
-        if (currentUser == null || !"ROLE_ADMIN".equals(currentUser.getUserRole())) {
-            return "redirect:/";
-        }
-        model.addAttribute("users", userServ.getUsers());
+     @GetMapping("/users")
+    public String listAllUsers(Model model,
+                               @RequestParam(required = false) String username,
+                               @RequestParam(required = false) String email,
+                               @RequestParam(required = false) String userRole,
+                               @RequestParam(required = false) Boolean isActive) {
+        List<User> users = userServ.findUsers(username, email, userRole, isActive);
+        
+        model.addAttribute("users", users);
+        model.addAttribute("username", username);
+        model.addAttribute("email", email);
+        model.addAttribute("userRole", userRole);
+        model.addAttribute("isActive", isActive);
+
         return "userList";
     }
 }
+    

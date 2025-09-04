@@ -140,4 +140,9 @@ public class UserServiceImpl implements UserService {
     public List<Object[]> getUserRoleStats() {
         return this.userRepo.getUserRoleStats();
     }
+    
+     @Override
+    public List<User> findUsers(String username, String email, String userRole, Boolean isActive) {
+        return this.userRepo.findUsers(username, email, userRole, isActive);
+    }
 }

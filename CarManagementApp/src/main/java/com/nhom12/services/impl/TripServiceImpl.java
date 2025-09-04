@@ -118,8 +118,8 @@ public class TripServiceImpl implements TripService {
     public long countTrips() {
         return this.tripRepo.countTrips();
     }
-    
-     @Override
+
+    @Override
     public boolean decreaseAvailableSeats(int tripId, int numberOfSeats) {
         return tripRepo.decreaseAvailableSeats(tripId, numberOfSeats);
     }
@@ -128,7 +128,7 @@ public class TripServiceImpl implements TripService {
     public boolean increaseAvailableSeats(int tripId, int numberOfSeats) {
         return tripRepo.increaseAvailableSeats(tripId, numberOfSeats);
     }
-    
+
     @Override
     public List<Object[]> getMonthlyRevenueStats(int year) {
         return tripRepo.getMonthlyRevenueStats(year);
@@ -137,5 +137,10 @@ public class TripServiceImpl implements TripService {
     @Override
     public List<Object[]> getTripCountByRouteStats() {
         return tripRepo.getTripCountByRouteStats();
+    }
+
+    @Override
+    public List<Trip> findTrips(LocalDateTime departureTime, LocalDateTime arrivalTime, Integer routeId, Integer busId, Integer driverId, String status, String origin, String destination) {
+        return this.tripRepo.findTrips(departureTime, arrivalTime, routeId, busId, driverId, status, origin, destination);
     }
 }

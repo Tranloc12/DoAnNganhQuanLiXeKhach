@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
-<head>
-    <title th:text="${driverForm.id != null and driverForm.id > 0 ? 'Cập nhật Tài xế' : 'Thêm Tài xế mới'}"></title>
+    <head>
+        <title th:text="${driverForm.id != null and driverForm.id > 0 ? 'Cập nhật Tài xế' : 'Thêm Tài xế mới'}"></title>
     <th:block th:replace="base :: styles"></th:block>
 </head>
 <body>
@@ -83,5 +83,7 @@
 
     <div th:replace="base :: footer"></div>
     <script th:src="@{/js/main.js}"></script>
+    <div th:replace="base :: theme-scripts"></div>
+
 </body>
 </html>

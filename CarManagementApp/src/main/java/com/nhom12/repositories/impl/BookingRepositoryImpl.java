@@ -153,4 +153,85 @@ public class BookingRepositoryImpl implements BookingRepository {
         return query.getResultList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<Booking> findBookings(String bookingStatus, String paymentStatus, Integer tripId, Integer userId, String origin, String destination, String username, Integer numberOfSeats, String seatNumbers, Double totalAmount) {
+        Session session = sessionFactory.getCurrentSession();
+        StringBuilder hql = new StringBuilder(
+                "SELECT b FROM Booking b "
+                + "JOIN FETCH b.tripId t "
+                + "JOIN FETCH b.userId u "
+                + "JOIN FETCH t.routeId r "
+                + "WHERE 1=1");
+
+        // Thêm điều kiện lọc cho các trường bạn yêu cầu
+        if (bookingStatus != null && !bookingStatus.isEmpty()) {
+            hql.append(" AND b.bookingStatus = :bookingStatus");
+        }
+        if (paymentStatus != null && !paymentStatus.isEmpty()) {
+            hql.append(" AND b.paymentStatus = :paymentStatus");
+        }
+        if (tripId != null) {
+            hql.append(" AND b.tripId.id = :tripId");
+        }
+        if (userId != null) {
+            hql.append(" AND b.userId.id = :userId");
+        }
+        if (origin != null && !origin.isEmpty()) {
+            hql.append(" AND r.origin LIKE :origin");
+        }
+        if (destination != null && !destination.isEmpty()) {
+            hql.append(" AND r.destination LIKE :destination");
+        }
+        if (username != null && !username.isEmpty()) {
+            hql.append(" AND u.username LIKE :username");
+        }
+        if (numberOfSeats != null) {
+            hql.append(" AND b.numberOfSeats = :numberOfSeats");
+        }
+        if (seatNumbers != null && !seatNumbers.isEmpty()) {
+            hql.append(" AND b.seatNumbers LIKE :seatNumbers");
+        }
+        if (totalAmount != null) {
+            hql.append(" AND b.totalAmount = :totalAmount");
+        }
+
+        hql.append(" ORDER BY b.bookingDate DESC");
+
+        Query<Booking> query = session.createQuery(hql.toString(), Booking.class);
+
+        // Gán tham số cho các điều kiện
+        if (bookingStatus != null && !bookingStatus.isEmpty()) {
+            query.setParameter("bookingStatus", bookingStatus);
+        }
+        if (paymentStatus != null && !paymentStatus.isEmpty()) {
+            query.setParameter("paymentStatus", paymentStatus);
+        }
+        if (tripId != null) {
+            query.setParameter("tripId", tripId);
+        }
+        if (userId != null) {
+            query.setParameter("userId", userId);
+        }
+        if (origin != null && !origin.isEmpty()) {
+            query.setParameter("origin", "%" + origin + "%");
+        }
+        if (destination != null && !destination.isEmpty()) {
+            query.setParameter("destination", "%" + destination + "%");
+        }
+        if (username != null && !username.isEmpty()) {
+            query.setParameter("username", "%" + username + "%");
+        }
+        if (numberOfSeats != null) {
+            query.setParameter("numberOfSeats", numberOfSeats);
+        }
+        if (seatNumbers != null && !seatNumbers.isEmpty()) {
+            query.setParameter("seatNumbers", "%" + seatNumbers + "%");
+        }
+        if (totalAmount != null) {
+            query.setParameter("totalAmount", totalAmount);
+        }
+
+        return query.getResultList();
+    }
 }

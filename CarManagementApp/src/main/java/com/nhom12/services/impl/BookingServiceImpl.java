@@ -112,8 +112,7 @@ public class BookingServiceImpl implements BookingService {
         return bookingRepo.deleteBooking(bookingId);
     }
 
-
-     @Override
+    @Override
     @Transactional(readOnly = true)
     public Booking getBookingById(int bookingId) {
         // Vì BookingRepository.getBookingById() trả về Optional,
@@ -133,5 +132,10 @@ public class BookingServiceImpl implements BookingService {
                 .map(User::getFcmToken)
                 .filter(token -> token != null && !token.isEmpty())
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Booking> findBookings(String bookingStatus, String paymentStatus, Integer tripId, Integer userId, String origin, String destination, String username, Integer numberOfSeats, String seatNumbers, Double totalAmount) {
+        return this.bookingRepo.findBookings(bookingStatus, paymentStatus, tripId, userId, origin, destination, username, numberOfSeats, seatNumbers, totalAmount);
     }
 }

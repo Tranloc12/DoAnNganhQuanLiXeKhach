@@ -1,66 +1,97 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head>
-    <title>Bảng điều khiển & Thống kê</title>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title>Bảng điều khiển & Thống kê</title>
     <th:block th:replace="~{base :: styles}"></th:block>
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
-
+    <script src="https://code.highcharts.com/highcharts.js"></script>
+    <script src="https://code.highcharts.com/highcharts-3d.js"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/export-data.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
     <style>
-        /* General Body Styling */
+        :root {
+            --bg-color: #f0f2f5;
+            --text-color: #34495e;
+            --primary-color: #4a69bd;
+            --secondary-color: #ffffff;
+            --shadow-color: rgba(0, 0, 0, 0.1);
+            --alert-bg: #eef7ff;
+            --alert-border: #b3d9ff;
+        }
+        body.dark-mode {
+            --bg-color: #1e1e1e;
+            --text-color: #e0e0e0;
+            --primary-color: #5f80e0;
+            --secondary-color: #2c2c2c;
+            --shadow-color: rgba(255, 255, 255, 0.1);
+            --alert-bg: #2a3f5f;
+            --alert-border: #4a69bd;
+        }
         body {
-            font-family: 'Inter', 'Segoe UI', Arial, sans-serif; /* Ưu tiên font hiện đại hơn */
-            background-color: #f0f2f5; /* Nền xám nhạt tinh tế */
-            color: #34495e; /* Màu chữ xám đậm */
+            font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             margin: 0;
             padding: 0;
             line-height: 1.6;
+            transition: background-color 0.3s, color 0.3s;
         }
-
-        /* Main Container Styling */
         .container {
-            max-width: 1300px; /* Chiều rộng tối đa lớn hơn nữa */
-            margin: 50px auto; /* Khoảng cách trên dưới thoải mái */
-            padding: 40px 50px; /* Tăng padding */
-            background-color: #ffffff;
-            border-radius: 15px; /* Bo góc mềm mại, sang trọng */
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1); /* Bóng đổ sâu và mượt hơn */
-            animation: fadeIn 0.8s ease-out; /* Hiệu ứng fade in khi tải trang */
+            max-width: 1600px;
+            margin: 50px auto;
+            padding: 40px 50px;
+            background-color: var(--secondary-color);
+            border-radius: 15px;
+            box-shadow: 0 8px 30px var(--shadow-color);
+            animation: fadeIn 0.8s ease-out;
         }
-
-        /* Keyframe for fade-in animation */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
-
-        /* Headings */
         h1 {
             text-align: center;
-            color: #2c3e50; /* Màu đậm cho tiêu đề chính */
+            color: var(--primary-color);
             margin-bottom: 50px;
-            font-size: 3rem; /* Kích thước font lớn, ấn tượng */
+            font-size: 3rem;
             font-weight: 700;
             padding-bottom: 20px;
-            border-bottom: 3px solid #e0e0e0; /* Đường viền dưới dày hơn */
+            border-bottom: 3px solid #e0e0e0;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 15px; /* Khoảng cách giữa icon và text */
-            letter-spacing: -0.5px; /* Giảm khoảng cách chữ để trông hiện đại */
+            gap: 15px;
         }
-
         h2 {
-            text-align: center;
-            color: #4a69bd; /* Màu xanh tím than hiện đại */
-            margin-top: 60px; /* Khoảng cách trên lớn hơn */
+            color: var(--primary-color);
+            margin-top: 60px;
             margin-bottom: 35px;
             font-size: 2.2rem;
             font-weight: 600;
             position: relative;
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+            width: 100%;
+            justify-content: center;
         }
-        h2::after { /* Gạch chân nhẹ dưới h2 */
+        h2::before {
+            content: '\2630';
+            font-size: 1.2rem;
+            opacity: 0.5;
+        }
+        h2:active {
+            cursor: grabbing;
+        }
+        h2::after {
             content: '';
             position: absolute;
             bottom: -10px;
@@ -68,140 +99,140 @@
             transform: translateX(-50%);
             width: 80px;
             height: 3px;
-            background-color: #c9d6ea;
+            background-color: var(--primary-color);
+            opacity: 0.3;
             border-radius: 5px;
         }
-
-        /* Stats Section - for overall spacing */
         .stats-section {
             padding: 40px 0;
-            border-bottom: 1px solid #e0e0e0; /* Đường phân cách solid, tinh tế hơn */
+            border-bottom: 1px solid #e0e0e0;
+            position: relative;
         }
         .stats-section:last-child {
             border-bottom: none;
         }
-
-        /* Form for Year Selection */
         .input-group {
-            max-width: 400px; /* Chiều rộng form rộng hơn */
+            max-width: 400px;
             margin: 0 auto 40px auto;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Bóng đổ nổi bật hơn */
-            border-radius: 8px; /* Bo góc input group */
+            box-shadow: 0 4px 15px var(--shadow-color);
+            border-radius: 8px;
             overflow: hidden;
-            background-color: #fff;
+            background-color: var(--secondary-color);
         }
         .form-control {
-            border: 1px solid #dcdcdc; /* Màu border nhạt hơn */
-            padding: 12px 15px; /* Tăng padding input */
+            border: 1px solid #dcdcdc;
+            padding: 12px 15px;
             font-size: 1.1rem;
-            height: auto; /* Đảm bảo chiều cao linh hoạt */
+            height: auto;
+            background-color: var(--secondary-color);
+            color: var(--text-color);
         }
         .form-control:focus {
-            border-color: #4a69bd; /* Màu border khi focus */
-            box-shadow: 0 0 0 0.25rem rgba(74, 105, 189, 0.25); /* Shadow khi focus */
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.25rem rgba(74, 105, 189, 0.25);
         }
         .btn-info {
-            background-color: #4a69bd; /* Màu nút đậm hơn */
-            border-color: #4a69bd;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
             color: white;
             font-weight: 600;
-            padding: 12px 25px; /* Tăng padding nút */
-            transition: all 0.3s ease; /* Hiệu ứng chuyển động mượt */
+            padding: 12px 25px;
+            transition: all 0.3s ease;
         }
         .btn-info:hover {
-            background-color: #3b5998; /* Màu nút khi hover */
+            background-color: #3b5998;
             border-color: #3b5998;
-            transform: translateY(-2px); /* Hiệu ứng nhấc nhẹ */
+            transform: translateY(-2px);
             box-shadow: 0 4px 10px rgba(74, 105, 189, 0.4);
         }
-
-        /* Chart Container Styling */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+            align-items: start;
+        }
         .chart-container {
             position: relative;
-            height: 50vh; /* Chiều cao lớn hơn */
-            max-height: 450px; /* Chiều cao tối đa */
-            width: 95%; /* Chiều rộng lớn hơn */
-            max-width: 900px; /* Giới hạn chiều rộng biểu đồ */
-            margin: 30px auto 50px auto;
-            background-color: #ffffff;
+            background-color: var(--secondary-color);
             border-radius: 10px;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-            padding: 25px; /* Tăng padding bên trong */
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease; /* Hiệu ứng hover cho chart container */
+            box-shadow: 0 6px 20px var(--shadow-color);
+            padding: 25px;
+            transition: all 0.3s ease;
+            height: 40vh;
+            max-height: 400px;
         }
         .chart-container:hover {
             transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: 0 10px 30px var(--shadow-color);
         }
-
-        /* Specific style for user role chart (pie chart) */
-        .chart-container.user-role-chart {
-            height: 40vh; /* Nhỏ hơn cho biểu đồ tròn */
+        /* Adjusted height for a cleaner look with 3D charts */
+        .chart-small {
+            height: 350px;
             max-height: 350px;
-            width: 60%; /* Rộng hơn cho biểu đồ tròn */
-            max-width: 600px;
         }
-
-
-        /* Table Styling */
+        .loader {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid var(--primary-color);
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            z-index: 10;
+        }
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
         .table {
             width: 100%;
             border-collapse: separate;
             border-spacing: 0;
             margin-top: 30px;
             font-size: 1.05rem;
-            background-color: #ffffff;
-            border-radius: 10px; /* Bo góc rõ ràng hơn cho bảng */
+            background-color: var(--secondary-color);
+            border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); /* Bóng đổ cho bảng */
+            box-shadow: 0 4px 15px var(--shadow-color);
         }
-
         .table thead {
-            background-image: linear-gradient(to right, #4a69bd, #5f80e0); /* Gradient cho header bảng */
+            background-image: linear-gradient(to right, var(--primary-color), #3b5998);
             color: white;
             font-size: 1.1rem;
+            cursor: pointer;
         }
-
-        .table th,
-        .table td {
-            padding: 18px 15px; /* Tăng padding cho cell */
+        .table th, .table td {
+            padding: 18px 15px;
             text-align: center;
             border: none;
-            vertical-align: middle; /* Căn giữa nội dung theo chiều dọc */
+            vertical-align: middle;
+            position: relative;
         }
-
-        .table th {
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.7px; /* Tăng khoảng cách chữ */
+        .table th:hover {
+            background-color: #3b5998;
         }
-
-        .table tbody tr {
-            transition: background-color 0.2s ease-in-out, transform 0.2s ease-in-out;
-        }
-
         .table tbody tr:nth-child(odd) {
-            background-color: #ffffff;
+            background-color: var(--secondary-color);
         }
-
         .table tbody tr:nth-child(even) {
-            background-color: #fcfdfe; /* Màu nền cực nhạt cho hàng chẵn */
+            background-color: lighten(var(--bg-color), 5%);
         }
-
         .table tbody tr:hover {
-            background-color: #eef4fc; /* Màu nền khi hover */
-            transform: scale(1.005); /* Hiệu ứng phóng to nhẹ */
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            background-color: #eef4fc;
+            transform: scale(1.005);
+            box-shadow: 0 2px 8px var(--shadow-color);
         }
-
-        /* Alert styling */
         .alert-info {
-            background-color: #eef7ff; /* Màu nền nhẹ nhàng, tươi sáng hơn */
-            color: #4a69bd; /* Màu chữ tương ứng */
-            border: 1px solid #b3d9ff; /* Border cùng tông màu */
+            background-color: var(--alert-bg);
+            color: var(--primary-color);
+            border: 1px solid var(--alert-border);
             padding: 20px;
             border-radius: 10px;
             text-align: center;
@@ -209,8 +240,84 @@
             font-size: 1.15rem;
             font-weight: 500;
         }
-
-        /* Responsive Adjustments */
+        .sortable-ghost {
+            opacity: 0.4;
+            background-color: #c9d6ea;
+            border-radius: 10px;
+            transition: opacity 0.3s ease;
+        }
+        .dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .dark-mode-toggle input {
+            display: none;
+        }
+        .dark-mode-toggle label {
+            background-color: #fff;
+            border: 2px solid #ccc;
+            border-radius: 50px;
+            cursor: pointer;
+            display: inline-block;
+            height: 30px;
+            position: relative;
+            width: 60px;
+            transition: background-color 0.3s;
+        }
+        .dark-mode-toggle label::after {
+            background-color: #fff;
+            border-radius: 50%;
+            content: '';
+            height: 24px;
+            left: 3px;
+            position: absolute;
+            top: 3px;
+            width: 24px;
+            transition: transform 0.3s;
+        }
+        .dark-mode-toggle input:checked + label {
+            background-color: #4a69bd;
+            border-color: #4a69bd;
+        }
+        .dark-mode-toggle input:checked + label::after {
+            transform: translateX(30px);
+        }
+        .export-btn {
+            margin-top: 20px;
+            background-color: var(--primary-color);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .export-btn:hover {
+            background-color: #3b5998;
+        }
+        .reset-order-btn {
+            margin: 20px auto;
+            display: block;
+            background-color: #dc3545;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        @media (max-width: 1200px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            .chart-small {
+                height: 350px;
+            }
+            h2 {
+                font-size: 1.9rem;
+            }
+        }
         @media (max-width: 992px) {
             .container {
                 padding: 30px;
@@ -234,13 +341,11 @@
                 max-height: 300px;
                 width: 75%;
             }
-            .table th,
-            .table td {
+            .table th, .table td {
                 padding: 15px 10px;
                 font-size: 1rem;
             }
         }
-
         @media (max-width: 768px) {
             .container {
                 padding: 20px;
@@ -270,8 +375,7 @@
             .input-group {
                 max-width: 100%;
             }
-            .table th,
-            .table td {
+            .table th, .table td {
                 padding: 10px 8px;
                 font-size: 0.9rem;
             }
@@ -279,13 +383,17 @@
     </style>
 </head>
 <body>
-    <th:block th:replace="~{base :: header}"></th:block>
-
-    <div class="container mt-4">
-        <h1>
-            <i class="fas fa-chart-line"></i> Bảng điều khiển & Thống kê
-        </h1>
-
+<th:block th:replace="~{base :: header}"></th:block>
+<div class="dark-mode-toggle">
+    <input type="checkbox" id="dark-mode-switch" onclick="toggleDarkMode()">
+    <label for="dark-mode-switch"></label>
+</div>
+<div class="container mt-4">
+    <h1>
+        <i class="fas fa-chart-line"></i> Bảng điều khiển & Thống kê
+    </h1>
+    <button class="reset-order-btn" onclick="resetOrder()">Reset Thứ Tự Mặc Định</button>
+    <div id="sortable-container">
         <div class="stats-section">
             <h2>Doanh thu theo tháng (Năm <span th:text="${statsYear}"></span>)</h2>
             <form th:action="@{/admin-statics}" method="get" class="mb-3">
@@ -297,403 +405,344 @@
                     </button>
                 </div>
             </form>
-            <div th:if="${monthlyRevenueStats != null and not monthlyRevenueStats.isEmpty()}">
-                <div class="chart-container">
-                    <canvas id="monthlyRevenueChart"></canvas>
+            <div th:if="${monthlyRevenueStats != null and not monthlyRevenueStats.isEmpty()}" class="stats-grid">
+                <div class="chart-container chart-small">
+                    <div class="loader"></div>
+                    <div id="monthlyRevenueChart"></div>
                 </div>
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Tháng</th>
-                            <th>Tổng doanh thu</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="stat : ${monthlyRevenueStats}">
-                            <td th:text="${stat[0]}"></td>
-                            <td th:text="${#numbers.formatCurrency(stat[1])}"></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table class="table table-bordered table-striped" id="monthlyRevenueTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="month">Tháng</th>
+                                <th data-sort="revenue">Tổng doanh thu</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="stat : ${monthlyRevenueStats}">
+                                <td th:text="${stat[0]}"></td>
+                                <td th:text="${#numbers.formatCurrency(stat[1])}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="export-btn" onclick="exportTableToCSV('monthlyRevenueTable', 'doanh-thu-thang.csv')">Export CSV</button>
+                </div>
             </div>
             <div th:unless="${monthlyRevenueStats != null and not monthlyRevenueStats.isEmpty()}" class="alert alert-info">
                 <i class="fas fa-info-circle"></i> Chưa có dữ liệu doanh thu cho năm <span th:text="${statsYear}"></span>.
             </div>
         </div>
-
         <div class="stats-section">
             <h2>Số lượng chuyến đi theo tuyến đường</h2>
-            <div th:if="${tripCountByRouteStats != null and not tripCountByRouteStats.isEmpty()}">
-                <div class="chart-container">
-                    <canvas id="tripCountByRouteChart"></canvas>
+            <form th:action="@{/admin-statics}" method="get" class="mb-3">
+                <div class="input-group">
+                    <input type="number" name="routeYear" class="form-control"
+                           placeholder="Nhập năm cho chuyến đi" th:value="${routeYear ?: statsYear}" min="2000" max="2100">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-filter"></i> Lọc theo năm
+                    </button>
                 </div>
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Tuyến đường</th>
-                            <th>Số chuyến đi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="stat : ${tripCountByRouteStats}">
-                            <td th:text="${stat[0]}"></td>
-                            <td th:text="${stat[1]}"></td>
-                        </tr>
-                    </tbody>
-                </table>
+            </form>
+            <div th:if="${tripCountByRouteStats != null and not tripCountByRouteStats.isEmpty()}" class="stats-grid">
+                <div class="chart-container chart-small">
+                    <div class="loader"></div>
+                    <div id="tripCountByRouteChart"></div>
+                </div>
+                <div class="table-container">
+                    <table class="table table-bordered table-striped" id="tripCountTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="route">Tuyến đường</th>
+                                <th data-sort="count">Số chuyến đi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="stat : ${tripCountByRouteStats}">
+                                <td th:text="${stat[0]}" title="Tuyến đường chi tiết"></td>
+                                <td th:text="${stat[1]}" title="Tổng số chuyến"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="export-btn" onclick="exportTableToCSV('tripCountTable', 'chuyen-di-tuyen-duong.csv')">Export CSV</button>
+                </div>
             </div>
             <div th:unless="${tripCountByRouteStats != null and not tripCountByRouteStats.isEmpty()}" class="alert alert-info">
                 <i class="fas fa-info-circle"></i> Chưa có dữ liệu chuyến đi theo tuyến đường.
             </div>
         </div>
-
         <div class="stats-section">
             <h2>Số lượng người dùng theo vai trò</h2>
-            <div th:if="${userRoleStats != null and not userRoleStats.isEmpty()}">
-                <div class="chart-container user-role-chart">
-                    <canvas id="userRoleChart"></canvas>
+            <div th:if="${userRoleStats != null and not userRoleStats.isEmpty()}" class="stats-grid">
+                <div class="chart-container chart-small">
+                    <div class="loader"></div>
+                    <div id="userRoleChart"></div>
                 </div>
-                <table class="table table-bordered table-striped">
-                    <thead>
-                        <tr>
-                            <th>Vai trò</th>
-                            <th>Số lượng người dùng</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr th:each="stat : ${userRoleStats}">
-                            <td th:text="${stat[0]}"></td>
-                            <td th:text="${stat[1]}"></td>
-                        </tr>
-                    </tbody>
-                </table>
+                <div class="table-container">
+                    <table class="table table-bordered table-striped" id="userRoleTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="role">Vai trò</th>
+                                <th data-sort="count">Số lượng người dùng</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="stat : ${userRoleStats}">
+                                <td th:text="${stat[0]}" title="Vai trò người dùng"></td>
+                                <td th:text="${stat[1]}" title="Tổng số"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="export-btn" onclick="exportTableToCSV('userRoleTable', 'nguoi-dung-vai-tro.csv')">Export CSV</button>
+                </div>
             </div>
             <div th:unless="${userRoleStats != null and not userRoleStats.isEmpty()}" class="alert alert-info">
                 <i class="fas fa-info-circle"></i> Chưa có dữ liệu người dùng theo vai trò.
             </div>
         </div>
-
+        <div class="stats-section">
+            <h2>Số lượng vé bán theo tháng (Năm <span th:text="${statsYear}"></span>)</h2>
+            <form th:action="@{/admin-statics}" method="get" class="mb-3">
+                <div class="input-group">
+                    <input type="number" name="ticketYear" class="form-control"
+                           placeholder="Nhập năm" th:value="${statsYear}" min="2000" max="2100">
+                    <button type="submit" class="btn btn-info">
+                        <i class="fas fa-ticket-alt"></i> Xem theo năm
+                    </button>
+                </div>
+            </form>
+            <div th:if="${ticketSalesStats != null and not ticketSalesStats.isEmpty()}" class="stats-grid">
+                <div class="chart-container chart-small">
+                    <div class="loader"></div>
+                    <div id="ticketSalesChart"></div>
+                </div>
+                <div class="table-container">
+                    <table class="table table-bordered table-striped" id="ticketSalesTable">
+                        <thead>
+                            <tr>
+                                <th data-sort="month">Tháng</th>
+                                <th data-sort="count">Số lượng vé bán</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="stat : ${ticketSalesStats}">
+                                <td th:text="${stat[0]}"></td>
+                                <td th:text="${stat[1]}"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button class="export-btn" onclick="exportTableToCSV('ticketSalesTable', 've-ban-thang.csv')">Export CSV</button>
+                </div>
+            </div>
+            <div th:unless="${ticketSalesStats != null and not ticketSalesStats.isEmpty()}" class="alert alert-info">
+                <i class="fas fa-info-circle"></i> Chưa có dữ liệu vé bán cho năm <span th:text="${statsYear}"></span>.
+            </div>
+        </div>
     </div>
+</div>
+<th:block th:replace="~{base :: footer}"></th:block>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    function generateRandomColors(count) {
+        const colors = [];
+        for (let i = 0; i < count; i++) {
+            const r = Math.floor(Math.random() * 200) + 55;
+            const g = Math.floor(Math.random() * 200) + 55;
+            const b = Math.floor(Math.random() * 200) + 55;
+            colors.push(`rgba(${r}, ${g}, ${b}, 0.8)`);
+        }
+        return colors;
+    }
 
-    <th:block th:replace="~{base :: footer}"></th:block>
-
-    <script th:inline="javascript">
-        /*<![CDATA[*/
-        // Hàm để tạo màu sắc gradient ngẫu nhiên
-        function getRandomGradientColors(count) {
-            const colors = [];
-            for (let i = 0; i < count; i++) {
-                const hue = (i * (360 / count) + Math.random() * 30) % 360; // Spread hues and add randomness
-                const saturation = 70 + Math.random() * 20; // 70-90% saturation
-                const lightness = 60 + Math.random() * 10; // 60-70% lightness
-                const startColor = `hsla(${hue}, ${saturation}%, ${lightness}%, 0.7)`;
-                const endColor = `hsla(${(hue + 30) % 360}, ${saturation}%, ${lightness - 10}%, 0.8)`;
-                colors.push({ start: startColor, end: endColor });
+    function createCharts() {
+        const charts = ['monthlyRevenueChart', 'tripCountByRouteChart', 'userRoleChart', 'ticketSalesChart'];
+        charts.forEach(id => {
+            const container = document.getElementById(id);
+            if (container) {
+                const loader = container.parentElement.querySelector('.loader');
+                if (loader) {
+                    setTimeout(() => {
+                        loader.style.display = 'none';
+                    }, 1000);
+                }
             }
-            return colors;
-        }
+        });
 
-        // --- Doanh thu theo tháng ---
-        const monthLabels = /*[[${monthLabels}]]*/ [];
-        const revenueData = /*[[${revenueData}]]*/ [];
-
-        if (document.getElementById('monthlyRevenueChart')) {
-            const monthlyRevenueCtx = document.getElementById('monthlyRevenueChart').getContext('2d');
-            const revenueGradient = monthlyRevenueCtx.createLinearGradient(0, 0, 0, 400);
-            revenueGradient.addColorStop(0, 'rgba(74, 105, 189, 0.9)'); /* Darker blue */
-            revenueGradient.addColorStop(1, 'rgba(113, 150, 255, 0.6)'); /* Lighter blue */
-
-            new Chart(monthlyRevenueCtx, {
-                type: 'bar',
-                data: {
-                    labels: monthLabels,
-                    datasets: [{
-                        label: 'Doanh thu (VND)',
-                        data: revenueData,
-                        backgroundColor: revenueGradient,
-                        borderColor: 'rgba(74, 105, 189, 1)',
-                        borderWidth: 1,
-                        borderRadius: 8, /* Bo góc lớn hơn cho cột */
-                        hoverBackgroundColor: 'rgba(74, 105, 189, 1)', /* Màu khi hover */
-                        hoverBorderColor: 'rgba(50, 70, 150, 1)',
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 1000, /* Thời gian animation */
-                        easing: 'easeOutQuart' /* Kiểu animation */
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Doanh thu (VND)',
-                                font: { size: 15, weight: 'bold', family: 'Inter' },
-                                color: '#555'
-                            },
-                            ticks: {
-                                precision: 0,
-                                callback: function(value) {
-                                    return new Intl.NumberFormat('vi-VN', { style: 'decimal' }).format(value);
-                                },
-                                color: '#777',
-                                font: { size: 12 }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)', /* Đường lưới rất mờ */
-                                drawBorder: false /* Không vẽ border trục */
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Tháng',
-                                font: { size: 15, weight: 'bold', family: 'Inter' },
-                                color: '#555'
-                            },
-                            ticks: {
-                                color: '#777',
-                                font: { size: 12 }
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Biểu đồ Doanh thu theo tháng',
-                            font: { size: 20, weight: 'bold', family: 'Inter' },
-                            color: '#333',
-                            padding: { top: 10, bottom: 20 }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(context.parsed.y);
-                                    }
-                                    return label;
-                                }
-                            },
-                            backgroundColor: 'rgba(44, 62, 80, 0.9)', /* Darker, sleek tooltip */
-                            titleColor: '#fff',
-                            bodyColor: '#e0e0e0',
-                            padding: 12,
-                            boxPadding: 6,
-                            displayColors: true, /* Giữ màu cho tooltip */
-                            bodyFont: { size: 14 },
-                            titleFont: { size: 15, weight: 'bold' },
-                            borderColor: 'rgba(255, 255, 255, 0.3)',
-                            borderWidth: 1
-                        },
-                        legend: {
-                            display: false
-                        }
+        // Doanh thu theo tháng - Restore 3D
+        const monthlyRevenueData = /*[[${monthlyRevenueStats}]]*/ [];
+        if (monthlyRevenueData.length > 0) {
+            const monthLabels = monthlyRevenueData.map(stat => stat[0]);
+            const revenueData = monthlyRevenueData.map(stat => stat[1]);
+            Highcharts.chart('monthlyRevenueChart', {
+                chart: {
+                    type: 'column',
+                    options3d: {
+                        enabled: true,
+                        alpha: 15,
+                        beta: 15,
+                        depth: 50,
+                        viewDistance: 25
                     }
-                }
+                },
+                title: {text: 'Doanh thu theo tháng'},
+                xAxis: {categories: monthLabels, title: {text: ''}},
+                yAxis: {title: {text: 'Doanh thu (VND)'}},
+                plotOptions: {column: {animation: {duration: 1000}}},
+                series: [{name: 'Doanh thu (VND)', data: revenueData}],
+                exporting: {enabled: true}
             });
         }
 
-        // --- Số lượng chuyến đi theo tuyến đường (Pie Chart) ---
-        const routeLabels = /*[[${routeLabels}]]*/ [];
-        const tripCountData = /*[[${tripCountData}]]*/ [];
-
-        if (document.getElementById('tripCountByRouteChart')) {
-            const routeColors = getRandomGradientColors(routeLabels.length);
-            const backgroundColors = routeColors.map(c => c.start);
-            const borderColors = routeColors.map(c => c.end);
-
-            new Chart(document.getElementById('tripCountByRouteChart').getContext('2d'), {
-                type: 'pie',
-                data: {
-                    labels: routeLabels,
-                    datasets: [{
-                        label: 'Số chuyến đi',
-                        data: tripCountData,
-                        backgroundColor: backgroundColors,
-                        borderColor: borderColors,
-                        borderWidth: 2, /* Border dày hơn cho pie chart */
-                        hoverOffset: 15, /* Hiệu ứng nổi khi hover */
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        animateRotate: true, /* Animation khi tải */
-                        animateScale: true,
-                        duration: 1200,
-                        easing: 'easeOutQuart'
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Phân bổ chuyến đi theo tuyến đường',
-                            font: { size: 20, weight: 'bold', family: 'Inter' },
-                            color: '#333',
-                            padding: { top: 10, bottom: 20 }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed !== null) {
-                                        const total = context.dataset.data.reduce((sum, current) => sum + current, 0);
-                                        const percentage = ((context.parsed / total) * 100).toFixed(1) + '%';
-                                        label += `${context.parsed} chuyến (${percentage})`;
-                                    }
-                                    return label;
-                                }
-                            },
-                            backgroundColor: 'rgba(44, 62, 80, 0.9)',
-                            titleColor: '#fff',
-                            bodyColor: '#e0e0e0',
-                            padding: 12,
-                            boxPadding: 6,
-                            bodyFont: { size: 14 },
-                            titleFont: { size: 15, weight: 'bold' },
-                            borderColor: 'rgba(255, 255, 255, 0.3)',
-                            borderWidth: 1
-                        },
-                        legend: {
-                            position: 'right', /* Legend bên phải */
-                            align: 'center',
-                            labels: {
-                                padding: 15,
-                                font: {
-                                    size: 13,
-                                    family: 'Inter'
-                                },
-                                color: '#555',
-                                boxWidth: 20, /* Kích thước hộp màu */
-                                boxHeight: 20,
-                                usePointStyle: true /* Dùng hình tròn cho legend */
-                            }
-                        }
+        // Số lượng chuyến đi - Restore 3D
+        const tripCountByRouteStats = /*[[${tripCountByRouteStats}]]*/ [];
+        if (tripCountByRouteStats.length > 0) {
+            const routeLabels = tripCountByRouteStats.map(stat => stat[0]);
+            const tripCountData = tripCountByRouteStats.map(stat => stat[1]);
+            const backgroundColors = generateRandomColors(routeLabels.length);
+            Highcharts.chart('tripCountByRouteChart', {
+                chart: {
+                    type: 'pie',
+                    options3d: {
+                        enabled: true,
+                        alpha: 45,
+                        beta: 0
                     }
-                }
+                },
+                title: {text: 'Chuyến đi theo tuyến đường'},
+                plotOptions: {pie: {depth: 45, allowPointSelect: true, cursor: 'pointer', animation: {duration: 1000}, dataLabels: {enabled: true, format: '<b>{point.name}</b>: {point.percentage:.1f} %'}}},
+                series: [{name: 'Số chuyến đi', data: tripCountData.map((value, index) => ({name: routeLabels[index], y: value, color: backgroundColors[index]}))}],
+                exporting: {enabled: true}
             });
         }
 
-        // --- Số lượng người dùng theo vai trò (Bar Chart) ---
-        const roleLabels = /*[[${roleLabels}]]*/ [];
-        const userCountData = /*[[${userCountData}]]*/ [];
-
-        if (document.getElementById('userRoleChart')) {
-            const userRoleCtx = document.getElementById('userRoleChart').getContext('2d');
-            const userRoleGradient = userRoleCtx.createLinearGradient(0, 0, 0, 300);
-            userRoleGradient.addColorStop(0, 'rgba(153, 102, 255, 0.9)'); /* Purple */
-            userRoleGradient.addColorStop(1, 'rgba(180, 150, 255, 0.6)'); /* Lighter purple */
-
-            new Chart(userRoleCtx, {
-                type: 'bar',
-                data: {
-                    labels: roleLabels,
-                    datasets: [{
-                        label: 'Số lượng người dùng',
-                        data: userCountData,
-                        backgroundColor: userRoleGradient,
-                        borderColor: 'rgba(153, 102, 255, 1)',
-                        borderWidth: 1,
-                        borderRadius: 8,
-                        hoverBackgroundColor: 'rgba(153, 102, 255, 1)',
-                        hoverBorderColor: 'rgba(120, 80, 200, 1)',
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 1000,
-                        easing: 'easeOutQuart'
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Số lượng người dùng',
-                                font: { size: 15, weight: 'bold', family: 'Inter' },
-                                color: '#555'
-                            },
-                            ticks: {
-                                precision: 0,
-                                color: '#777',
-                                font: { size: 12 }
-                            },
-                            grid: {
-                                color: 'rgba(0, 0, 0, 0.05)',
-                                drawBorder: false
-                            }
-                        },
-                        x: {
-                            title: {
-                                display: true,
-                                text: 'Vai trò',
-                                font: { size: 15, weight: 'bold', family: 'Inter' },
-                                color: '#555'
-                            },
-                            ticks: {
-                                color: '#777',
-                                font: { size: 12 }
-                            },
-                            grid: {
-                                display: false
-                            }
-                        }
-                    },
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'Biểu đồ Số lượng người dùng theo vai trò',
-                            font: { size: 20, weight: 'bold', family: 'Inter' },
-                            color: '#333',
-                            padding: { top: 10, bottom: 20 }
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.dataset.label || '';
-                                    if (label) {
-                                        label += ': ';
-                                    }
-                                    if (context.parsed.y !== null) {
-                                        label += context.parsed.y + ' người';
-                                    }
-                                    return label;
-                                }
-                            },
-                            backgroundColor: 'rgba(44, 62, 80, 0.9)',
-                            titleColor: '#fff',
-                            bodyColor: '#e0e0e0',
-                            padding: 12,
-                            boxPadding: 6,
-                            displayColors: true,
-                            bodyFont: { size: 14 },
-                            titleFont: { size: 15, weight: 'bold' },
-                            borderColor: 'rgba(255, 255, 255, 0.3)',
-                            borderWidth: 1
-                        },
-                        legend: {
-                            display: false
-                        }
+        // Số lượng người dùng - Restore 3D
+        const userRoleStats = /*[[${userRoleStats}]]*/ [];
+        if (userRoleStats.length > 0) {
+            const roleLabels = userRoleStats.map(stat => stat[0]);
+            const userCountData = userRoleStats.map(stat => stat[1]);
+            Highcharts.chart('userRoleChart', {
+                chart: {
+                    type: 'column',
+                    options3d: {
+                        enabled: true,
+                        alpha: 15,
+                        beta: 15,
+                        depth: 50,
+                        viewDistance: 25
                     }
+                },
+                title: {text: 'Người dùng theo vai trò'},
+                xAxis: {categories: roleLabels, title: {text: ''}},
+                yAxis: {title: {text: 'Số lượng'}},
+                plotOptions: {column: {animation: {duration: 1000}}},
+                series: [{name: 'Số lượng người dùng', data: userCountData}],
+                exporting: {enabled: true}
+            });
+        }
+
+        // Số lượng vé bán - Restore 3D
+        const ticketSalesData = /*[[${ticketSalesStats}]]*/ [];
+        if (ticketSalesData.length > 0) {
+            const monthLabels = ticketSalesData.map(stat => stat[0]);
+            const salesData = ticketSalesData.map(stat => stat[1]);
+            Highcharts.chart('ticketSalesChart', {
+                chart: {
+                    type: 'line',
+                    options3d: {
+                        enabled: true,
+                        alpha: 10,
+                        beta: 10,
+                        depth: 40
+                    }
+                },
+                title: {text: 'Vé bán theo tháng'},
+                xAxis: {categories: monthLabels, title: {text: ''}},
+                yAxis: {title: {text: 'Số lượng vé'}},
+                plotOptions: {line: {animation: {duration: 1000}}},
+                series: [{name: 'Số lượng vé', data: salesData}],
+                exporting: {enabled: true}
+            });
+        }
+    }
+
+    function initializeSortable() {
+        const container = document.getElementById('sortable-container');
+        if (container) {
+            new Sortable(container, {
+                animation: 150,
+                ghostClass: 'sortable-ghost',
+                handle: 'h2',
+                onEnd: function (evt) {
+                    const newOrder = Array.from(container.children).map(section => section.querySelector('h2').textContent.trim());
+                    localStorage.setItem('dashboardOrder', JSON.stringify(newOrder));
                 }
             });
         }
-        /*]]>*/
-    </script>
+    }
+    function restoreOrder() {
+        const container = document.getElementById('sortable-container');
+        const savedOrder = localStorage.getItem('dashboardOrder');
+        if (savedOrder) {
+            const order = JSON.parse(savedOrder);
+            const sections = Array.from(container.children);
+            order.forEach(title => {
+                const section = sections.find(sec => sec.querySelector('h2').textContent.trim() === title);
+                if (section) {
+                    container.appendChild(section);
+                }
+            });
+        }
+    }
+    function resetOrder() {
+        localStorage.removeItem('dashboardOrder');
+        location.reload();
+    }
+    function toggleDarkMode() {
+        document.body.classList.toggle('dark-mode');
+        localStorage.setItem('darkMode', document.body.classList.contains('dark-mode'));
+    }
+    function exportTableToCSV(tableId, filename) {
+        const table = document.getElementById(tableId);
+        const rows = Array.from(table.querySelectorAll('tr'));
+        const csv = rows.map(row => Array.from(row.querySelectorAll('th, td')).map(cell => cell.textContent).join(',')).join('\n');
+        const blob = new Blob([csv], {type: 'text/csv;charset=utf-8;'});
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = filename;
+        link.click();
+    }
+    document.querySelectorAll('.table thead th[data-sort]').forEach(th => {
+        th.addEventListener('click', () => {
+            const table = th.closest('table');
+            const tbody = table.querySelector('tbody');
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            const index = Array.from(th.parentElement.children).indexOf(th);
+            const isNumeric = th.dataset.sort === 'revenue' || th.dataset.sort === 'count';
+            rows.sort((a, b) => {
+                let valA = a.children[index].textContent.trim();
+                let valB = b.children[index].textContent.trim();
+                if (isNumeric) {
+                    valA = parseFloat(valA.replace(/[^0-9.-]+/g, '')) || 0;
+                    valB = parseFloat(valB.replace(/[^0-9.-]+/g, '')) || 0;
+                    return valA - valB;
+                } else {
+                    return valA.localeCompare(valB);
+                }
+            });
+            tbody.append(...rows);
+        });
+    });
+    document.addEventListener('DOMContentLoaded', () => {
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.body.classList.add('dark-mode');
+            document.getElementById('dark-mode-switch').checked = true;
+        }
+        restoreOrder();
+        createCharts();
+        initializeSortable();
+    });
+    /*]]>*/
+</script>
+<div th:replace="base :: theme-scripts"></div>
+
 </body>
 </html>

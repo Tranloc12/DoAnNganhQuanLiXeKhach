@@ -16,6 +16,7 @@ import com.nhom12.services.DriverService;
 import com.nhom12.services.FcmService;
 import com.nhom12.services.RouteService;
 import com.nhom12.services.TripService;
+import java.time.LocalDateTime;
 
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @RestController
 @RequestMapping("/api/trips")
@@ -43,13 +45,27 @@ public class ApiTripController {
     @Autowired
     private BookingService bookingService; // <-- Thêm service để lấy booking
 
-    // Lấy danh sách chuyến đi
     @GetMapping
-    public ResponseEntity<List<TripDTO>> getTrips(@RequestParam(name = "kw", required = false) String kw) {
-        List<Trip> trips = tripServ.getTrips(kw);
+    public ResponseEntity<List<TripDTO>> getTrips(
+            @RequestParam(name = "departureTime", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime departureTime,
+            @RequestParam(name = "arrivalTime", required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime arrivalTime,
+            @RequestParam(name = "routeId", required = false) Integer routeId,
+            @RequestParam(name = "busId", required = false) Integer busId,
+            @RequestParam(name = "driverId", required = false) Integer driverId,
+            @RequestParam(name = "status", required = false) String status,
+            @RequestParam(name = "origin", required = false) String origin,
+            @RequestParam(name = "destination", required = false) String destination
+    ) {
+        // Gọi repo/service để tìm chuyến đi với bộ lọc
+        List<Trip> trips = tripServ.findTrips(departureTime, arrivalTime, routeId, busId, driverId, status, origin, destination);
+
+        // Chuyển sang DTO
         List<TripDTO> tripDTOs = trips.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
+
         return ResponseEntity.ok(tripDTOs);
     }
 
@@ -76,11 +92,11 @@ public class ApiTripController {
         if (existingTrip == null) {
             return ResponseEntity.status(404).body("Không tìm thấy chuyến đi");
         }
-        
+
         // So sánh các trường để quyết định có gửi thông báo không
         // Ví dụ: so sánh giờ khởi hành, giờ đến, tài xế, xe bus,...
         boolean hasChanged = !existingTrip.getDepartureTime().equals(tripForm.getDepartureTime());
-        
+
         // Gọi phương thức để lưu hoặc cập nhật chuyến đi
         ResponseEntity<?> response = saveOrUpdateTrip(tripForm, id);
 
@@ -88,12 +104,12 @@ public class ApiTripController {
         if (response.getStatusCode().is2xxSuccessful() && hasChanged) {
             // Lấy danh sách FCM Tokens của những người đã đặt vé cho chuyến này
             List<String> userTokens = bookingService.getFcmTokensByTripId(id);
-            
+
             for (String token : userTokens) {
                 fcmService.sendNotification(
-                    token, 
-                    "Cập nhật lịch trình chuyến đi!", 
-                    "Chuyến xe " + existingTrip.getRouteId().getRouteName() + " đã có thay đổi về thời gian."
+                        token,
+                        "Cập nhật lịch trình chuyến đi!",
+                        "Chuyến xe " + existingTrip.getRouteId().getRouteName() + " đã có thay đổi về thời gian."
                 );
             }
         }
@@ -159,6 +175,7 @@ public class ApiTripController {
         if (trip.getBusId() != null) {
             dto.setBusId(trip.getBusId().getId());
             dto.setBusLicensePlate(trip.getBusId().getLicensePlate());
+            dto.setBusCapacity(trip.getBusId().getCapacity());
         }
         if (trip.getDriverId() != null) {
             dto.setDriverId(trip.getDriverId().getId());
@@ -167,6 +184,9 @@ public class ApiTripController {
         if (trip.getRouteId() != null) {
             dto.setRouteId(trip.getRouteId().getId());
             dto.setRouteName(trip.getRouteId().getRouteName());
+            // ⚡ Thêm 2 dòng này
+            dto.setOrigin(trip.getRouteId().getOrigin());
+            dto.setDestination(trip.getRouteId().getDestination());
         }
         return dto;
     }

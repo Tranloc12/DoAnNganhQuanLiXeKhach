@@ -45,18 +45,40 @@ public class BusController {
         return null; // Có quyền Admin
     }
 
-    // Hiển thị danh sách xe buýt
+    // Hiển thị danh sách xe buýt và xử lý tìm kiếm chi tiết
+    // Hiển thị danh sách xe buýt và xử lý tìm kiếm chi tiết
     @GetMapping("/buses")
-    public String listBuses(Model model, @RequestParam(name = "kw", required = false) String kw, Principal principal) {
+    public String listBuses(
+            Model model,
+            @RequestParam(name = "licensePlate", required = false) String licensePlate,
+            @RequestParam(name = "model", required = false) String busModel, // Đổi tên tham số busName thành model
+            @RequestParam(name = "capacity", required = false) Integer capacity, // Đổi tên tham số seatingCapacity thành capacity
+            @RequestParam(name = "yearManufacture", required = false) Integer yearManufacture, // Thêm tham số mới
+
+            @RequestParam(name = "status", required = false) String status,
+            Principal principal) {
+
         String accessCheck = checkAdminAccess(principal);
         if (accessCheck != null) {
             return accessCheck;
         }
 
-        List<Bus> buses = busServ.getBuses(kw);
+        // Gọi phương thức findBuses với các tham số đã đổi tên
+        List<Bus> buses = busServ.findBuses(licensePlate, busModel, capacity, yearManufacture, status);
         model.addAttribute("buses", buses);
-        model.addAttribute("kw", kw); // Giữ lại từ khóa tìm kiếm trên form
-        return "busList"; // Tên file template: busList.html
+
+        // Thêm các tham số tìm kiếm vào model để giữ lại trên form
+        model.addAttribute("licensePlate", licensePlate);
+        model.addAttribute("model", busModel);
+        model.addAttribute("capacity", capacity);
+        model.addAttribute("yearManufacture", yearManufacture); // Thêm vào model
+
+        model.addAttribute("status", status);
+
+        // Cần thêm danh sách trạng thái vào model để hiển thị trên form tìm kiếm
+        model.addAttribute("busStatuses", new String[]{"Active", "Maintenance", "Inactive"});
+
+        return "busList";
     }
 
     // Hiển thị form thêm/cập nhật xe buýt
@@ -87,10 +109,10 @@ public class BusController {
     // Xử lý POST request để thêm/cập nhật xe buýt
     @PostMapping("/buses/add-or-update")
     public String addOrUpdateBus(@ModelAttribute("busForm") @Valid BusForm busForm,
-                                 BindingResult result,
-                                 Model model,
-                                 RedirectAttributes redirectAttributes,
-                                 Principal principal) {
+            BindingResult result,
+            Model model,
+            RedirectAttributes redirectAttributes,
+            Principal principal) {
         String accessCheck = checkAdminAccess(principal);
         if (accessCheck != null) {
             return accessCheck;

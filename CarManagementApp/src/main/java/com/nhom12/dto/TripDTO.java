@@ -24,6 +24,15 @@ public class TripDTO {
 
     private Integer routeId;
     private String routeName;
+    
+    // thêm mới
+    private String origin;
+    private String destination;
+    
+    private Integer busCapacity;
+    
+    public Integer getBusCapacity() { return busCapacity; }
+    public void setBusCapacity(Integer busCapacity) { this.busCapacity = busCapacity; }
 
     // Getter và Setter
     public Integer getId() { return id; }
@@ -67,4 +76,9 @@ public class TripDTO {
 
     public String getRouteName() { return routeName; }
     public void setRouteName(String routeName) { this.routeName = routeName; }
+     public String getOrigin() { return origin; }
+    public void setOrigin(String origin) { this.origin = origin; }
+
+    public String getDestination() { return destination; }
+    public void setDestination(String destination) { this.destination = destination; }
 }

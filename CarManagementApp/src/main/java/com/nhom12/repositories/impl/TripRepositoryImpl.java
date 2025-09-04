@@ -2,11 +2,11 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
  */
-
 package com.nhom12.repositories.impl;
 
 import com.nhom12.pojo.Trip;
 import com.nhom12.repositories.TripRepository;
+import java.time.LocalDateTime;
 import org.hibernate.Session;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
@@ -31,7 +31,7 @@ public class TripRepositoryImpl implements TripRepository {
     @Override
     public List<Trip> getTrips(String kw) {
         Session session = sessionFactory.getObject().getCurrentSession();
-        
+
         // SỬA ĐỔI TẠI ĐÂY (NẾU CẦN THIẾT):
         // Nếu bạn cần JOIN FETCH User của Driver, bạn cần chỉ rõ d.driverId.userId
         // Tuy nhiên, lỗi hiện tại chỉ ra vấn đề ở WHERE clause.
@@ -64,8 +64,8 @@ public class TripRepositoryImpl implements TripRepository {
         // Nhưng để nhất quán và an toàn, nếu có thể, hãy đảm bảo rằng mọi truy vấn
         // đi qua Driver để lấy User đều dùng userId
         return session.createQuery("FROM Trip t JOIN FETCH t.busId JOIN FETCH t.driverId JOIN FETCH t.routeId WHERE t.id = :id", Trip.class)
-                      .setParameter("id", id)
-                      .getSingleResult();
+                .setParameter("id", id)
+                .getSingleResult();
     }
 
     @Override
@@ -108,7 +108,7 @@ public class TripRepositoryImpl implements TripRepository {
         Query<Long> query = session.createQuery("SELECT COUNT(t) FROM Trip t", Long.class);
         return query.getSingleResult();
     }
-    
+
     @Override
     public boolean decreaseAvailableSeats(int tripId, int numberOfSeats) {
         Session session = sessionFactory.getObject().getCurrentSession();
@@ -135,21 +135,21 @@ public class TripRepositoryImpl implements TripRepository {
         }
         return false;
     }
-    
-    
-     @Override
+
+    @Override
     public List<Object[]> getMonthlyRevenueStats(int year) {
         Session session = sessionFactory.getObject().getCurrentSession();
         // Câu truy vấn HQL để tính tổng doanh thu theo tháng
         // Lưu ý: EXTRACT(MONTH FROM ...) là hàm chuẩn SQL, Hibernate sẽ chuyển đổi phù hợp
         // Cho LocalDateTime, dùng YEAR() và MONTH() hoặc các hàm tương đương của Hibernate
         Query<Object[]> q = session.createQuery(
-            "SELECT FUNCTION('MONTH', b.bookingDate), SUM(b.totalAmount) " +
-            "FROM Booking b JOIN b.tripId t " +
-            "WHERE FUNCTION('YEAR', b.bookingDate) = :year " +
-            "AND b.paymentStatus = 'Paid' " + // Chỉ tính doanh thu của các booking đã thanh toán
-            "GROUP BY FUNCTION('MONTH', b.bookingDate) " +
-            "ORDER BY FUNCTION('MONTH', b.bookingDate) ASC", Object[].class);
+                "SELECT FUNCTION('MONTH', b.bookingDate), SUM(b.totalAmount) "
+                + "FROM Booking b JOIN b.tripId t "
+                + "WHERE FUNCTION('YEAR', b.bookingDate) = :year "
+                + "AND b.paymentStatus = 'Paid' "
+                + // Chỉ tính doanh thu của các booking đã thanh toán
+                "GROUP BY FUNCTION('MONTH', b.bookingDate) "
+                + "ORDER BY FUNCTION('MONTH', b.bookingDate) ASC", Object[].class);
         q.setParameter("year", year);
         return q.getResultList();
     }
@@ -159,10 +159,83 @@ public class TripRepositoryImpl implements TripRepository {
         Session session = sessionFactory.getObject().getCurrentSession();
         // Thống kê số lượng chuyến đi theo tuyến đường
         Query<Object[]> q = session.createQuery(
-            "SELECT r.routeName, COUNT(t.id) " +
-            "FROM Trip t JOIN t.routeId r " +
-            "GROUP BY r.routeName " +
-            "ORDER BY COUNT(t.id) DESC", Object[].class);
+                "SELECT r.routeName, COUNT(t.id) "
+                + "FROM Trip t JOIN t.routeId r "
+                + "GROUP BY r.routeName "
+                + "ORDER BY COUNT(t.id) DESC", Object[].class);
         return q.getResultList();
     }
+
+    @Override
+    public List<Trip> findTrips(LocalDateTime departureTime, LocalDateTime arrivalTime,
+                                Integer routeId, Integer busId, Integer driverId,
+                                String status, String origin, String destination) {
+        Session session = this.sessionFactory.getObject().getCurrentSession();
+        StringBuilder hql = new StringBuilder("FROM Trip t JOIN FETCH t.routeId r JOIN FETCH t.busId b JOIN FETCH t.driverId d WHERE 1=1");
+
+        // Xử lý các tham số có thể null bằng cách sử dụng logic OR với IS NULL
+        if (departureTime != null) {
+            hql.append(" AND t.departureTime BETWEEN :startOfDay AND :endOfDay");
+        }
+        if (arrivalTime != null) {
+            hql.append(" AND t.arrivalTime BETWEEN :startOfDayArrival AND :endOfDayArrival");
+        }
+        if (routeId != null) {
+            hql.append(" AND r.id = :routeId");
+        }
+        if (busId != null) {
+            hql.append(" AND b.id = :busId");
+        }
+        if (driverId != null) {
+            hql.append(" AND d.id = :driverId");
+        }
+        if (status != null && !status.isEmpty()) {
+            hql.append(" AND LOWER(t.status) = LOWER(:status)");
+        }
+        if (origin != null && !origin.isEmpty()) {
+            hql.append(" AND LOWER(r.origin) LIKE :origin");
+        }
+        if (destination != null && !destination.isEmpty()) {
+            hql.append(" AND LOWER(r.destination) LIKE :destination");
+        }
+
+        hql.append(" ORDER BY t.departureTime DESC");
+
+        Query<Trip> query = session.createQuery(hql.toString(), Trip.class);
+        
+        // Chỉ gán tham số nếu nó không null
+        if (departureTime != null) {
+            LocalDateTime startOfDay = departureTime.toLocalDate().atStartOfDay();
+            LocalDateTime endOfDay = departureTime.toLocalDate().atTime(23, 59, 59);
+            query.setParameter("startOfDay", startOfDay);
+            query.setParameter("endOfDay", endOfDay);
+        }
+        if (arrivalTime != null) {
+            LocalDateTime startOfDayArrival = arrivalTime.toLocalDate().atStartOfDay();
+            LocalDateTime endOfDayArrival = arrivalTime.toLocalDate().atTime(23, 59, 59);
+            query.setParameter("startOfDayArrival", startOfDayArrival);
+            query.setParameter("endOfDayArrival", endOfDayArrival);
+        }
+        if (routeId != null) {
+            query.setParameter("routeId", routeId);
+        }
+        if (busId != null) {
+            query.setParameter("busId", busId);
+        }
+        if (driverId != null) {
+            query.setParameter("driverId", driverId);
+        }
+        if (status != null && !status.isEmpty()) {
+            query.setParameter("status", status.toLowerCase());
+        }
+        if (origin != null && !origin.isEmpty()) {
+            query.setParameter("origin", "%" + origin.toLowerCase() + "%");
+        }
+        if (destination != null && !destination.isEmpty()) {
+            query.setParameter("destination", "%" + destination.toLowerCase() + "%");
+        }
+
+        return query.getResultList();
+    }
+
 }
