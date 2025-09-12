@@ -2,20 +2,27 @@ import React, { useEffect, useState } from "react";
 import Apis, { endpoints } from "../../configs/Apis.js";
 import { useNavigate } from "react-router-dom";
 
-
 export default function TripList() {
+    const navigate = useNavigate();
     const [trips, setTrips] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [hoveredTripId, setHoveredTripId] = useState(null); // Thêm state để theo dõi hover
-    const navigate = useNavigate();
+    const [hoveredTripId, setHoveredTripId] = useState(null); 
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalTrips, setTotalTrips] = useState(0);
+    const pageSize = 5; 
 
-    const loadTrips = async () => {
+    const loadTrips = async (page) => {
+        setLoading(true);
         try {
-            const res = await Apis.get(endpoints.trips);
+            // Tạm thời gán giá trị cố định để kiểm tra phân trang
+            setTotalTrips(20);
+
+            const res = await Apis.get(`${endpoints.trips}?page=${page}&pageSize=${pageSize}`);
             if (Array.isArray(res.data)) {
                 setTrips(res.data);
             } else {
                 setTrips([]);
+                console.error("❌ Lỗi: Dữ liệu chuyến đi không phải là mảng.", res.data);
             }
         } catch (err) {
             console.error("❌ Lỗi khi tải danh sách chuyến đi:", err);
@@ -26,12 +33,12 @@ export default function TripList() {
     };
 
     useEffect(() => {
-        loadTrips();
-    }, []);
+        loadTrips(currentPage);
+    }, [currentPage]);
 
-    const formatDepartureTime = (departureTime) => {
-        if (!departureTime) return { time: "N/A", date: "N/A" };
-        const [year, month, day, hour, minute] = departureTime;
+    const formatTimeArray = (timeArray) => {
+        if (!timeArray) return { time: "N/A", date: "N/A" };
+        const [year, month, day, hour, minute] = timeArray;
         const formattedDate = new Date(year, month - 1, day, hour, minute);
         const timeOptions = { hour: '2-digit', minute: '2-digit' };
         const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
@@ -55,6 +62,33 @@ export default function TripList() {
         }
     };
 
+    const renderPagination = () => {
+        const totalPages = Math.ceil(totalTrips / pageSize);
+        // Log để kiểm tra giá trị totalPages
+        console.log("Tổng số trang:", totalPages);
+        
+        if (totalPages <= 1) return null;
+
+        const pages = [];
+        for (let i = 1; i <= totalPages; i++) {
+            pages.push(i);
+        }
+
+        return (
+            <div style={styles.paginationContainer}>
+                {pages.map(page => (
+                    <button
+                        key={page}
+                        style={page === currentPage ? styles.paginationButtonActive : styles.paginationButton}
+                        onClick={() => setCurrentPage(page)}
+                    >
+                        {page}
+                    </button>
+                ))}
+            </div>
+        );
+    };
+
     if (loading) return (
         <div style={styles.loadingContainer}>
             <p style={styles.loadingMessage}>Đang tải danh sách chuyến đi...</p>
@@ -70,77 +104,87 @@ export default function TripList() {
                     <p style={styles.noDataMessage}>🚨 Không có dữ liệu chuyến đi nào để hiển thị.</p>
                 </div>
             ) : (
-                <div style={styles.cardGrid}>
-                    {trips.map((trip) => {
-                        const { time, date } = formatDepartureTime(trip.departureTime);
-                        const statusInfo = getStatusTextAndStyle(trip.status);
+                <>
+                    <div style={styles.cardGrid}>
+                        {trips.map((trip) => {
+                            const statusInfo = getStatusTextAndStyle(trip.status);
+                            const { time, date } = formatTimeArray(trip.departureTime);
+                            const { time: endTime, date: endDate } = formatTimeArray(trip.arrivalTime);
+                            const cardStyle = hoveredTripId === trip.id ? { ...styles.card, ...styles.cardHover } : styles.card;
 
-                        // Áp dụng style hover nếu id của chuyến đi khớp với id đang được hover
-                        const cardStyle = hoveredTripId === trip.id ? { ...styles.card, ...styles.cardHover } : styles.card;
-
-                        return (
-                            <div
-                                key={trip.id}
-                                style={cardStyle}
-                                onMouseEnter={() => setHoveredTripId(trip.id)} // Thêm sự kiện khi di chuột vào
-                                onMouseLeave={() => setHoveredTripId(null)} // Thêm sự kiện khi di chuột ra
-                            >
-                                <div style={styles.cardHeader}>
-                                    <h3 style={styles.cardTitle}>{trip.routeName}</h3>
-                                    <span style={statusInfo.style}>
-                                        {statusInfo.text}
-                                    </span>
+                            return (
+                                <div
+                                    key={trip.id}
+                                    style={cardStyle}
+                                    onMouseEnter={() => setHoveredTripId(trip.id)}
+                                    onMouseLeave={() => setHoveredTripId(null)}
+                                >
+                                    <div style={styles.cardHeader}>
+                                        <h3 style={styles.cardTitle}>{trip.routeName}</h3>
+                                        <span style={statusInfo.style}>
+                                            {statusInfo.text}
+                                        </span>
+                                    </div>
+                                    <div style={styles.cardBody}>
+                                        <p style={styles.cardDetail}>
+                                            <strong style={styles.strongText}>Thời gian khởi hành:</strong> {time} | {date}
+                                        </p>
+                                        <p style={styles.cardDetail}>
+                                            <strong style={styles.strongText}>Thời gian Đến:</strong> {endTime} | {endDate}
+                                        </p>
+                                        <p style={styles.cardDetail}>
+                                            <strong style={styles.strongText}>Giá vé:</strong> {trip.fare?.toLocaleString('vi-VN')} VNĐ
+                                        </p>
+                                        <p style={styles.cardDetail}>
+                                            <strong style={styles.strongText}>Biển số xe:</strong> {trip.busLicensePlate}
+                                        </p>
+                                        <p style={styles.cardDetail}>
+                                            <strong style={styles.strongText}>Tài xế:</strong> {trip.driverName}
+                                        </p>
+                                        <p style={styles.cardDetail}>
+                                            <strong style={styles.strongText}>Số ghế trống:</strong> {trip.availableSeats} / {trip.availableSeats + trip.totalBookedSeats}
+                                        </p>
+                                        <p style={styles.cardDetail}>
+                                            <strong style={styles.strongText}>Bến xuất phát:</strong> {trip.originStationName}
+                                        </p>
+                                        <p style={styles.cardDetail}>
+                                            <strong style={styles.strongText}>Bến đến:</strong> {trip.destinationStationName}
+                                        </p>
+                                    </div>
+                                    <div style={styles.cardFooter}>
+                                        <button
+                                            style={styles.outlineButton}
+                                            onClick={() => navigate(`/book/${trip.id}`)}
+                                        >
+                                            Đặt vé ngay
+                                        </button>
+                                        <button
+                                            style={styles.outlineSuccessButton}
+                                            onClick={() => navigate(`/trips/${trip.id}/track`)}
+                                        >
+                                            Theo dõi vị trí 🗺️
+                                        </button>
+                                        <button
+                                            style={styles.outlineDangerButton}
+                                            onClick={() => navigate(`/trips/${trip.id}/reviews`)}
+                                        >
+                                            Xem Đánh Giá
+                                        </button>
+                                    </div>
                                 </div>
-                                <div style={styles.cardBody}>
-                                    <p style={styles.cardDetail}>
-                                        <strong style={styles.strongText}>Thời gian khởi hành:</strong> {time} | {date}
-                                    </p>
-                                    <p style={styles.cardDetail}>
-                                        <strong style={styles.strongText}>Giá vé:</strong> {trip.fare?.toLocaleString('vi-VN')} VNĐ
-                                    </p>
-                                    <p style={styles.cardDetail}>
-                                        <strong style={styles.strongText}>Biển số xe:</strong> {trip.busLicensePlate}
-                                    </p>
-                                    <p style={styles.cardDetail}>
-                                        <strong style={styles.strongText}>Tài xế:</strong> {trip.driverName}
-                                    </p>
-                                    <p style={styles.cardDetail}>
-                                        <strong style={styles.strongText}>Số ghế trống:</strong> {trip.availableSeats} / {trip.availableSeats + trip.totalBookedSeats}
-                                    </p>
-                                </div>
-                                <div style={styles.cardFooter}>
-                                    <button
-                                        style={styles.outlineButton}
-                                        onClick={() => navigate(`/book/${trip.id}`)}
-                                    >
-                                        Đặt vé ngay
-                                    </button>
-                                    <button
-                                        style={styles.outlineSuccessButton}
-                                        onClick={() => navigate(`/trips/${trip.id}/track`)}
-                                    >
-                                        Theo dõi vị trí 🗺️
-                                    </button>
-                                    <button
-                                        style={styles.outlineDangerButton}
-                                        onClick={() => navigate(`/trips/${trip.id}/reviews`)}
-                                    >
-                                        Xem Đánh Giá
-                                    </button>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
+                            );
+                        })}
+                    </div>
+                    {renderPagination()}
+                </>
             )}
         </div>
     );
 }
 
-// Khai báo lại styles với các cập nhật
 const styles = {
     container: {
-        fontFamily: "'Inter', sans-serif", 
+        fontFamily: "'Inter', sans-serif",
         padding: '40px',
         maxWidth: '1200px',
         margin: '40px auto',
@@ -162,12 +206,12 @@ const styles = {
     },
     heading: {
         textAlign: 'center',
-        color: '#333', 
+        color: '#333',
         marginBottom: '50px',
-        fontSize: '2.8em', 
-        fontWeight: '700', 
+        fontSize: '2.8em',
+        fontWeight: '700',
         textTransform: 'uppercase',
-        letterSpacing: '0.05em', 
+        letterSpacing: '0.05em',
         textShadow: '1px 1px 3px rgba(0,0,0,0.08)',
     },
     noDataMessageBox: {
@@ -191,7 +235,7 @@ const styles = {
     },
     card: {
         backgroundColor: '#ffffff',
-        border: '2px solid transparent', // Đặt viền trong suốt ban đầu
+        border: '2px solid transparent', 
         borderRadius: '16px',
         boxShadow: '0 6px 20px rgba(0,0,0,0.06)',
         padding: '30px',
@@ -200,10 +244,10 @@ const styles = {
         flexDirection: 'column',
         justifyContent: 'space-between',
     },
-    cardHover: { // Style khi hover
-        transform: 'translateY(-5px)', 
+    cardHover: { 
+        transform: 'translateY(-5px)',
         boxShadow: '0 10px 25px rgba(0,0,0,0.12)',
-        border: '2px solid #e75702', // Đổi màu viền khi hover
+        border: '2px solid #e75702', 
     },
     cardHeader: {
         display: 'flex',
@@ -237,7 +281,7 @@ const styles = {
     statusScheduled: {
         color: '#ffffff',
         fontWeight: '500',
-        backgroundColor: '#4a90e2', 
+        backgroundColor: '#4a90e2',
         padding: '5px 12px',
         borderRadius: '20px',
         fontSize: '0.8em',
@@ -248,7 +292,7 @@ const styles = {
     statusCompleted: {
         color: '#ffffff',
         fontWeight: '500',
-        backgroundColor: '#7ed321', 
+        backgroundColor: '#7ed321',
         padding: '5px 12px',
         borderRadius: '20px',
         fontSize: '0.8em',
@@ -259,7 +303,7 @@ const styles = {
     statusCancelled: {
         color: '#ffffff',
         fontWeight: '500',
-        backgroundColor: '#d0021b', 
+        backgroundColor: '#d0021b',
         padding: '5px 12px',
         borderRadius: '20px',
         fontSize: '0.8em',
@@ -287,8 +331,6 @@ const styles = {
         justifyContent: 'space-between',
         gap: '10px',
     },
-    
-    // Styles cho nút outline
     outlineButton: {
         backgroundColor: 'transparent',
         border: '2px solid #e75702',
@@ -339,5 +381,36 @@ const styles = {
             backgroundColor: '#dc3545',
             color: '#fff',
         },
+    },
+    paginationContainer: {
+        display: 'flex',
+        justifyContent: 'center',
+        marginTop: '30px',
+        gap: '10px',
+    },
+    paginationButton: {
+        backgroundColor: '#fff',
+        border: '1px solid #ddd',
+        color: '#555',
+        borderRadius: '8px',
+        padding: '10px 15px',
+        fontSize: '1em',
+        cursor: 'pointer',
+        transition: 'all 0.2s ease',
+        '&:hover': {
+            backgroundColor: '#f0f0f0',
+            borderColor: '#bbb',
+        },
+    },
+    paginationButtonActive: {
+        backgroundColor: '#e75702',
+        border: '1px solid #e75702',
+        color: '#fff',
+        borderRadius: '8px',
+        padding: '10px 15px',
+        fontSize: '1em',
+        fontWeight: 'bold',
+        cursor: 'default',
+        boxShadow: '0 4px 10px rgba(231, 87, 2, 0.4)',
     },
 };

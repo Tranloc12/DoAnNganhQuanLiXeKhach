@@ -62,6 +62,10 @@ import EditPassword from "./components/passenger/EditPassword.js";
 import TripTrackingPage from "./components/trip/TripTrackingPage.js";
 import NotificationHandler from "./services/NotificationHandler.js";
 import NotificationList from "./services/NotificationList.js";
+import BusStationList from "./components/busstation/BusStationList.js";
+import TransferPointList from "./components/transferPoint/TransferPointList.js";
+import TripTransferList from "./components/transferPoint/TripTransferList.js";
+
 
 const App = () => {
   const [user, dispatch] = useReducer(MyUserReducer, null);
@@ -189,7 +193,7 @@ const App = () => {
                     } />
 
                     <Route path="/manager/buses/edit/:id" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER,  ROLES.STAFF]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <EditBusForm />
                       </ProtectedRoute>
                     } />
@@ -242,7 +246,7 @@ const App = () => {
 
                     {/* Routes cho Schedule Management */}
                     <Route path="/manager/schedules" element={
-                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER,  ROLES.STAFF]}>
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
                         <ScheduleManagement />
                       </ProtectedRoute>
                     } />
@@ -299,8 +303,28 @@ const App = () => {
 
 
                     <Route path="/notifi" element={
-                      <ProtectedRoute allowedRoles={[ ROLES.PASSENGER]}>
+                      <ProtectedRoute allowedRoles={[ROLES.PASSENGER]}>
                         <NotificationList />
+                      </ProtectedRoute>
+                    } />
+
+                    <Route path="/bus-stations" element={
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
+                        <BusStationList />
+                      </ProtectedRoute>
+                    } />
+
+
+                    <Route path="/transfer-points" element={
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
+                        <TransferPointList />
+                      </ProtectedRoute>
+                    } />
+
+
+                    <Route path="/trip-transfer" element={
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
+                        <TripTransferList />
                       </ProtectedRoute>
                     } />
 

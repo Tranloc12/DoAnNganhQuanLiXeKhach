@@ -66,12 +66,14 @@ public class BookingRepositoryImpl implements BookingRepository {
         try {
             Booking booking = getCurrentSession().get(Booking.class, bookingId);
             if (booking != null) {
-                getCurrentSession().remove(booking);
+                // Thay đổi trạng thái thay vì xóa
+                booking.setBookingStatus("Cancelled");
+                getCurrentSession().merge(booking);
                 return true;
             }
             return false;
         } catch (Exception e) {
-            System.err.println("Lỗi khi xóa booking: " + e.getMessage());
+            System.err.println("Lỗi khi hủy booking: " + e.getMessage());
             e.printStackTrace();
             return false;
         }

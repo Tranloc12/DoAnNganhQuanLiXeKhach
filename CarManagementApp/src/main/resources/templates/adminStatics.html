@@ -495,44 +495,7 @@
                     <button class="export-btn" onclick="exportTableToCSV('userRoleTable', 'nguoi-dung-vai-tro.csv')">Export CSV</button>
                 </div>
             </div>
-            <div th:unless="${userRoleStats != null and not userRoleStats.isEmpty()}" class="alert alert-info">
-                <i class="fas fa-info-circle"></i> Chưa có dữ liệu người dùng theo vai trò.
-            </div>
         </div>
-        <div class="stats-section">
-            <h2>Số lượng vé bán theo tháng (Năm <span th:text="${statsYear}"></span>)</h2>
-            <form th:action="@{/admin-statics}" method="get" class="mb-3">
-                <div class="input-group">
-                    <input type="number" name="ticketYear" class="form-control"
-                           placeholder="Nhập năm" th:value="${statsYear}" min="2000" max="2100">
-                    <button type="submit" class="btn btn-info">
-                        <i class="fas fa-ticket-alt"></i> Xem theo năm
-                    </button>
-                </div>
-            </form>
-            <div th:if="${ticketSalesStats != null and not ticketSalesStats.isEmpty()}" class="stats-grid">
-                <div class="chart-container chart-small">
-                    <div class="loader"></div>
-                    <div id="ticketSalesChart"></div>
-                </div>
-                <div class="table-container">
-                    <table class="table table-bordered table-striped" id="ticketSalesTable">
-                        <thead>
-                            <tr>
-                                <th data-sort="month">Tháng</th>
-                                <th data-sort="count">Số lượng vé bán</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr th:each="stat : ${ticketSalesStats}">
-                                <td th:text="${stat[0]}"></td>
-                                <td th:text="${stat[1]}"></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button class="export-btn" onclick="exportTableToCSV('ticketSalesTable', 've-ban-thang.csv')">Export CSV</button>
-                </div>
-            </div>
             <div th:unless="${ticketSalesStats != null and not ticketSalesStats.isEmpty()}" class="alert alert-info">
                 <i class="fas fa-info-circle"></i> Chưa có dữ liệu vé bán cho năm <span th:text="${statsYear}"></span>.
             </div>

@@ -175,12 +175,14 @@ const Home = () => {
         }));
     };
 
-    const formatDepartureTime = (departureTime) => {
-        if (!departureTime) return { time: "N/A", date: "N/A" };
-        const [year, month, day, hour, minute] = departureTime;
+    const formatTimeArray = (timeArray) => {
+        if (!timeArray) return { time: "N/A", date: "N/A" };
+        const [year, month, day, hour, minute] = timeArray;
         const formattedDate = new Date(year, month - 1, day, hour, minute);
         const timeOptions = { hour: '2-digit', minute: '2-digit' };
         const dateOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+
+
         return {
             time: formattedDate.toLocaleTimeString('vi-VN', timeOptions),
             date: formattedDate.toLocaleDateString('vi-VN', dateOptions)
@@ -304,7 +306,9 @@ const Home = () => {
                 ) : (
                     <Row xs={1} md={2} lg={3} className="g-4">
                         {trips.map(trip => {
-                            const { time, date } = formatDepartureTime(trip.departureTime);
+                            // định nghĩa các biến trong scope của map
+                            const departure = formatTimeArray(trip.departureTime);
+                            const arrival = formatTimeArray(trip.arrivalTime);
                             return (
                                 <Col key={trip.id}>
                                     <Card className="trip-card">
@@ -316,7 +320,11 @@ const Home = () => {
                                             <Card.Text className="flex-grow-1 mt-3">
                                                 <p className="trip-card-detail">
                                                     <i className="fa-regular fa-clock me-2"></i>
-                                                    Thời gian: <strong>{time}</strong> | <strong>{date}</strong>
+                                                    Khởi hành: <strong>{departure.time}</strong> | <strong>{departure.date}</strong>
+                                                </p>
+                                                <p className="trip-card-detail">
+                                                    <i className="fa-regular fa-clock me-2"></i>
+                                                    Thời gian đến: <strong>{arrival.time}</strong> | <strong>{arrival.date}</strong>
                                                 </p>
                                                 <p className="trip-card-detail">
                                                     <i className="fa-solid fa-car-side me-2"></i>
@@ -330,6 +338,17 @@ const Home = () => {
                                                     <i className="fa-solid fa-chair me-2"></i>
                                                     Ghế trống: <strong>{trip.availableSeats}</strong>
                                                 </p>
+
+                                                <p className="trip-card-detail">
+                                                    <i className="fa-solid fa-chair me-2"></i>
+                                                    Bến xuất phát: <strong>{trip.originStationName}</strong>
+                                                </p>
+                                                <p className="trip-card-detail">
+                                                    <i className="fa-solid fa-chair me-2"></i>
+                                                    Bến đến: <strong>{trip.destinationStationName}</strong>
+                                                </p>
+
+
                                             </Card.Text>
                                             <div className="d-flex justify-content-center mt-3 pt-3 border-top">
                                                 <div className="text-start">

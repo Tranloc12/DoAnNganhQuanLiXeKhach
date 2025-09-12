@@ -102,6 +102,7 @@ public class SpringSecurityConfigs {
                 .requestMatchers(HttpMethod.POST, "/api/users").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                 .requestMatchers(HttpMethod.PUT, "/api/users/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                 .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.DELETE, "/api/users/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
                 // ✅ Trip API
                 .requestMatchers(HttpMethod.GET, "/api/trips", "/api/trips/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/trips").hasAnyRole("ADMIN", "MANAGER", "STAFF")
@@ -147,6 +148,21 @@ public class SpringSecurityConfigs {
                 //----Location BUS------
                 .requestMatchers(HttpMethod.POST, "/api/bus-locations/update").hasAnyRole("DRIVER", "STAFF", "ADMIN", "MANAGER")
                 .requestMatchers(HttpMethod.GET, "/api/bus-locations/latest/**").permitAll()
+                // ✅ BusStation API
+                .requestMatchers(HttpMethod.GET, "/api/busstations", "/api/busstations/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/busstations").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.PUT, "/api/busstations/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                .requestMatchers(HttpMethod.DELETE, "/api/busstations/**").hasAnyRole("ADMIN", "MANAGER")
+                //-----Transferpoints-----------
+                .requestMatchers(HttpMethod.GET, "/api/transferpoints", "/api/transferpoints/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/transferpoints").hasAnyRole("ADMIN", "MANAGER", "STAFF", "PASSENGER")
+                .requestMatchers(HttpMethod.PUT, "/api/transferpoints/**").hasAnyRole("ADMIN", "MANAGER", "STAFF", "PASSENGER")
+                .requestMatchers(HttpMethod.DELETE, "/api/transferpoints/**").hasAnyRole("ADMIN", "MANAGER")
+                // ✅ TripTransfer API
+                .requestMatchers(HttpMethod.GET, "/api/triptransfers", "/api/triptransfers/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/triptransfers").hasAnyRole("ADMIN", "MANAGER", "STAFF", "PASSENGER")
+                .requestMatchers(HttpMethod.PUT, "/api/triptransfers/**").hasAnyRole("ADMIN", "MANAGER", "STAFF", "PASSENGER")
+                .requestMatchers(HttpMethod.DELETE, "/api/triptransfers/**").hasAnyRole("ADMIN", "MANAGER")
                 //---------------------------------------------------------------------------//
                 .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/gym-packages").permitAll()

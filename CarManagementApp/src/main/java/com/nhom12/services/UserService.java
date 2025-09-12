@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author HP
  */
 public interface UserService extends UserDetailsService {
+
     User getUserByUsername(String username);
 
     User getUserById(Integer id);
@@ -22,6 +23,8 @@ public interface UserService extends UserDetailsService {
     User addUser(Map<String, String> params);
 
     public void saveUser(User user);
+
+    void deleteUserById(int userId);
 
     User updateUser(User user);
 
@@ -32,9 +35,9 @@ public interface UserService extends UserDetailsService {
     List<User> getUsersByRole(String role);
 
     List<User> getUsers();
-    
-     List<Object[]> getUserRoleStats();
-     
-     List<User> findUsers(String username, String email, String userRole, Boolean isActive);
+
+    List<Object[]> getUserRoleStats();
+
+    List<User> findUsers(String username, String email, String userRole, Boolean isActive);
 
 }

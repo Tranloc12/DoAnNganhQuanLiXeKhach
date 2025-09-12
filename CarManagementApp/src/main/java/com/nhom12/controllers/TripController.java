@@ -75,6 +75,8 @@ public class TripController {
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "origin", required = false) String origin,
             @RequestParam(name = "destination", required = false) String destination,
+            @RequestParam(name = "page", required = false, defaultValue = "1") Integer page,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize,
             Principal principal) {
          
         String accessCheck = checkAdminAccess(principal);
@@ -83,7 +85,7 @@ public class TripController {
         }
 
         // Gọi phương thức service mới với các tham số trực tiếp
-        List<Trip> trips = tripServ.findTrips(departureTime, arrivalTime, routeId, busId, driverId, status,origin, destination);
+        List<Trip> trips = tripServ.findTrips(departureTime, arrivalTime, routeId, busId, driverId, status,origin, destination,page, pageSize);
         
         // --- Bổ sung đoạn code sắp xếp tại đây ---
         // Sắp xếp danh sách trips theo ID tăng dần

@@ -25,8 +25,17 @@ public class ApiRouteController {
     private RouteService routeServ;
 
     @GetMapping
-    public ResponseEntity<List<Route>> getRoutes(@RequestParam(name = "kw", required = false) String kw) {
-        List<Route> routes = routeServ.getRoutes(kw);
+    public ResponseEntity<List<Route>> getRoutes(
+            @RequestParam(name = "routeName", required = false) String routeName,
+            @RequestParam(name = "origin", required = false) String origin,
+            @RequestParam(name = "destination", required = false) String destination,
+            @RequestParam(name = "distanceFrom", required = false) Double distanceFrom,
+            @RequestParam(name = "distanceTo", required = false) Double distanceTo,
+            @RequestParam(name = "priceFrom", required = false) Double priceFrom,
+            @RequestParam(name = "priceTo", required = false) Double priceTo,
+            @RequestParam(name = "isActive", required = false) Boolean isActive) {
+        
+        List<Route> routes = routeServ.findRoutes(routeName, origin, destination, distanceFrom, distanceTo, priceFrom, priceTo, isActive);
         return ResponseEntity.ok(routes);
     }
 

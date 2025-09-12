@@ -1,6 +1,10 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 // src/components/manager/ReviewManagement.js
 import React, { useEffect, useState } from "react";
-import { Container, Spinner, Alert, ListGroup, Card, Badge, Button, Row, Col, Modal } from "react-bootstrap";
+import { Container, Spinner, Alert, ListGroup, Card, Badge, Button, Row, Col, Modal, Form } from "react-bootstrap";
 import moment from "moment";
 import { Link } from "react-router-dom";
 import MyAxios, { endpoints, authApis } from "../../configs/Apis";
@@ -42,7 +46,7 @@ const AlertDialog = ({ show, handleClose, message }) => (
 );
 
 // Component hiển thị một review
-const ReviewItem = ({ review, onUpdate, onDelete }) => (
+const ReviewItem = ({ review, onDelete }) => (
     <Card className="mb-4 shadow-sm border-0 rounded-3">
         <Card.Body className="p-4">
             <Row className="align-items-center mb-3">
@@ -98,26 +102,60 @@ const ReviewManagement = () => {
     const [alertMessage, setAlertMessage] = useState("");
     const currentUser = useContext(MyUserContext);
 
-    useEffect(() => {
-        const fetchReviews = async () => {
-            setLoading(true);
-            setError(null);
-            try {
-                // API này lấy tất cả reviews, không cần tripId
-                const res = await authApis().get(endpoints.reviews);
-                if (Array.isArray(res.data)) {
-                    setReviews(res.data);
-                } else {
-                    setReviews([]);
-                    setError("Không có đánh giá nào trên hệ thống.");
+    // ✅ State mới cho các tham số lọc
+    const [filterParams, setFilterParams] = useState({
+        keyword: "",
+        rating: "",
+        startDate: "",
+        endDate: "",
+    });
+
+    // ✅ Hàm fetch API chung
+    const fetchReviews = async () => {
+        setLoading(true);
+        setError(null);
+        try {
+            // Xây dựng chuỗi truy vấn dựa trên filterParams
+            const params = new URLSearchParams();
+            for (const key in filterParams) {
+                if (filterParams[key]) {
+                    params.append(key, filterParams[key]);
                 }
-            } catch (err) {
-                console.error("Lỗi khi tải đánh giá:", err);
-                setError("Không thể tải đánh giá. Vui lòng thử lại sau.");
-            } finally {
-                setLoading(false);
             }
-        };
+
+            const res = await authApis().get(`${endpoints.reviews}?${params.toString()}`);
+            
+            if (Array.isArray(res.data)) {
+                setReviews(res.data);
+            } else {
+                setReviews([]);
+                setError("Không có đánh giá nào trên hệ thống.");
+            }
+        } catch (err) {
+            console.error("Lỗi khi tải đánh giá:", err);
+            setError("Không thể tải đánh giá. Vui lòng thử lại sau.");
+        } finally {
+            setLoading(false);
+        }
+    };
+    
+    // ✅ Hàm xử lý khi người dùng thay đổi input
+    const handleParamChange = (event) => {
+        const { name, value } = event.target;
+        setFilterParams(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+    
+    // ✅ Hàm xử lý khi người dùng nhấn nút Tìm kiếm
+    const handleSearch = (event) => {
+        event.preventDefault();
+        fetchReviews();
+    };
+
+    // Chạy fetchReviews lần đầu khi component mount
+    useEffect(() => {
         fetchReviews();
     }, []);
 
@@ -137,7 +175,7 @@ const ReviewManagement = () => {
             setReviews((prev) => prev.filter((r) => r.id !== reviewToDeleteId));
         } catch (err) {
             console.error("❌ Lỗi khi xóa đánh giá:", err);
-            const errorMessage = err.response?.data?.detail || err.response?.data || "Không thể xóa đánh giá! Có thể bạn không có quyền hoặc có lỗi xảy ra.";
+            const errorMessage = err.response?.data?.error || "Không thể xóa đánh giá! Có thể bạn không có quyền hoặc có lỗi xảy ra.";
             setAlertMessage(errorMessage);
             setShowAlertDialog(true);
         } finally {
@@ -151,6 +189,61 @@ const ReviewManagement = () => {
                 Quản lý tất cả đánh giá
             </h3>
 
+            {/* ✅ Thêm Form Lọc */}
+            <Card className="mb-4 shadow-sm border-0 rounded-3">
+                <Card.Body>
+                    <h5 className="mb-3 text-secondary">Bộ Lọc</h5>
+                    <Form onSubmit={handleSearch}>
+                        <Row className="g-3">
+                            
+                             <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Đánh giá (sao)</Form.Label>
+                                    <Form.Control
+                                        as="select"
+                                        name="rating"
+                                        value={filterParams.rating}
+                                        onChange={handleParamChange}
+                                    >
+                                        <option value="">Tất cả</option>
+                                        {[1, 2, 3, 4, 5].map(r => (
+                                            <option key={r} value={r}>{r} sao</option>
+                                        ))}
+                                    </Form.Control>
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Ngày bắt đầu</Form.Label>
+                                    <Form.Control
+                                        type="datetime-local"
+                                        name="startDate"
+                                        value={filterParams.startDate}
+                                        onChange={handleParamChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                            <Col md={6}>
+                                <Form.Group>
+                                    <Form.Label>Ngày kết thúc</Form.Label>
+                                    <Form.Control
+                                        type="datetime-local"
+                                        name="endDate"
+                                        value={filterParams.endDate}
+                                        onChange={handleParamChange}
+                                    />
+                                </Form.Group>
+                            </Col>
+                        </Row>
+                        <div className="text-end mt-3">
+                            <Button variant="primary" type="submit">
+                                Tìm kiếm
+                            </Button>
+                        </div>
+                    </Form>
+                </Card.Body>
+            </Card>
+
             {loading && (
                 <div className="text-center my-5">
                     <Spinner animation="border" variant="primary" />
@@ -158,24 +251,16 @@ const ReviewManagement = () => {
                 </div>
             )}
 
-            {!loading && error && (
-                <Alert variant="info" className="text-center my-4">
-                    {error}
-                </Alert>
-            )}
-
-            {!loading && reviews.length > 0 && (
-                <ListGroup className="list-group-flush">
-                    {reviews.map((review) => (
-                        <ListGroup.Item key={review.id} className="p-0 border-0 bg-transparent">
-                            <ReviewItem
-                                review={review}
-                                onUpdate={() => { /* Logic để cập nhật review */ }}
-                                onDelete={handleDeleteClick}
-                            />
-                        </ListGroup.Item>
-                    ))}
-                </ListGroup>
+            {!loading && reviews.length > 0 ? (
+                reviews.map((review) => (
+                    <ReviewItem key={review.id} review={review} onDelete={handleDeleteClick} />
+                ))
+            ) : (
+                !loading && (
+                    <Alert variant="info" className="text-center my-4">
+                        {error || "Không có đánh giá nào được tìm thấy."}
+                    </Alert>
+                )
             )}
 
             <ConfirmationModal

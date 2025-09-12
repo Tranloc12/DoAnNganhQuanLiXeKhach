@@ -20,7 +20,7 @@ export const endpoints = {
   passengers: "/passengers",
   staff: "/staff",
   usersByRole: (role) => `/users/role/${role}`,
-  myuploadAvatar: "/upload-avatar", 
+  myuploadAvatar: "/upload-avatar",
 
 
   // Payment
@@ -77,7 +77,24 @@ export const endpoints = {
 
 
   //payment 
-   myPayments: "/payments/my", // GET all, POST
+  myPayments: "/payments/my", // GET all, POST
+  //MAP 
+  busLocationUpdate: "/bus-locations/update", // POST
+  busLocationLatest: (busId) => `/bus-locations/latest/${busId}`, // GET
+
+
+  // --- BusStation APIs (Added) ---
+  busStations: "/busstations/",
+  busStationDetail: (id) => `/busstations/${id}`,
+
+  // --- TransferPoint APIs ---
+  transferPoints: "/transferpoints/", // GET, POST
+  transferPointDetail: (id) => `/transferpoints/${id}`,
+
+  // --- TripTransfer APIs ---
+  tripTransfers: "/triptransfers", // GET all, POST
+  tripTransferDetail: (id) => `/triptransfers/${id}`,
+
 
 
 

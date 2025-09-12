@@ -28,7 +28,7 @@ public interface TripService {
 
     List<Object[]> getTripCountByRouteStats();
 
-    List<Trip> findTrips(LocalDateTime departureTime, LocalDateTime arrivalTime, Integer routeId, Integer busId, Integer driverId, String status,String origin, String destination);
+    List<Trip> findTrips(LocalDateTime departureTime, LocalDateTime arrivalTime, Integer routeId, Integer busId, Integer driverId, String status,String origin, String destination, Integer page, Integer pageSize);
   
     
 }

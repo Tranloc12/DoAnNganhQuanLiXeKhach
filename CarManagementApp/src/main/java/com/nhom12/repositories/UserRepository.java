@@ -21,6 +21,8 @@ public interface UserRepository {
     User updateUser(User user);
 
     void saveUser(User user);
+    
+    void deleteUserById(int userId);
 
     boolean authenticate(String username, String password);
 

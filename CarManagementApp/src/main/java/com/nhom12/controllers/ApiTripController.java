@@ -56,10 +56,12 @@ public class ApiTripController {
             @RequestParam(name = "driverId", required = false) Integer driverId,
             @RequestParam(name = "status", required = false) String status,
             @RequestParam(name = "origin", required = false) String origin,
-            @RequestParam(name = "destination", required = false) String destination
+            @RequestParam(name = "destination", required = false) String destination,
+             @RequestParam(name = "page", required = false, defaultValue = "1") Integer page,
+            @RequestParam(name = "pageSize", required = false, defaultValue = "10") Integer pageSize
     ) {
         // Gọi repo/service để tìm chuyến đi với bộ lọc
-        List<Trip> trips = tripServ.findTrips(departureTime, arrivalTime, routeId, busId, driverId, status, origin, destination);
+        List<Trip> trips = tripServ.findTrips(departureTime, arrivalTime, routeId, busId, driverId, status, origin, destination, page, pageSize);
 
         // Chuyển sang DTO
         List<TripDTO> tripDTOs = trips.stream()
@@ -187,6 +189,14 @@ public class ApiTripController {
             // ⚡ Thêm 2 dòng này
             dto.setOrigin(trip.getRouteId().getOrigin());
             dto.setDestination(trip.getRouteId().getDestination());
+
+            if (trip.getRouteId().getOriginStationId() != null) {
+                dto.setOriginStationName(trip.getRouteId().getOriginStationId().getName());
+            }
+
+            if (trip.getRouteId().getDestinationStationId() != null) {
+                dto.setDestinationStationName(trip.getRouteId().getDestinationStationId().getName());
+            }
         }
         return dto;
     }

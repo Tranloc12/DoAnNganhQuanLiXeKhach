@@ -32,5 +32,5 @@ public interface TripRepository {
 
     List<Object[]> getTripCountByRouteStats(); // Thống kê số chuyến đi theo tuyến đường
 
-    List<Trip> findTrips(LocalDateTime departureTime, LocalDateTime arrivalTime, Integer routeId, Integer busId, Integer driverId, String status,String origin, String destination);
+    List<Trip> findTrips(LocalDateTime departureTime, LocalDateTime arrivalTime, Integer routeId, Integer busId, Integer driverId, String status,String origin, String destination,Integer page, Integer pageSize);
 }
