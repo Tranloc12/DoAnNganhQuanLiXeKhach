@@ -148,8 +148,14 @@
                                 <span th:if="${user.isActive}" class="badge bg-success">Hoạt động</span>
                                 <span th:unless="${user.isActive}" class="badge bg-secondary">Không hoạt động</span>
                             </td>
-                            <td>
+                            
+                            <td class="text-nowrap">
+                                <form th:action="@{/users/delete}" method="post" style="display:inline;" onsubmit="return confirm('Bạn có chắc chắn muốn xóa người dùng này không? Hành động này không thể hoàn tác.');">
+                                    <input type="hidden" name="userId" th:value="${user.id}" />
+                                    <button type="submit" class="btn btn-sm btn-danger">Xóa</button>
+                                </form>
                             </td>
+                            
                         </tr>
                     </tbody>
                 </table>

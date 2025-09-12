@@ -170,14 +170,42 @@ public class UserController {
         return "managerList";
     }
 
-     @GetMapping("/users")
+    @PostMapping("/users/delete")
+    public String deleteUser(@RequestParam("userId") int userId, RedirectAttributes redirectAttributes, Principal principal) {
+        if (principal == null) {
+            return "redirect:/login";
+        }
+
+        User currentUser = userServ.getUserByUsername(principal.getName());
+        if (currentUser == null || !"ROLE_ADMIN".equals(currentUser.getUserRole())) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Bạn không có quyền thực hiện chức năng này.");
+            return "redirect:/"; // Chuyển hướng về trang chủ
+        }
+
+        try {
+            // Kiểm tra xem người dùng có đang cố gắng xóa chính mình không
+            if (currentUser.getId() == userId) {
+                redirectAttributes.addFlashAttribute("errorMessage", "Không thể xóa tài khoản của chính mình!");
+                return "redirect:/users";
+            }
+
+            userServ.deleteUserById(userId);
+            redirectAttributes.addFlashAttribute("successMessage", "Xóa người dùng thành công!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Xóa người dùng thất bại: " + e.getMessage());
+        }
+
+        return "redirect:/users"; // Trở về trang danh sách người dùng sau khi xóa
+    }
+
+    @GetMapping("/users")
     public String listAllUsers(Model model,
-                               @RequestParam(required = false) String username,
-                               @RequestParam(required = false) String email,
-                               @RequestParam(required = false) String userRole,
-                               @RequestParam(required = false) Boolean isActive) {
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) String userRole,
+            @RequestParam(required = false) Boolean isActive) {
         List<User> users = userServ.findUsers(username, email, userRole, isActive);
-        
+
         model.addAttribute("users", users);
         model.addAttribute("username", username);
         model.addAttribute("email", email);
@@ -187,4 +215,3 @@ public class UserController {
         return "userList";
     }
 }
-    

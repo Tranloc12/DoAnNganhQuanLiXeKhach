@@ -169,7 +169,8 @@ public class TripRepositoryImpl implements TripRepository {
     @Override
     public List<Trip> findTrips(LocalDateTime departureTime, LocalDateTime arrivalTime,
                                 Integer routeId, Integer busId, Integer driverId,
-                                String status, String origin, String destination) {
+                                String status, String origin, String destination,
+                                Integer page, Integer pageSize) {
         Session session = this.sessionFactory.getObject().getCurrentSession();
         StringBuilder hql = new StringBuilder("FROM Trip t JOIN FETCH t.routeId r JOIN FETCH t.busId b JOIN FETCH t.driverId d WHERE 1=1");
 
@@ -233,6 +234,11 @@ public class TripRepositoryImpl implements TripRepository {
         }
         if (destination != null && !destination.isEmpty()) {
             query.setParameter("destination", "%" + destination.toLowerCase() + "%");
+        }
+        
+         if (page != null && page > 0 && pageSize != null && pageSize > 0) {
+            query.setFirstResult((page - 1) * pageSize);
+            query.setMaxResults(pageSize);
         }
 
         return query.getResultList();

@@ -140,7 +140,7 @@ public class TripServiceImpl implements TripService {
     }
 
     @Override
-    public List<Trip> findTrips(LocalDateTime departureTime, LocalDateTime arrivalTime, Integer routeId, Integer busId, Integer driverId, String status, String origin, String destination) {
-        return this.tripRepo.findTrips(departureTime, arrivalTime, routeId, busId, driverId, status, origin, destination);
+    public List<Trip> findTrips(LocalDateTime departureTime, LocalDateTime arrivalTime, Integer routeId, Integer busId, Integer driverId, String status, String origin, String destination, Integer page, Integer pageSize) {
+        return this.tripRepo.findTrips(departureTime, arrivalTime, routeId, busId, driverId, status, origin, destination, page, pageSize);
     }
 }

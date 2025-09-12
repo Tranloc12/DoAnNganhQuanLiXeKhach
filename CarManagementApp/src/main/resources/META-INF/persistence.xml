@@ -19,5 +19,8 @@
     <class>com.nhom12.pojo.Trip</class>
     <class>com.nhom12.pojo.DriverSchedule</class>
     <class>com.nhom12.pojo.BusLocation</class>
+    <class>com.nhom12.pojo.TransferPoint</class>
+    <class>com.nhom12.pojo.TripTransfer</class>
+    <class>com.nhom12.pojo.BusStation</class>
   </persistence-unit>
 </persistence>

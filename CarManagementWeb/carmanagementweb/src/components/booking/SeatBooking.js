@@ -10,6 +10,7 @@ import QRCode from "react-qr-code"; // Import từ thư viện (cần cài đặ
 import { createPayPalPayment, executePayPalPayment } from "../../services/paypalService";
 import { useNavigate } from 'react-router-dom';
 import { AuthLoadingContext, MyUserContext } from "../../contexts/Contexts";
+import { getAllTransferPoints } from "../transferPoint/transferPointApi";
 
 
 
@@ -26,6 +27,25 @@ const SeatBooking = () => {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("vietqr"); // Default selected
     const [remainingTime, setRemainingTime] = useState(1200); // 1200 giây = 20 phút
     const [bookingId, setBookingId] = useState(null); // Lưu bookingId sau khi đặt vé thành công
+
+    const [transferPoints, setTransferPoints] = useState([]); // New state for transfer points
+    const [shuttle, setShuttle] = useState({
+        pickupPoint: null,
+        dropoffPoint: null,
+        pickupInputType: "dropdown",
+        dropoffInputType: "dropdown",
+        pickupAddress: "",
+        dropoffAddress: "",
+        pickupArrivalTime: "", // New field
+        pickupDepartureTime: "", // New field
+        pickupStopOrder: 1, // Default stop order for pickup
+        pickupNote: "Pickup point for passenger", // Default note
+        dropoffArrivalTime: "", // New field
+        dropoffDepartureTime: "", // New field
+        dropoffStopOrder: 2, // Default stop order for dropoff
+        dropoffNote: "Dropoff point for passenger", // Default note
+    });
+
     const navigate = useNavigate();
 
     // Access context
@@ -40,9 +60,31 @@ const SeatBooking = () => {
         setForm({ ...form, [e.target.name]: e.target.value });
     };
 
+    const handleShuttleChange = (e) => {
+        setShuttle({ ...shuttle, [e.target.name]: e.target.value });
+    };
+
     const handlePaymentMethodClick = (method) => {
         setSelectedPaymentMethod(method);
         setMessage(''); // Xóa thông báo khi đổi phương thức thanh toán
+    };
+
+    const togglePickupInputType = () => {
+        setShuttle({
+            ...shuttle,
+            pickupInputType: shuttle.pickupInputType === "dropdown" ? "text" : "dropdown",
+            pickupPoint: shuttle.pickupInputType === "dropdown" ? "" : shuttle.pickupPoint,
+            pickupAddress: shuttle.pickupInputType === "text" ? "" : shuttle.pickupAddress
+        });
+    };
+
+    const toggleDropoffInputType = () => {
+        setShuttle({
+            ...shuttle,
+            dropoffInputType: shuttle.dropoffInputType === "dropdown" ? "text" : "dropdown",
+            dropoffPoint: shuttle.dropoffInputType === "dropdown" ? "" : shuttle.dropoffPoint,
+            dropoffAddress: shuttle.dropoffInputType === "text" ? "" : shuttle.dropoffAddress
+        });
     };
 
     const generateInitialSeatsStructure = () => {
@@ -168,19 +210,18 @@ const SeatBooking = () => {
             try {
                 const tripRes = await apis.get(`${endpoints.trips}/${id}`);
                 setTrip(tripRes.data);
-
-                // Sinh ghế dựa vào busCapacity
                 generateSeatsFromCapacity(tripRes.data.busCapacity);
-
                 const bookingsRes = await apis.get(`${endpoints.bookings}?status=CONFIRMED`);
                 const allBookings = Array.isArray(bookingsRes.data) ? bookingsRes.data : (bookingsRes.data ? [bookingsRes.data] : []);
                 const booked = allBookings
                     .filter(b => b.tripId?.id === parseInt(id))
                     .flatMap(b => b.seatNumbers?.split(",").map(s => s.trim()) || []);
                 setBookedSeats(booked);
+                const transferPointsRes = await getAllTransferPoints();
+                setTransferPoints(transferPointsRes);
             } catch (err) {
                 console.error(err);
-                setMessage("Lỗi khi tải dữ liệu chuyến đi và ghế đã đặt.");
+                setMessage("Lỗi khi tải dữ liệu chuyến đi, ghế đã đặt hoặc điểm trung chuyển.");
             }
         };
         fetchData();
@@ -200,7 +241,7 @@ const SeatBooking = () => {
 
     // Bước 1: Xử lý tạo booking (Sau khi chọn ghế và điền thông tin)
     const handleBooking = async () => {
-        // Các bước kiểm tra ban đầu không thay đổi
+        // Validation
         if (selectedSeats.length === 0) {
             setMessage("Vui lòng chọn ít nhất 1 ghế.");
             return;
@@ -209,53 +250,138 @@ const SeatBooking = () => {
             setMessage("Vui lòng nhập đầy đủ thông tin khách hàng.");
             return;
         }
+        if (
+            (shuttle.pickupInputType === "dropdown" && !shuttle.pickupPoint) ||
+            (shuttle.pickupInputType === "text" && !shuttle.pickupAddress) ||
+            (shuttle.dropoffInputType === "dropdown" && !shuttle.dropoffPoint) ||
+            (shuttle.dropoffInputType === "text" && !shuttle.dropoffAddress)
+        ) {
+            setMessage("Vui lòng chọn hoặc nhập đầy đủ điểm trung chuyển.");
+            return;
+        }
 
-
-        // THÊM: Kiểm tra lỗi và chuyển hướng đến trang đăng nhập
         setLoading(true);
         setMessage("Đang xử lý đặt chỗ...");
 
         try {
-            const numberOfSeats = selectedSeats.length;
+            // Step 1: Create transfer points for custom addresses (if applicable)
+            let pickupTransferPointId = shuttle.pickupPoint;
+            let dropoffTransferPointId = shuttle.dropoffPoint;
 
-            // Sử dụng authApis() để đảm bảo header Authorization được gửi
-            const response = await authApis().post(endpoints.bookings, {
+            // Handle custom pickup address
+            if (shuttle.pickupInputType === "text" && shuttle.pickupAddress) {
+                try {
+                    const response = await authApis().post(endpoints.transferPoints, {
+                        name: "Custom Pickup",
+                        address: shuttle.pickupAddress,
+                        city: "Unknown", // You may need to add a city field to the form
+                    });
+                    pickupTransferPointId = response.data.id;
+                } catch (err) {
+                    console.error("Lỗi khi tạo điểm trung chuyển pickup:", err);
+                    setMessage("Lỗi khi tạo điểm trung chuyển pickup.");
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            // Handle custom dropoff address
+            if (shuttle.dropoffInputType === "text" && shuttle.dropoffAddress) {
+                try {
+                    const response = await authApis().post(endpoints.transferPoints, {
+                        name: "Custom Dropoff",
+                        address: shuttle.dropoffAddress,
+                        city: "Unknown", // You may need to add a city field to the form
+                    });
+                    dropoffTransferPointId = response.data.id;
+                } catch (err) {
+                    console.error("Lỗi khi tạo điểm trung chuyển dropoff:", err);
+                    setMessage("Lỗi khi tạo điểm trung chuyển dropoff.");
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            // Step 2: Create the booking
+            const numberOfSeats = selectedSeats.length;
+            const bookingResponse = await authApis().post(endpoints.bookings, {
                 tripId: trip.id,
                 numberOfSeats: numberOfSeats,
-                seatNumbers: selectedSeats.join(",")
+                seatNumbers: selectedSeats.join(","),
+                pickupPoint: pickupTransferPointId,
+                dropoffPoint: dropoffTransferPointId,
             });
 
-            const newBookingId = response.data.id || response.data.bookingId;
+            const newBookingId = bookingResponse.data.id || bookingResponse.data.bookingId;
 
-            console.log("Phản hồi từ API đặt chỗ:", response.data);
-            console.log("ID booking đã lấy:", newBookingId);
-
-            if (newBookingId) {
-                setBookingId(newBookingId);
-                setCurrentStep(2); // Chuyển sang bước chọn phương thức thanh toán
-                setMessage("Đặt chỗ thành công! Vui lòng chọn phương thức thanh toán.");
-                setRemainingTime(1200);
-            } else {
+            if (!newBookingId) {
                 setMessage("Đặt chỗ thất bại: Không nhận được ID đặt vé từ hệ thống.");
-                console.error("Phản hồi API đặt chỗ không chứa 'id' hoặc 'bookingId':", response.data);
+                console.error("Phản hồi API đặt chỗ không chứa 'id' hoặc 'bookingId':", bookingResponse.data);
+                setLoading(false);
+                return;
             }
+
+            // Step 3: Create trip transfers for pickup and dropoff points
+            const currentDate = new Date();
+            const defaultArrivalTime = new Date(currentDate.getTime() + 15 * 60 * 1000).toISOString(); // 15 minutes later
+            const defaultDepartureTime = new Date(currentDate.getTime() + 20 * 60 * 1000).toISOString(); // 20 minutes later
+
+            // Pickup transfer
+            if (pickupTransferPointId) {
+                try {
+                    await authApis().post(endpoints.triptransfers, {
+                        arrivalTime: shuttle.pickupArrivalTime || defaultArrivalTime,
+                        departureTime: shuttle.pickupDepartureTime || defaultDepartureTime,
+                        stopOrder: shuttle.pickupStopOrder || 1,
+                        note: shuttle.pickupNote || "Pickup point for passenger",
+                        transferPointId: { id: parseInt(pickupTransferPointId) },
+                        tripId: { id: parseInt(trip.id) },
+                    });
+                } catch (err) {
+                    console.error("Lỗi khi tạo trip transfer cho pickup:", err);
+                    setMessage("Lỗi khi tạo điểm trung chuyển pickup.");
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            // Dropoff transfer
+            if (dropoffTransferPointId) {
+                try {
+                    await authApis().post(endpoints.triptransfers, {
+                        arrivalTime: shuttle.dropoffArrivalTime || defaultArrivalTime,
+                        departureTime: shuttle.dropoffDepartureTime || defaultDepartureTime,
+                        stopOrder: shuttle.dropoffStopOrder || 2,
+                        note: shuttle.dropoffNote || "Dropoff point for passenger",
+                        transferPointId: { id: parseInt(dropoffTransferPointId) },
+                        tripId: { id: parseInt(trip.id) },
+                    });
+                } catch (err) {
+                    console.error("Lỗi khi tạo trip transfer cho dropoff:", err);
+                    setMessage("Lỗi khi tạo điểm trung chuyển dropoff.");
+                    setLoading(false);
+                    return;
+                }
+            }
+
+            // Step 4: Proceed to payment step
+            setBookingId(newBookingId);
+            setCurrentStep(2); // Move to payment method selection
+            setMessage("Đặt chỗ thành công! Vui lòng chọn phương thức thanh toán.");
+            setRemainingTime(1200);
 
         } catch (err) {
             console.error("Lỗi khi đặt chỗ:", err);
-            // THAY ĐỔI: Kiểm tra lỗi 401 (Unauthorized) và chuyển hướng
             if (err.response && err.response.status === 401) {
                 setMessage("Vui lòng đăng nhập để đặt vé.");
-                // Chuyển hướng người dùng đến trang đăng nhập
-                // Giả sử bạn có một hàm `Maps` từ React Router
-                navigate('/login');
+                navigate("/login");
             } else {
-                // Xử lý các lỗi khác
                 if (!user) {
                     setMessage("Vui lòng đăng nhập để đặt vé.");
                     navigate("/login");
                     return;
                 }
-                setMessage(`Đặt chỗ thất bại: vui lòng đăng nhập . Vui lòng thử lại.`);
+                setMessage("Đặt chỗ thất bại: Vui lòng thử lại.");
             }
         } finally {
             setLoading(false);
@@ -373,7 +499,7 @@ const SeatBooking = () => {
                 <h2 className="text-3xl font-bold mb-8 text-blue-900 text-center">Chọn phương thức thanh toán</h2>
                 {message && (
                     <div className={`text-center p-4 rounded-lg mb-4 font-bold 
-                        ${message.includes('thành công') ? 'bg-green-100 text-green-700' : (message.includes('Lỗi') || message.includes('thất bại') || message.includes('hết')) ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
+                            ${message.includes('thành công') ? 'bg-green-100 text-green-700' : (message.includes('Lỗi') || message.includes('thất bại') || message.includes('hết')) ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'}`}>
                         {message}
                     </div>
                 )}
@@ -478,7 +604,7 @@ const SeatBooking = () => {
                                 <button
                                     onClick={handleFinalPayment} // Gọi hàm xử lý thanh toán cuối cùng
                                     className={`w-full py-3 px-4 rounded-lg font-semibold text-white transition duration-300 ease-in-out 
-        ${(loading || !bookingId || remainingTime <= 0) ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
+            ${(loading || !bookingId || remainingTime <= 0) ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'}`}
                                     disabled={loading || !bookingId || remainingTime <= 0} // Vô hiệu hóa nút nếu đang loading, chưa có bookingId hoặc hết thời gian
                                 >
                                     {loading ? "Đang chuyển hướng..." : "Thanh toán với PayPal"}
@@ -739,6 +865,117 @@ const SeatBooking = () => {
                                         value={form.email}
                                         onChange={handleInputChange}
                                     />
+                                </div>
+                                <div className="shuttle-selection-step">
+                                    <h2 className="font-semibold mb-4 text-blue-700 text-lg">Chọn hoặc nhập thông tin bến đi và bến đến</h2>
+                                    {transferPoints.length === 0 && (
+                                        <p className="text-red-600 text-center mb-4">Không có điểm trung chuyển nào khả dụng, vui lòng nhập địa chỉ.</p>
+                                    )}
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div>
+                                            <label className="block font-semibold mb-2 text-blue-700">Bến đi</label>
+                                            <button
+                                                type="button"
+                                                onClick={togglePickupInputType}
+                                                className="mb-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition duration-200"
+                                            >
+                                                {shuttle.pickupInputType === "dropdown" ? "Nhập địa chỉ tùy chỉnh" : "Chọn từ danh sách"}
+                                            </button>
+                                            {shuttle.pickupInputType === "dropdown" ? (
+                                                <select
+                                                    id="pickupPoint"
+                                                    name="pickupPoint"
+                                                    value={shuttle.pickupPoint || ""}
+                                                    onChange={handleShuttleChange}
+                                                    className="custom-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    required={shuttle.pickupInputType === "dropdown"}
+                                                >
+                                                    <option value="">Chọn bến đi</option>
+                                                    {transferPoints.map((point) => (
+                                                        <option key={point.id} value={point.id}>
+                                                            {point.name} - {point.address} ({point.city})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    id="pickupAddress"
+                                                    name="pickupAddress"
+                                                    type="text"
+                                                    className="custom-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    placeholder="Nhập địa chỉ bến đi..."
+                                                    value={shuttle.pickupAddress}
+                                                    onChange={handleShuttleChange}
+                                                    required={shuttle.pickupInputType === "text"}
+                                                />
+                                            )}
+                                            
+                                            <div className="mt-4">
+                                                <label className="block font-semibold mb-2 text-blue-700" htmlFor="pickupNote">Ghi chú (Pickup)</label>
+                                                <input
+                                                    id="pickupNote"
+                                                    name="pickupNote"
+                                                    type="text"
+                                                    className="custom-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    placeholder="Ghi chú cho điểm đón..."
+                                                    value={shuttle.pickupNote}
+                                                    onChange={handleShuttleChange}
+                                                />
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <label className="block font-semibold mb-2 text-blue-700">Bến đến</label>
+                                            <button
+                                                type="button"
+                                                onClick={toggleDropoffInputType}
+                                                className="mb-2 px-4 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition duration-200"
+                                            >
+                                                {shuttle.dropoffInputType === "dropdown" ? "Nhập địa chỉ tùy chỉnh" : "Chọn từ danh sách"}
+                                            </button>
+                                            {shuttle.dropoffInputType === "dropdown" ? (
+                                                <select
+                                                    id="dropoffPoint"
+                                                    name="dropoffPoint"
+                                                    value={shuttle.dropoffPoint || ""}
+                                                    onChange={handleShuttleChange}
+                                                    className="custom-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    required={shuttle.dropoffInputType === "dropdown"}
+                                                >
+                                                    <option value="">Chọn bến đến</option>
+                                                    {transferPoints.map((point) => (
+                                                        <option key={point.id} value={point.id}>
+                                                            {point.name} - {point.address} ({point.city})
+                                                        </option>
+                                                    ))}
+                                                </select>
+                                            ) : (
+                                                <input
+                                                    id="dropoffAddress"
+                                                    name="dropoffAddress"
+                                                    type="text"
+                                                    className="custom-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    placeholder="Nhập địa chỉ bến đến..."
+                                                    value={shuttle.dropoffAddress}
+                                                    onChange={handleShuttleChange}
+                                                    required={shuttle.dropoffInputType === "text"}
+                                                />
+                                            )}
+                                            
+                                            
+                                            <div className="mt-4">
+                                                <label className="block font-semibold mb-2 text-blue-700" htmlFor="dropoffNote">Ghi chú (Dropoff)</label>
+                                                <input
+                                                    id="dropoffNote"
+                                                    name="dropoffNote"
+                                                    type="text"
+                                                    className="custom-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                    placeholder="Ghi chú cho điểm trả..."
+                                                    value={shuttle.dropoffNote}
+                                                    onChange={handleShuttleChange}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div className="flex justify-between items-center mt-6">
                                     <button

@@ -172,4 +172,14 @@ public class UserRepositoryImpl implements UserRepository {
 
         return query.getResultList();
     }
+
+    @Override
+    public void deleteUserById(int userId) {
+        Session s = this.factory.getObject().getCurrentSession();
+        User userToDelete = s.get(User.class, userId);
+        if (userToDelete != null) {
+            // PERMANENTLY DELETES THE USER RECORD
+            s.delete(userToDelete);
+        }
+    }
 }

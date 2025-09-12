@@ -28,15 +28,27 @@ public class ApiBusController {
 
     // Kiểm tra quyền admin
     private boolean isAdmin(Principal principal) {
-        if (principal == null) return false;
+        if (principal == null) {
+            return false;
+        }
         User currentUser = userServ.getUserByUsername(principal.getName());
-        return currentUser != null && "ROLE_ADMIN".equals(currentUser.getUserRole())|| "ROLE_MANAGER".equals(currentUser.getUserRole())|| "ROLE_STAFF".equals(currentUser.getUserRole());
+        return currentUser != null && "ROLE_ADMIN".equals(currentUser.getUserRole()) || "ROLE_MANAGER".equals(currentUser.getUserRole()) || "ROLE_STAFF".equals(currentUser.getUserRole());
     }
 
     // Lấy danh sách xe buýt
     @GetMapping
-    public ResponseEntity<?> listBuses(@RequestParam(name = "kw", required = false) String kw) {
-        List<Bus> buses = busServ.getBuses(kw);
+    public ResponseEntity<?> listBuses(
+            @RequestParam(name = "licensePlate", required = false) String licensePlate,
+            @RequestParam(name = "model", required = false) String model,
+            @RequestParam(name = "capacity", required = false) Integer capacity,
+            @RequestParam(name = "yearManufacture", required = false) Integer yearManufacture,
+            @RequestParam(name = "status", required = false) String status) {
+
+        // Gọi phương thức findBuses từ BusService
+        // Bạn cần đảm bảo đã tạo phương thức này trong BusService
+        List<Bus> buses = busServ.findBuses(licensePlate, model, capacity, yearManufacture, status);
+
+        // Trả về danh sách đã được lọc
         return ResponseEntity.ok(buses);
     }
 
@@ -44,8 +56,9 @@ public class ApiBusController {
     @GetMapping("/{id}")
     public ResponseEntity<?> getBus(@PathVariable("id") int id) {
         Bus bus = busServ.getBusById(id);
-        if (bus != null)
+        if (bus != null) {
             return ResponseEntity.ok(bus);
+        }
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", "Không tìm thấy xe buýt"));
     }
@@ -53,13 +66,15 @@ public class ApiBusController {
     // Thêm xe buýt
     @PostMapping
     public ResponseEntity<?> createBus(@Valid @RequestBody BusForm busForm,
-                                       BindingResult result,
-                                       Principal principal) {
-        if (!isAdmin(principal))
+            BindingResult result,
+            Principal principal) {
+        if (!isAdmin(principal)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Bạn không có quyền"));
+        }
 
-        if (result.hasErrors())
+        if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
+        }
 
         if (busServ.isLicensePlateExist(busForm.getLicensePlate(), null)) {
             return ResponseEntity.badRequest().body(Map.of("error", "Biển số xe đã tồn tại"));
@@ -68,8 +83,9 @@ public class ApiBusController {
         Bus bus = new Bus();
         BeanUtils.copyProperties(busForm, bus);
 
-        if (busServ.addOrUpdateBus(bus))
+        if (busServ.addOrUpdateBus(bus)) {
             return ResponseEntity.status(HttpStatus.CREATED).body(bus);
+        }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Không thể tạo xe buýt"));
@@ -78,27 +94,31 @@ public class ApiBusController {
     // Cập nhật xe buýt
     @PutMapping("/{id}")
     public ResponseEntity<?> updateBus(@PathVariable("id") int id,
-                                       @Valid @RequestBody BusForm busForm,
-                                       BindingResult result,
-                                       Principal principal) {
-        if (!isAdmin(principal))
+            @Valid @RequestBody BusForm busForm,
+            BindingResult result,
+            Principal principal) {
+        if (!isAdmin(principal)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Bạn không có quyền"));
+        }
 
-        if (result.hasErrors())
+        if (result.hasErrors()) {
             return ResponseEntity.badRequest().body(result.getAllErrors());
+        }
 
         if (busServ.isLicensePlateExist(busForm.getLicensePlate(), id)) {
             return ResponseEntity.badRequest().body(Map.of("error", "Biển số xe đã tồn tại"));
         }
 
         Bus existingBus = busServ.getBusById(id);
-        if (existingBus == null)
+        if (existingBus == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Không tìm thấy xe buýt"));
+        }
 
         BeanUtils.copyProperties(busForm, existingBus);
 
-        if (busServ.addOrUpdateBus(existingBus))
+        if (busServ.addOrUpdateBus(existingBus)) {
             return ResponseEntity.ok(existingBus);
+        }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Không thể cập nhật xe buýt"));
@@ -107,11 +127,13 @@ public class ApiBusController {
     // Xóa xe buýt
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteBus(@PathVariable("id") int id, Principal principal) {
-        if (!isAdmin(principal))
+        if (!isAdmin(principal)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Map.of("error", "Bạn không có quyền"));
+        }
 
-        if (busServ.deleteBus(id))
+        if (busServ.deleteBus(id)) {
             return ResponseEntity.ok(Map.of("message", "Xóa thành công"));
+        }
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("error", "Không tìm thấy xe buýt"));

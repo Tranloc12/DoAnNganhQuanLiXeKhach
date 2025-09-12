@@ -140,9 +140,16 @@ public class UserServiceImpl implements UserService {
     public List<Object[]> getUserRoleStats() {
         return this.userRepo.getUserRoleStats();
     }
-    
-     @Override
+
+    @Override
     public List<User> findUsers(String username, String email, String userRole, Boolean isActive) {
         return this.userRepo.findUsers(username, email, userRole, isActive);
+    }
+
+    @Override
+    @Transactional // Đảm bảo thao tác xóa được thực hiện trong một giao dịch
+    public void deleteUserById(int userId) {
+        // Gọi phương thức delete từ UserRepository
+       this.userRepo.deleteUserById(userId);
     }
 }

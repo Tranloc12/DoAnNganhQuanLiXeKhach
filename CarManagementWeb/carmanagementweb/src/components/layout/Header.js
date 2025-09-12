@@ -61,26 +61,33 @@ const Header = () => {
 
             {/* ✨ Thêm menu Danh sách chuyến đi */}
             <Nav.Link as={Link} to="/trips">Danh sách chuyến đi</Nav.Link>
-           
+
 
 
             {/* Quản lý chỉ cho Admin và Manager */}
             <RoleBasedComponent allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
-              {/* Thêm link cho TripManagement */}
-              <Nav.Link as={Link} to="/trip-management">Quản lý chuyến đi</Nav.Link>
+
               {/* Thêm link cho BusManagement */}
               <Nav.Link as={Link} to="/bus-management">Quản lý Xe buýt</Nav.Link>
+              {/* Thêm link cho RoutesManagement */}
+              <Nav.Link as={Link} to="/manager/routes">Quản lý tuyến đường</Nav.Link>
+              {/* Thêm link cho UserManagement */}
+              {/* <Nav.Link as={Link} to="/user-management">Quản lý Người dùng</Nav.Link> */}
+              {/* Thêm link cho TripManagement */}
+              <Nav.Link as={Link} to="/trip-management">Quản lý chuyến đi</Nav.Link>
 
               {/* ✨ Thêm link cho ScheduleManagement */}
               <Nav.Link as={Link} to="/manager/schedules">Quản lý lịch trình</Nav.Link>
 
-              {/* Thêm link cho UserManagement */}
-              {/* <Nav.Link as={Link} to="/user-management">Quản lý Người dùng</Nav.Link> */}
-
-              {/* Thêm link cho RoutesManagement */}
-              <Nav.Link as={Link} to="/manager/routes">Quản lý tuyến đường</Nav.Link>
-
               <Nav.Link as={Link} to="/manager/reviews">Quản lý Đánh giá </Nav.Link>
+
+              <Nav.Link as={Link} to="/bus-stations">Bến xe</Nav.Link>
+              <Nav.Link as={Link} to="/transfer-points">Điểm trung chuyển</Nav.Link>
+
+              <Nav.Link as={Link} to="/trip-transfer">Các nơi xe trung chuyển</Nav.Link>
+
+
+
 
 
             </RoleBasedComponent>
@@ -112,7 +119,7 @@ const Header = () => {
             </RoleBasedComponent>
 
 
-             <Nav.Link as={Link} to="/routes">Danh sách tuyến</Nav.Link>
+            <Nav.Link as={Link} to="/routes">Danh sách tuyến</Nav.Link>
             {/* ✨ Link Thông báo với biểu tượng chuông và số lượng chưa đọc */}
             {user && ( // Chỉ hiển thị nếu user đã đăng nhập
               <Nav.Link as={Link} to="/notifi" className="d-flex align-items-center position-relative">

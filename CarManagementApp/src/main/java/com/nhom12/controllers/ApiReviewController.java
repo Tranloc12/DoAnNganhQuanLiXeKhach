@@ -15,9 +15,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @RestController
 @RequestMapping("/api/reviews")
@@ -35,12 +37,17 @@ public class ApiReviewController {
 
     // ✅ Lấy tất cả review (có thể filter bằng keyword ?kw=abc)
     @GetMapping
-    public ResponseEntity<List<Review>> getAllReviews(@RequestParam(required = false) String kw) {
-        Map<String, String> params = new HashMap<>();
-        if (kw != null && !kw.trim().isEmpty()) {
-            params.put("kw", kw.trim());
-        }
-        return ResponseEntity.ok(reviewService.getAllReviews(params));
+    public ResponseEntity<List<Review>> getFilteredReviews(
+        @RequestParam(name = "keyword", required = false) String keyword,
+        @RequestParam(name = "username", required = false) String username,
+        @RequestParam(name = "rating", required = false) Integer rating,
+        @RequestParam(name = "startDate", required = false) 
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+        @RequestParam(name = "endDate", required = false) 
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate) {
+        
+        List<Review> reviews = reviewService.findReviews(keyword, username, rating, startDate, endDate);
+        return ResponseEntity.ok(reviews);
     }
 
     // ✅ Lấy review theo tripId

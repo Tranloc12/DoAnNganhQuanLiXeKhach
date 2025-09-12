@@ -1,0 +1,38 @@
+function LocationPicker({ setNewStation }) {
+  const [position, setPosition] = useState(null);
+
+  useMapEvents({
+    click: async (e) => {
+      setPosition(e.latlng);
+
+      try {
+        // Gọi API Nominatim để lấy địa chỉ và thành phố
+        const res = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${e.latlng.lat}&lon=${e.latlng.lng}&addressdetails=1`
+        );
+        const data = await res.json();
+
+        const address = data.display_name || "Không rõ địa chỉ";
+        const city =
+          data.address.city ||
+          data.address.town ||
+          data.address.village ||
+          data.address.state ||
+          "Không rõ thành phố";
+
+        // Cập nhật vào form (chừa lại name để user nhập tay)
+        setNewStation((prev) => ({
+          ...prev,
+          address: address,
+          city: city,
+          latitude: e.latlng.lat,
+          longitude: e.latlng.lng,
+        }));
+      } catch (err) {
+        console.error("Lỗi khi lấy địa chỉ:", err);
+      }
+    },
+  });
+
+  return position ? <Marker position={position}></Marker> : null;
+}

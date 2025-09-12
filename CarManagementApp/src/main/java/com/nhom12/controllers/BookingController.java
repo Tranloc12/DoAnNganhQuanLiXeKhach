@@ -23,7 +23,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Comparator;
 
-
 @Controller
 public class BookingController {
 
@@ -130,28 +129,31 @@ public class BookingController {
         return "myBookings";
     }
 
-    @PostMapping("/my-bookings/cancel/{bookingId}")
-    public String cancelBooking(@PathVariable("bookingId") int bookingId, Principal connectedUser, RedirectAttributes redirectAttributes) {
-        User user = userService.getUserByUsername(connectedUser.getName());
-        if (user == null) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy thông tin người dùng. Vui lòng đăng nhập lại.");
-            return "redirect:/login";
+    @PostMapping("/admin/bookings/cancel/{bookingId}")
+    public String cancelBookingByAdmin(@PathVariable("bookingId") int bookingId,
+            Principal principal,
+            RedirectAttributes redirectAttributes) {
+
+        // Kiểm tra quyền truy cập của Admin/Manager/Staff
+        String accessCheck = checkManagementAccess(principal);
+        if (accessCheck != null) {
+            return accessCheck; // Chuyển hướng nếu không có quyền
         }
 
         Booking bookingToCancel = bookingService.getBookingById(bookingId);
 
-        if (bookingToCancel == null || !bookingToCancel.getUserId().getId().equals(user.getId())) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Bạn không có quyền hoặc đặt chỗ này không tồn tại.");
-            return "redirect:/my-bookings";
+        if (bookingToCancel == null) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Không tìm thấy đặt chỗ này.");
+            return "redirect:/admin/bookings";
         }
 
         if (bookingService.cancelBooking(bookingId)) {
             redirectAttributes.addFlashAttribute("successMessage", "Đã hủy đặt chỗ thành công!");
         } else {
-            redirectAttributes.addFlashAttribute("errorMessage", "Không thể hủy đặt chỗ này. Có thể đã bị hủy trước đó, đã khởi hành, hoặc có lỗi.");
+            redirectAttributes.addFlashAttribute("errorMessage", "Không thể hủy đặt chỗ. Có lỗi xảy ra.");
         }
 
-        return "redirect:/my-bookings";
+        return "redirect:/admin/bookings";
     }
 
     @GetMapping("/admin/bookings")
@@ -200,7 +202,7 @@ public class BookingController {
     @GetMapping("/admin/bookings/detail/{bookingId}")
     public String viewBookingDetail(@PathVariable("bookingId") int bookingId,
             Model model,
-             RedirectAttributes redirectAttributes,
+            RedirectAttributes redirectAttributes,
             Principal principal
     ) {
         // Kiểm tra quyền truy cập

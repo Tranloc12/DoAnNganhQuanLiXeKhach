@@ -12,6 +12,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedQueries;
 import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
@@ -57,6 +59,12 @@ public class Route implements Serializable {
     @Size(max = 50)
     @Column(name = "estimatedTravelTime")
     private String estimatedTravelTime;
+    @JoinColumn(name = "destinationStationId", referencedColumnName = "id")
+    @ManyToOne
+    private BusStation destinationStationId;
+    @JoinColumn(name = "originStationId", referencedColumnName = "id")
+    @ManyToOne
+    private BusStation originStationId;
     @OneToMany(mappedBy = "routeId")
     @JsonIgnore
     private Set<DriverSchedule> driverScheduleSet;
@@ -158,6 +166,12 @@ public class Route implements Serializable {
     public String toString() {
         return "com.nhom12.pojo.Route[ id=" + id + " ]";
     }
+    public Set<DriverSchedule> getDriverScheduleSet() {
+        return driverScheduleSet;
+    }
+    public void setDriverScheduleSet(Set<DriverSchedule> driverScheduleSet) {
+        this.driverScheduleSet = driverScheduleSet;
+    }
 
     public String getRouteName() {
         return routeName;
@@ -191,12 +205,20 @@ public class Route implements Serializable {
         this.estimatedTravelTime = estimatedTravelTime;
     }
 
-    public Set<DriverSchedule> getDriverScheduleSet() {
-        return driverScheduleSet;
+    public BusStation getDestinationStationId() {
+        return destinationStationId;
     }
 
-    public void setDriverScheduleSet(Set<DriverSchedule> driverScheduleSet) {
-        this.driverScheduleSet = driverScheduleSet;
+    public void setDestinationStationId(BusStation destinationStationId) {
+        this.destinationStationId = destinationStationId;
+    }
+
+    public BusStation getOriginStationId() {
+        return originStationId;
+    }
+
+    public void setOriginStationId(BusStation originStationId) {
+        this.originStationId = originStationId;
     }
     
 }
