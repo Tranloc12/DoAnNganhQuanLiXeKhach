@@ -577,7 +577,7 @@ const AddScheduleModal = ({ show, handleClose, initialStart, initialEnd, onSched
 
     return ( 
         <> 
-            <h1 className="text-center my-4">Quản lý lịch trình xe buýt</h1> 
+            <h1 className="text-center my-4">Quản lý lịch trình xe khách </h1> 
 
             {error && <Alert variant="danger" className="mx-auto" style={{ maxWidth: '800px' }}>{error}</Alert>} 
 

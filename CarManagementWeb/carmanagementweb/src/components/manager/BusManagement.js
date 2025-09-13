@@ -79,10 +79,10 @@ const BusManagement = () => {
 
   return (
     <>
-      <h1>Quản lý xe buýt</h1>
+      <h1>Quản lý xe khách</h1>
       {error && <Alert variant="danger">{error}</Alert>}
       <Link to="/manager/buses/add">
-        <Button className="mb-3">Thêm xe buýt</Button>
+        <Button className="mb-3">Thêm xe khách </Button>
       </Link>
       
       {/* 🆕 Form tìm kiếm và lọc */}

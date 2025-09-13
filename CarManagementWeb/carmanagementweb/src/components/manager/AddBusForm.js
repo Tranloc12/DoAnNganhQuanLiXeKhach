@@ -42,7 +42,7 @@ const AddBusForm = () => {
       };
 
       await authApis().post(endpoints.buses, preparedBus);
-      setSuccess("🟢 Thêm xe buýt thành công!");
+      setSuccess("🟢 Thêm xe khách thành công!");
       setTimeout(() => navigate("/bus-management"), 1500);
     } catch (err) {
       console.error(err);
@@ -50,13 +50,13 @@ const AddBusForm = () => {
         setError("🔴 Bạn không có quyền thực hiện hành động này.");
       else if (err.response?.data?.message)
         setError(`🔴 Lỗi: ${err.response.data.message}`);
-      else setError("🔴 Có lỗi xảy ra khi thêm xe buýt.");
+      else setError("🔴 Có lỗi xảy ra khi thêm xe khách.");
     }
   };
 
   return (
     <Container className="mt-4">
-      <h2 className="mb-4">🚌 Thêm Xe Buýt Mới</h2>
+      <h2 className="mb-4">🚌 Thêm Xe khách Mới</h2>
 
       {success && <Alert variant="success">{success}</Alert>}
       {error && <Alert variant="danger">{error}</Alert>}

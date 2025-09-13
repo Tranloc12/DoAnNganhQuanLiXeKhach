@@ -68,7 +68,7 @@ const Header = () => {
             <RoleBasedComponent allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
 
               {/* Thêm link cho BusManagement */}
-              <Nav.Link as={Link} to="/bus-management">Quản lý Xe buýt</Nav.Link>
+              <Nav.Link as={Link} to="/bus-management">Quản lý Xe khách</Nav.Link>
               {/* Thêm link cho RoutesManagement */}
               <Nav.Link as={Link} to="/manager/routes">Quản lý tuyến đường</Nav.Link>
               {/* Thêm link cho UserManagement */}

@@ -38,6 +38,7 @@ const AlertDialog = ({ show, handleClose, message }) => (
 
 const RouteManagement = () => {
     const [routes, setRoutes] = useState([]);
+    const [stations, setStations] = useState([]); // ✅ Thêm state để lưu danh sách bến xe
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -74,9 +75,30 @@ const RouteManagement = () => {
         }
     };
 
+    // ✅ Hàm tải danh sách bến xe từ API
+    const fetchStations = async () => {
+        try {
+            const res = await authApis().get(endpoints.busStations);
+            setStations(res.data);
+            console.log("✅ Dữ liệu bến xe:", res.data);
+        } catch (err) {
+            console.error("❌ Lỗi khi tải bến xe:", err);
+            setError("Không thể tải danh sách bến xe.");
+        }
+    };
+
     useEffect(() => {
+        fetchStations(); // ✅ Gọi hàm tải bến xe
         fetchRoutes(filterParams);
     }, []);
+
+    // ✅ Hàm tiện ích để lấy tên bến xe từ ID
+    const getStationName = (stationId) => {
+        // Find the station object in the 'stations' state by its ID
+        const station = stations.find(s => s.id === stationId);
+        // Return the station's name if found, otherwise return a default value
+        return station ? station.name : "Không xác định";
+    };
 
     // ✅ Hàm xử lý thay đổi input của bộ lọc
     const handleParamChange = (e) => {
@@ -255,6 +277,8 @@ const RouteManagement = () => {
                             <th>Tên tuyến</th>
                             <th>Điểm đầu</th>
                             <th>Điểm cuối</th>
+                            <th>Bến đi</th> {/* ✅ Cột mới */}
+                            <th>Bến đến</th> {/* ✅ Cột mới */}
                             <th>Số km</th>
                             <th>Thời gian dự kiến</th>
                             <th>Giá mỗi km</th>
@@ -269,6 +293,8 @@ const RouteManagement = () => {
                                     <td>{r.routeName}</td>
                                     <td>{r.origin}</td>
                                     <td>{r.destination}</td>
+                                    <td>{getStationName(r.originStationId?.id)}</td> {/* ✅ Sử dụng hàm để hiển thị tên bến */}
+                                    <td>{getStationName(r.destinationStationId?.id)}</td> {/* ✅ Sử dụng hàm để hiển thị tên bến */}
                                     <td>{r.distanceKm} km</td>
                                     <td>{r.estimatedTravelTime}</td>
                                     <td>{r.pricePerKm} VNĐ</td>
@@ -290,7 +316,7 @@ const RouteManagement = () => {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="8" className="text-center">Không tìm thấy tuyến đường nào.</td>
+                                <td colSpan="10" className="text-center">Không tìm thấy tuyến đường nào.</td>
                             </tr>
                         )}
                     </tbody>
