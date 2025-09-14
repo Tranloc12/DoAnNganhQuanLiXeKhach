@@ -42,9 +42,9 @@
                             </select>
                         </div>
                         <div class="col-md-6">
-                            <label for="busId" class="form-label">Xe buýt:</label>
+                            <label for="busId" class="form-label">Xe khách:</label>
                             <select name="busId" class="form-select" id="busId">
-                                <option value="">--- Chọn xe buýt ---</option>
+                                <option value="">--- Chọn xe khách ---</option>
                                 <option th:each="bus : ${buses}" th:value="${bus.id}" th:text="${bus.licensePlate + ' (' + bus.model + ')'}" th:selected="${busId != null and bus.id == busId}"></option>
                             </select>
                         </div>
@@ -94,7 +94,7 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>ID</th>
-                                <th>Xe buýt</th>
+                                <th>Xe khách</th>
                                 <th>Tài xế</th>
                                 <th>Tuyến đường</th>
                                 <th>Khởi hành</th>

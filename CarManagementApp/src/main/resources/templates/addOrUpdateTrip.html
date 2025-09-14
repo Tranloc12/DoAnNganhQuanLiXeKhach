@@ -29,10 +29,10 @@
 
                     <div class="row g-3 mb-3">
                         <div class="col-md-4">
-                            <label for="busId" class="form-label">Xe buýt:</label>
+                            <label for="busId" class="form-label">Xe khách :</label>
                             <select th:field="*{busId}" class="form-select" id="busId" required>
-                                <option value="">-- Chọn xe buýt --</option>
-                                <option th:each="bus : ${buses}" th:value="${bus.id}" th:text="${bus.licensePlate + ' (' + bus.model + ')'}"></option>
+                                <option value="">-- Chọn xe khách --</option>
+                                <option th:each="bus : ${buses}" th:alue="${bus.id}" th:text="${bus.licensePlate + ' (' + bus.model + ')'}"></option>
                             </select>
                             <div class="invalid-feedback" th:if="${#fields.hasErrors('busId')}" th:errors="*{busId}"></div>
                         </div>

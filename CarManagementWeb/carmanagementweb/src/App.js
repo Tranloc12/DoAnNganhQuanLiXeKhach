@@ -18,15 +18,9 @@ import ChatButton from "./components/chat/ChatButton";
 import ChatPopup from "./components/chat/ChatPopup";
 import DateTest from "./components/DateTest";
 import ChatDemo from "./components/ChatDemo";
-import AddTrainingProgress from "./components/trainer/AddTrainingProgress";
-import MySubscription from "./components/member/MySubscription";
 import Statistic from "./components/manager/Statistics";
-import TrainerDashboard from "./components/trainer/TrainerDashboard";
-import MemberProgress from "./components/member/MemberProgress";
-import TrainerScheduleView from "./components/trainer/TrainerScheduleView";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import { ROLES } from "./utils/roleUtils";
-import CreateSubscription from "./components/CreateSubscription";
 import PaymentResult from "./components/PaymentResult";
 import BusList from "./components/bus/BusList";
 import TripList from "./components/trip/TripList";
@@ -339,43 +333,7 @@ const App = () => {
 
 
 
-                    {/* Trainer only routes */}
-                    <Route path="/progress-create" element={
-                      <ProtectedRoute allowedRoles={[ROLES.TRAINER]}>
-                        <AddTrainingProgress />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/trainer-progress" element={
-                      <ProtectedRoute allowedRoles={[ROLES.TRAINER]}>
-                        <TrainerDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/trainer-schedule-view" element={
-                      <ProtectedRoute allowedRoles={[ROLES.TRAINER]}>
-                        <TrainerScheduleView />
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Member only routes */}
-                    <Route path="/member-progress" element={
-                      <ProtectedRoute allowedRoles={[ROLES.MEMBER]}>
-                        <MemberProgress />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/my-subscriptions" element={
-                      <ProtectedRoute allowedRoles={[ROLES.MEMBER]}>
-                        <MySubscription />
-                      </ProtectedRoute>
-                    } />
-
-
-
-
-                    <Route path="/create-subscription" element={
-                      <ProtectedRoute>
-                        <CreateSubscription />
-                      </ProtectedRoute>
-                    } />
+                   
                     <Route path="/payment/return" element={
                       <ProtectedRoute>
                         <PaymentResult />

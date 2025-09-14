@@ -1,4 +1,4 @@
-package com.nhom12.gymmanagementapp.resources;
+package com.nhom12.carmanagementapp.resources;
 
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
