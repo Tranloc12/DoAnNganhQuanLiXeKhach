@@ -32,7 +32,7 @@ public class BookingRepositoryImpl implements BookingRepository {
     public Booking addBooking(Booking booking) {
         try {
             Session session = getCurrentSession();
-            session.persist(booking);
+            booking = session.merge(booking); // Use merge instead of persist to handle detached trip and user entities
             session.flush(); // Force flush to catch DB constraint errors immediately
             return booking;
         } catch (Exception e) {
