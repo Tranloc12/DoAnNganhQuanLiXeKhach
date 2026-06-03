@@ -330,7 +330,7 @@ const SeatBooking = () => {
             // Pickup transfer
             if (pickupTransferPointId) {
                 try {
-                    await authApis().post(endpoints.triptransfers, {
+                    await authApis().post(endpoints.tripTransfers, {
                         arrivalTime: shuttle.pickupArrivalTime || defaultArrivalTime,
                         departureTime: shuttle.pickupDepartureTime || defaultDepartureTime,
                         stopOrder: shuttle.pickupStopOrder || 1,
@@ -349,7 +349,7 @@ const SeatBooking = () => {
             // Dropoff transfer
             if (dropoffTransferPointId) {
                 try {
-                    await authApis().post(endpoints.triptransfers, {
+                    await authApis().post(endpoints.tripTransfers, {
                         arrivalTime: shuttle.dropoffArrivalTime || defaultArrivalTime,
                         departureTime: shuttle.dropoffDepartureTime || defaultDepartureTime,
                         stopOrder: shuttle.dropoffStopOrder || 2,

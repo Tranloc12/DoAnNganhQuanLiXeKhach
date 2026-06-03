@@ -205,6 +205,29 @@ public class SpringSecurityConfigs {
                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtFilter(), UsernamePasswordAuthenticationFilter.class)
+                // ✅ FIX: Trả về 401 JSON cho /api/** thay vì redirect về /login (gây lỗi Mixed Content HTTPS)
+                .exceptionHandling(ex -> ex
+                    .authenticationEntryPoint((request, response, authException) -> {
+                        String requestURI = request.getRequestURI();
+                        if (requestURI.startsWith("/api/")) {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Vui lòng đăng nhập để thực hiện chức năng này.\"}");
+                        } else {
+                            response.sendRedirect("/login");
+                        }
+                    })
+                    .accessDeniedHandler((request, response, accessDeniedException) -> {
+                        String requestURI = request.getRequestURI();
+                        if (requestURI.startsWith("/api/")) {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json;charset=UTF-8");
+                            response.getWriter().write("{\"error\":\"Forbidden\",\"message\":\"Bạn không có quyền thực hiện chức năng này.\"}");
+                        } else {
+                            response.sendRedirect("/login");
+                        }
+                    })
+                )
                 .formLogin(form -> form.loginPage("/login")
                 .loginProcessingUrl("/login")
                 .defaultSuccessUrl("/")
