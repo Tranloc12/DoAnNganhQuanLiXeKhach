@@ -34,7 +34,8 @@ public class BookingServiceImpl implements BookingService {
             System.err.println("BookingServiceImpl: Dữ liệu đầu vào không hợp lệ cho createBooking (kiểm tra trip, user, numberOfSeats).");
             return null; // Khiến ApiBookingController trả về 500
         }
-        if (trip.getAvailableSeats() == null || trip.getAvailableSeats() < numberOfSeats) {
+        // Không check trip.getAvailableSeats() == null ở đây nữa, vì TripRepositoryImpl sẽ tự động fix lỗi data này
+        if (trip.getAvailableSeats() != null && trip.getAvailableSeats() < numberOfSeats) {
             System.err.println("BookingServiceImpl: Không đủ ghế trên chuyến đi.");
             return null;
         }

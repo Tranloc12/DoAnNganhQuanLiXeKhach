@@ -31,7 +31,9 @@ public class BookingRepositoryImpl implements BookingRepository {
     @Transactional
     public Booking addBooking(Booking booking) {
         try {
-            getCurrentSession().persist(booking);
+            Session session = getCurrentSession();
+            booking = session.merge(booking); // Use merge instead of persist to handle detached trip and user entities
+            session.flush(); // Force flush to catch DB constraint errors immediately
             return booking;
         } catch (Exception e) {
             System.err.println("Lỗi khi thêm booking: " + e.getMessage());
