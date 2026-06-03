@@ -1,0 +1,579 @@
+.seat-booking-container {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    padding: 40px 24px;
+    max-width: 1200px;
+    margin: 40px auto;
+    background-color: #f8fafc;
+    border-radius: 18px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    color: #333;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 400px;
+    gap: 32px;
+}
+
+@media (max-width: 1024px) {
+    .grid {
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+}
+
+.seat-booking-container h1,
+.seat-booking-container h2,
+.seat-booking-container h3 {
+    text-align: left;
+    margin-top: 0;
+}
+
+.trip-info {
+    background-color: #e3f2fd;
+    padding: 18px 24px;
+    border-radius: 12px;
+    margin-bottom: 18px;
+    text-align: left;
+    border: 1.5px solid #bbdefb;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.06);
+}
+
+.trip-info p {
+    margin: 6px 0;
+    font-size: 16px;
+    text-align: left;
+}
+
+.trip-info strong {
+    color: #1976d2;
+    text-align: left;
+}
+
+.deck-container {
+    display: flex;
+    justify-content: flex-start;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+
+.deck {
+    padding: 18px 12px;
+    background-color: #fff;
+    border: 1.5px solid #e3eaf5;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.04);
+    width: 240px;
+    min-width: 200px;
+}
+
+.deck h2 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    color: #1976d2;
+    border-bottom: 1px dashed #90caf9;
+    padding-bottom: 6px;
+    text-align: center;
+}
+
+.deck .seat-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    justify-items: center;
+    margin-bottom: 10px;
+}
+
+.deck .seat-row.row-2 {
+    grid-template-columns: repeat(2, 1fr);
+}
+
+.bg-white {
+    background: #fff;
+    text-align: left;
+    padding-left: 18px;
+    padding-right: 18px;
+}
+
+@media (min-width: 1025px) {
+    .bg-white {
+        margin-right: 12px;
+    }
+}
+.rounded-2xl {
+    border-radius: 16px;
+}
+
+.shadow-xl {
+    box-shadow: 0 8px 32px rgba(25, 118, 210, 0.08);
+}
+
+.border-blue-100 {
+    border: 1.5px solid #bbdefb;
+}
+
+.book-button {
+    background: linear-gradient(90deg,#1976d2 0%,#64b5f6 100%);
+    color: white;
+    padding: 14px 0;
+    border: none;
+    border-radius: 12px;
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s, transform 0.2s;
+    margin-top: 18px;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.08);
+    text-align: center;
+}
+
+.book-button:hover:not(:disabled) {
+    background: linear-gradient(90deg,#1565c0 0%,#42a5f5 100%);
+    transform: translateY(-2px) scale(1.02);
+}
+
+.book-button:disabled {
+    background: #b3e5fc;
+    color: #90caf9;
+    cursor: not-allowed;
+}
+
+.custom-input {
+    background: #f8fbff;
+    border: 1.5px solid #b6d4fa;
+    border-radius: 12px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    font-size: 17px;
+    color: #222;
+    padding: 10px 16px;
+    width: 100%;
+    margin-top: 4px;
+    text-align: left;
+}
+
+.custom-input:focus {
+    outline: none !important;
+    border-color: #1976d2 !important;
+    box-shadow: 0 0 0 2px #90caf9 !important;
+    background: #fff;
+}
+
+label {
+    font-weight: 600;
+    color: #1976d2;
+    margin-bottom: 4px;
+    display: block;
+    text-align: left;
+}
+
+@media (max-width: 1024px) {
+    .seat-booking-container {
+        padding: 18px 4px;
+        margin: 12px;
+    }
+    .deck-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    .deck {
+        width: 100%;
+        max-width: 320px;
+    }
+}
+
+.order-info-card {
+    padding-left: 18px;
+    padding-right: 18px;
+    margin-right: 8px;
+    text-align: left;
+}
+
+/* Nút phương thức thanh toán */
+.payment-step .book-button {
+    background: linear-gradient(90deg,#e3f2fd 0%,#bbdefb 100%);
+    color: #1976d2;
+    border: 1.5px solid #bbdefb;
+    font-size: 16px;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.06);
+    margin: 0;
+    padding: 18px 0 10px 0;
+    border-radius: 14px;
+    transition: background 0.2s, box-shadow 0.2s, transform 0.15s;
+    min-height: 90px;
+    min-width: 0;
+}
+
+.payment-step .book-button:hover {
+    background: linear-gradient(90deg,#1976d2 0%,#64b5f6 100%);
+    color: #fff;
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 4px 16px rgba(25, 118, 210, 0.12);
+}
+
+.payment-step .book-button img {
+    margin-bottom: 4px;
+    border-radius: 8px;
+    background: #fff;
+    padding: 4px;
+    box-shadow: 0 1px 4px rgba(25,118,210,0.07);
+}
+
+.payment-step .absolute {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 2;
+}
+
+.payment-step .text-xs {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 8px;
+}
+
+.payment-step .bg-green-100 { background: #e8f5e9; color: #388e3c; }
+.payment-step .bg-orange-100 { background: #fff3e0; color: #ef6c00; }
+.payment-step .bg-pink-100 { background: #fce4ec; color: #d81b60; }
+
+.payment-step .text-blue-700 { color: #1976d2; }
+.payment-step .text-orange-700 { color: #ef6c00; }
+.payment-step .text-green-700 { color: #388e3c; }
+.payment-step .text-pink-700 { color: #d81b60; }
+
+/* QR code box */
+.payment-step .qr-box {
+    background: #fff;
+    padding: 12px;
+    border-radius: 16px;
+    box-shadow: 0 2px 8px rgba(25, 118, 210, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+/* Responsive cho payment-step */
+@media (max-width: 900px) {
+    .payment-step {
+        padding: 12px 2vw;
+        max-width: 99vw;
+    }
+    .payment-step .grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    .payment-step .flex-col, .payment-step .flex-row {
+        flex-direction: column !important;
+    }
+}
+
+.payment-step .qr-box {
+    background: #fff;
+    padding: 16px;
+    border-radius: 18px;
+    box-shadow: 0 2px 12px rgba(25, 118, 210, 0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 8px;
+}
+
+.payment-step .book-button {
+    min-width: 0;
+    min-height: 0;
+    padding: 10px 0 6px 0;
+    font-size: 14px;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(25, 118, 210, 0.06);
+    margin: 0;
+    height: 70px;
+    max-width: 110px;
+}
+.payment-step .book-button img {
+    width: 28px !important;
+    height: 28px !important;
+    margin-bottom: 2px;
+}
+
+
+/* Giao diện chung của bước thanh toán */
+.payment-step {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 40px 24px;
+  max-width: 1200px; /* Tăng max-width để có thêm không gian cho bố cục 2 cột */
+  margin: 40px auto;
+  background-color: #f8fafc;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  color: #333;
+}
+
+/* Bố cục chính cho bước thanh toán */
+.payment-step-grid {
+  display: grid;
+  grid-template-columns: 1fr 400px; /* Cột trái (phương thức) chiếm hết không gian còn lại, cột phải (thông tin) cố định 400px */
+  gap: 32px;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 1024px) {
+  .payment-step-grid {
+    grid-template-columns: 1fr; /* Trở lại bố cục 1 cột trên màn hình nhỏ */
+    gap: 24px;
+  }
+}
+
+.payment-step h2 {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 24px;
+}
+
+/* Container cho các phương thức thanh toán */
+.payment-methods {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e3eaf5;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.payment-methods .grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  justify-content: center;
+}
+
+/* Thẻ thông tin khách hàng và đơn hàng bên phải */
+.order-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.order-summary .info-card {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e3eaf5;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+/* Điều chỉnh lại các nút thanh toán */
+.payment-step .book-button {
+  min-height: 90px;
+  min-width: 120px;
+  background-color: #f0f4f8;
+  color: #1976d2;
+  border: 1.5px solid #d0d9e4;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  box-shadow: none; /* Bỏ bớt box-shadow để trông gọn hơn */
+}
+
+.payment-step .book-button:hover {
+  background-color: #e3f2fd;
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 6px 16px rgba(25, 118, 210, 0.1);
+  border-color: #1976d2;
+}
+
+.payment-step .book-button img {
+  width: 40px;
+  height: 40px;
+  margin-bottom: 8px;
+  border-radius: 8px;
+}
+
+/* Các thẻ thông tin cụ thể */
+.bg-blue-50, .bg-orange-50 {
+  border-radius: 12px;
+  padding: 16px;
+  border: 1px solid;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.bg-blue-50 {
+  background: #e3f2fd;
+  border-color: #bbdefb;
+}
+
+.bg-orange-50 {
+  background: #fff3e0;
+  border-color: #ffe0b2;
+}
+
+.qr-box {
+  background: #fff;
+  padding: 16px;
+  border-radius: 18px;
+  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.10);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+/* Nút quay lại */
+.payment-step .back-button {
+  background: #e0e0e0;
+  color: #555;
+  font-weight: 500;
+  padding: 12px 20px;
+  width: auto;
+  border: none;
+  border-radius: 12px;
+  transition: background 0.2s;
+  margin-top: 24px;
+  cursor: pointer;
+  box-shadow: none;
+}
+
+.payment-step .back-button:hover {
+  background: #bdbdbd;
+  color: #333;
+  transform: translateY(-1px);
+}
+/* Giao diện chung của bước thanh toán */
+.payment-step {
+  padding: 48px;
+  max-width: 1200px;
+  margin: 40px auto;
+  background-color: #f8fafc;
+  border-radius: 20px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.08);
+  color: #333;
+}
+
+/* Bố cục chính cho bước thanh toán */
+.payment-step-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Tăng không gian cho phương thức thanh toán */
+  gap: 40px;
+}
+
+/* Responsive cho màn hình nhỏ */
+@media (max-width: 1024px) {
+  .payment-step-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}
+
+/* Phần phương thức thanh toán bên trái */
+.payment-methods-container {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e3eaf5;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.payment-methods-container h3 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #1976d2;
+  margin-bottom: 24px;
+}
+
+.payment-methods-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); /* Nút lớn hơn */
+  gap: 16px;
+}
+
+/* Nút phương thức thanh toán */
+.payment-button {
+  background-color: #f0f4f8;
+  color: #1976d2;
+  border: 2px solid #e0eaf5;
+  border-radius: 14px;
+  padding: 16px 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  min-height: 100px;
+}
+
+.payment-button:hover,
+.payment-button.active {
+  background-color: #e3f2fd;
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: 0 8px 20px rgba(25, 118, 210, 0.12);
+  border-color: #1976d2;
+}
+
+.payment-button img {
+  width: 48px; /* Biểu tượng lớn hơn */
+  height: 48px;
+  margin-bottom: 8px;
+  border-radius: 10px;
+}
+
+/* Phần thông tin đơn hàng bên phải */
+.order-summary-container {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.order-summary-card {
+  background-color: #fff;
+  padding: 24px;
+  border-radius: 16px;
+  border: 1px solid #e3eaf5;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+}
+
+.order-summary-card h3 {
+  color: #1976d2;
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.qr-box {
+  padding: 20px;
+  border-radius: 20px;
+}
+
+/* Nút quay lại */
+.back-button {
+  background: #e0e0e0;
+  color: #555;
+  font-weight: 600;
+  padding: 14px 24px;
+  width: 100%;
+  border: none;
+  border-radius: 14px;
+  transition: background 0.2s, transform 0.2s;
+  margin-top: 16px;
+  cursor: pointer;
+}
+
+.back-button:hover {
+  background: #bdbdbd;
+  color: #333;
+  transform: translateY(-2px);
+}
+
+
