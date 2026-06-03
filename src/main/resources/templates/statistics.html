@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <title>Thống kê phòng tập</title>
+    <th:block th:replace="~{base :: styles}"></th:block>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 30px auto;
+            padding: 20px 30px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px; /* Thêm khoảng cách dưới tiêu đề */
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin: 30px 0;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background-color: #f0f4f8;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            flex: 1;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-card h2 {
+            margin-bottom: 10px;
+            color: #007bff;
+            font-size: 1.5rem; /* Điều chỉnh kích thước font */
+        }
+
+        .stat-card p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        thead {
+            background-color: #007bff;
+            color: white;
+        }
+
+        th, td {
+            padding: 14px 12px;
+            border: 1px solid #ccc;
+            text-align: center;
+        }
+
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        /* Chỉnh kích thước và căn giữa canvas biểu đồ */
+        .chart-container { /* Thêm một div bọc để kiểm soát kích thước */
+            position: relative;
+            width: 100%;
+            max-width: 600px; /* Đặt lại max-width cho container của biểu đồ */
+            height: 300px; /* Chiều cao cố định, có thể điều chỉnh */
+            margin: 30px auto 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            background-color: #fff; /* Nền trắng cho biểu đồ */
+            padding: 15px; /* Thêm padding bên trong container biểu đồ */
+        }
+
+        canvas#gymUsageChart {
+            width: 100% !important; /* Đảm bảo canvas lấp đầy container */
+            height: 100% !important;
+        }
+
+        @media (max-width: 768px) {
+            .stats {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div th:replace="~{base :: header}"></div>
+
+    <div class="container mt-4"> <h1>📊 Thống kê phòng tập</h1>
+
+        <div class="stats">
+            <div class="stat-card">
+                <h2>Số lượng hội viên</h2>
+                <p th:text="${memberCount != null ? memberCount + ' hội viên' : '0 hội viên'}"></p>
+            </div>
+            <div class="stat-card">
+                <h2>Tổng doanh thu</h2>
+                <p th:text="${totalRevenue != null ? #numbers.formatDecimal(totalRevenue, 0, 'COMMA', 0, 'POINT') + ' VND' : '0 VND'}"></p>
+            </div>
+        </div>
+
+        <h2>📅 Mức độ sử dụng phòng tập theo khung giờ</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>Khung giờ</th>
+                    <th>Số buổi tập</th>
+                </tr>
+            </thead>
+            <tbody>
+            <th:block th:if="${gymUsage != null and not gymUsage.isEmpty()}">
+                <tr th:each="entry : ${gymUsage}">
+                    <td th:text="${entry.key}"></td>
+                    <td th:text="${entry.value}"></td>
+                </tr>
+            </th:block>
+            <tr th:if="${gymUsage == null or gymUsage.isEmpty()}">
+                <td colspan="2" style="text-align: center;">Không có dữ liệu</td>
+            </tr>
+            </tbody>
+        </table>
+
+        <h2>📈 Biểu đồ sử dụng phòng tập</h2>
+        <div class="chart-container">
+            <canvas id="gymUsageChart"></canvas>
+        </div>
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            // Đảm bảo gymUsage luôn là một đối tượng JavaScript, ngay cả khi nó rỗng từ Thymeleaf
+            const gymUsageMap = /*[[${gymUsage}]]*/ {}; // Mặc định là một đối tượng rỗng nếu null/empty
+
+            const labels = Object.keys(gymUsageMap).length ? Object.keys(gymUsageMap) : ['Sáng (6:00-12:00)', 'Chiều (12:00-18:00)', 'Tối (18:00-23:00)', 'Khác'];
+            const data = Object.keys(gymUsageMap).length ? Object.values(gymUsageMap) : [0, 0, 0, 0];
+
+            const ctx = document.getElementById('gymUsageChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                            label: 'Số buổi tập',
+                            data: data,
+                            backgroundColor: ['#3498db', '#e74c3c', '#f1c40f', '#2ecc71'],
+                            borderRadius: 6,
+                            borderWidth: 1
+                        }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Quan trọng để canvas tự điều chỉnh trong container
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Thống kê số buổi tập theo khung giờ',
+                            font: {
+                                size: 18
+                            }
+                        },
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function (context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += context.parsed.y + ' buổi';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Số buổi tập'
+                            },
+                            ticks: {
+                                precision: 0 // Đảm bảo số nguyên cho trục Y
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Khung giờ'
+                            }
+                        }
+                    }
+                }
+            });
+            /*]]>*/
+        </script>
+    </div>
+
+    <div th:replace="~{base :: footer}"></div>
+    <div th:replace="base :: theme-scripts"></div>
+
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+    <head>
+        <title>Quản lý Tuyến đường</title>
+    <th:block th:replace="base :: styles"></th:block>
+</head>
+
+<body>
+    <div th:replace="base :: header"></div>
+
+    <main class="container mt-4">
+        <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+            <h1 class="h2">Quản lý Tuyến đường</h1>
+            <div class="btn-toolbar mb-2 mb-md-0">
+                <a th:href="@{/routes/add-or-update}" type="button" class="btn btn-outline-success">
+                    <i ></i> Thêm tuyến đường mới
+                </a>
+            </div>
+        </div>
+
+        <form th:action="@{/routes}" method="get" class="mb-3 p-2 border rounded shadow-sm bg-light">
+            <h6 class="mb-2">Bộ lọc</h6>
+            <div class="row g-2">
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="routeName" class="form-label small">Tên tuyến</label>
+                    <input type="text" name="routeName" id="routeName" class="form-control form-control-sm" th:value="${routeName}" placeholder="Nhập tên tuyến">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="origin" class="form-label small">Điểm đi</label>
+                    <input type="text" name="origin" id="origin" class="form-control form-control-sm" th:value="${origin}" placeholder="Nhập điểm đi">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="destination" class="form-label small">Điểm đến</label>
+                    <input type="text" name="destination" id="destination" class="form-control form-control-sm" th:value="${destination}" placeholder="Nhập điểm đến">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="isActive" class="form-label small">Trạng thái</label>
+                    <select name="isActive" id="isActive" class="form-select form-select-sm">
+                        <option value="">Tất cả</option>
+                        <option value="true" th:selected="${#strings.equals(isActive, 'true')}">Hoạt động</option>
+                        <option value="false" th:selected="${#strings.equals(isActive, 'false')}">Không hoạt động</option>
+                    </select>
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="distanceFrom" class="form-label small">Khoảng cách từ (km)</label>
+                    <input type="number" name="distanceFrom" id="distanceFrom" class="form-control form-control-sm" th:value="${distanceFrom}" placeholder="Từ">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="distanceTo" class="form-label small">Đến (km)</label>
+                    <input type="number" name="distanceTo" id="distanceTo" class="form-control form-control-sm" th:value="${distanceTo}" placeholder="Đến">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="priceFrom" class="form-label small">Giá/km từ (VNĐ)</label>
+                    <input type="number" name="priceFrom" id="priceFrom" class="form-control form-control-sm" th:value="${priceFrom}" placeholder="Từ">
+                </div>
+                <div class="col-md-3 col-sm-6 mb-2">
+                    <label for="priceTo" class="form-label small">Đến (VNĐ)</label>
+                    <input type="number" name="priceTo" id="priceTo" class="form-control form-control-sm" th:value="${priceTo}" placeholder="Đến">
+                </div>
+            </div>
+            <div class="mt-2 text-end">
+                <button type="submit" class="btn btn-primary btn-sm me-1"><i class="fas fa-search"></i> Tìm</button>
+                <a th:href="@{/routes}" class="btn btn-secondary btn-sm"><i class="fas fa-filter-circle-xmark"></i> Xóa</a>
+            </div>
+        </form>
+
+        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+            <span th:text="${successMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+
+        <div class="card shadow mb-4">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">Danh sách Tuyến đường</h6>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered" width="100%" cellspacing="0">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>ID</th>
+                                <th>Tên tuyến</th>
+                                <th>Điểm đi</th>
+                                <th>Điểm đến</th>
+                                <th>Khoảng cách (Km)</th>
+                                <th>TG ước tính</th>
+                                <th>Giá/Km</th>
+                                <th>Hoạt động</th>
+                                <th>Hành động</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:each="route : ${routes}">
+                                <td th:text="${route.id}"></td>
+                                <td th:text="${route.routeName}"></td>
+                                <td th:text="${route.origin}"></td>
+                                <td th:text="${route.destination}"></td>
+                                <td th:text="${route.distanceKm}"></td>
+                                <td th:text="${route.estimatedTravelTime}"></td>
+                                <td th:text="${#numbers.formatDecimal(route.pricePerKm, 0, 'COMMA', 0, 'POINT')}"></td>
+                                <td>
+                                    <span th:if="${route.isActive}" class="badge bg-success">Hoạt động</span>
+                                    <span th:unless="${route.isActive}" class="badge bg-secondary">Không hoạt động</span>
+                                </td>
+                                <td>
+                                    <a th:href="@{/routes/add-or-update(id=${route.id})}" class="btn btn-sm btn-warning me-2">
+                                        <i class="fas fa-edit"></i> Sửa
+                                    </a>
+                                    <a th:href="@{/routes/delete/{id}(id=${route.id})}" class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa tuyến đường này không?');">
+                                        <i class="fas fa-trash-alt"></i> Xóa
+                                    </a>
+                                </td>
+                            </tr>
+                            <tr th:if="${routes.isEmpty()}">
+                                <td colspan="9" class="text-center">Không có tuyến đường nào.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="base :: footer"></div>
+    <script th:src="@{/js/main.js}"></script>
+    <div th:replace="base :: theme-scripts"></div>
+
+</body>
+
+</html>
