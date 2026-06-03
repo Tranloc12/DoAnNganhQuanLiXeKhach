@@ -113,11 +113,25 @@ public class TripRepositoryImpl implements TripRepository {
     public boolean decreaseAvailableSeats(int tripId, int numberOfSeats) {
         Session session = sessionFactory.getObject().getCurrentSession();
         Trip trip = session.get(Trip.class, tripId);
-        if (trip != null && trip.getAvailableSeats() != null && trip.getAvailableSeats() >= numberOfSeats) {
-            trip.setAvailableSeats(trip.getAvailableSeats() - numberOfSeats);
-            trip.setTotalBookedSeats(trip.getTotalBookedSeats() + numberOfSeats);
-            session.merge(trip);
-            return true;
+        if (trip != null) {
+            // Handle legacy trips where availableSeats might be null
+            if (trip.getAvailableSeats() == null) {
+                if (trip.getBusId() != null && trip.getBusId().getCapacity() != null) {
+                    trip.setAvailableSeats(trip.getBusId().getCapacity());
+                } else {
+                    trip.setAvailableSeats(0);
+                }
+            }
+            if (trip.getTotalBookedSeats() == null) {
+                trip.setTotalBookedSeats(0);
+            }
+
+            if (trip.getAvailableSeats() >= numberOfSeats) {
+                trip.setAvailableSeats(trip.getAvailableSeats() - numberOfSeats);
+                trip.setTotalBookedSeats(trip.getTotalBookedSeats() + numberOfSeats);
+                session.merge(trip);
+                return true;
+            }
         }
         return false;
     }
@@ -127,11 +141,24 @@ public class TripRepositoryImpl implements TripRepository {
     public boolean increaseAvailableSeats(int tripId, int numberOfSeats) {
         Session session = sessionFactory.getObject().getCurrentSession();
         Trip trip = session.get(Trip.class, tripId);
-        if (trip != null && trip.getTotalBookedSeats() != null && trip.getTotalBookedSeats() >= numberOfSeats) {
-            trip.setAvailableSeats(trip.getAvailableSeats() + numberOfSeats);
-            trip.setTotalBookedSeats(trip.getTotalBookedSeats() - numberOfSeats);
-            session.merge(trip);
-            return true;
+        if (trip != null) {
+            if (trip.getAvailableSeats() == null) {
+                if (trip.getBusId() != null && trip.getBusId().getCapacity() != null) {
+                    trip.setAvailableSeats(trip.getBusId().getCapacity());
+                } else {
+                    trip.setAvailableSeats(0);
+                }
+            }
+            if (trip.getTotalBookedSeats() == null) {
+                trip.setTotalBookedSeats(0);
+            }
+
+            if (trip.getTotalBookedSeats() >= numberOfSeats) {
+                trip.setAvailableSeats(trip.getAvailableSeats() + numberOfSeats);
+                trip.setTotalBookedSeats(trip.getTotalBookedSeats() - numberOfSeats);
+                session.merge(trip);
+                return true;
+            }
         }
         return false;
     }
