@@ -164,6 +164,11 @@ public class SpringSecurityConfigs {
                 .requestMatchers(HttpMethod.POST, "/api/triptransfers").hasAnyRole("ADMIN", "MANAGER", "STAFF", "PASSENGER")
                 .requestMatchers(HttpMethod.PUT, "/api/triptransfers/**").hasAnyRole("ADMIN", "MANAGER", "STAFF", "PASSENGER")
                 .requestMatchers(HttpMethod.DELETE, "/api/triptransfers/**").hasAnyRole("ADMIN", "MANAGER")
+                // ✅ Dashboard API (chỉ Admin/Manager)
+                .requestMatchers(HttpMethod.GET, "/api/dashboard/**").hasAnyRole("ADMIN", "MANAGER", "STAFF")
+                // ✅ QR Code API
+                .requestMatchers(HttpMethod.GET, "/api/qr/**").hasAnyRole("ADMIN", "MANAGER", "STAFF", "PASSENGER", "DRIVER")
+                .requestMatchers(HttpMethod.POST, "/api/qr/verify").hasAnyRole("ADMIN", "MANAGER", "STAFF", "DRIVER")
                 //---------------------------------------------------------------------------//
                 .requestMatchers("/", "/login", "/css/**", "/js/**", "/images/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/gym-packages").permitAll()
