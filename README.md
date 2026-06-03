@@ -59,11 +59,11 @@ Backend là nơi xử lý toàn bộ nghiệp vụ logic phức tạp của hệ
 ```mermaid
 graph TD
     %% Styling Definitions
-    classDef client fill:#ffffff,stroke:#4479A1,stroke-width:2px,color:#1a1410,rx:5px,ry:5px;
-    classDef controller fill:#faf9f7,stroke:#6DB33F,stroke-width:2px,color:#1a1410,rx:5px,ry:5px;
-    classDef service fill:#f0fdf4,stroke:#6DB33F,stroke-width:1px,color:#1a1410,rx:5px,ry:5px;
-    classDef repo fill:#f8f9fa,stroke:#59666C,stroke-width:1px,color:#1a1410,rx:5px,ry:5px;
-    classDef db fill:#4479A1,stroke:#007396,stroke-width:2px,color:#ffffff,rx:5px,ry:5px;
+    classDef client fill:#ffffff,stroke:#4479A1,stroke-width:2px,color:#1a1410;
+    classDef controller fill:#faf9f7,stroke:#6DB33F,stroke-width:2px,color:#1a1410;
+    classDef service fill:#f0fdf4,stroke:#6DB33F,stroke-width:1px,color:#1a1410;
+    classDef repo fill:#f8f9fa,stroke:#59666C,stroke-width:1px,color:#1a1410;
+    classDef db fill:#4479A1,stroke:#007396,stroke-width:2px,color:#ffffff;
     
     Client((Frontend / App)):::client
     
