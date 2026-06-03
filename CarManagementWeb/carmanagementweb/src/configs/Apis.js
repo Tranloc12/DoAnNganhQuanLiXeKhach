@@ -2,7 +2,7 @@ import axios from "axios";
 import { getValidToken } from "../utils/authUtils";
 
 // Cấu hình BASE_URL dựa trên environment
-const BASE_URL = process.env.REACT_APP_API_URL || "http://localhost:8080/CarManagementApp/api";
+const BASE_URL = process.env.REACT_APP_API_URL || "https://doannganhquanlixekhach.onrender.com/api";
 
 export const endpoints = {
   register: "/register",

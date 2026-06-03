@@ -20,7 +20,7 @@ const EditBusForm = () => {
   useEffect(() => {
     const fetchBus = async () => {
       try {
-        const res = await axios.get(`http://localhost:8080/CarManagementApp/api/buses/${id}`);
+        const res = await axios.get(`https://doannganhquanlixekhach.onrender.com/api/buses/${id}`);
         setFormData(res.data);
       } catch (error) {
         console.error('❌ Lỗi khi tải thông tin xe buýt:', error);
@@ -42,7 +42,7 @@ const EditBusForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`http://localhost:8080/CarManagementApp/api/buses/${id}`, formData, {
+      await axios.put(`https://doannganhquanlixekhach.onrender.com/api/buses/${id}`, formData, {
         headers: {
           'Content-Type': 'application/json',
         },

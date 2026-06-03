@@ -30,7 +30,7 @@ const NotificationHandler = () => {
                                         return;
                                     }
 
-                                    const response = await fetch('http://localhost:8080/api/users/save-fcm-token', {
+                                    const response = await fetch('https://doannganhquanlixekhach.onrender.com/api/users/save-fcm-token', {
                                         method: 'POST',
                                         headers: {
                                             'Content-Type': 'application/json',

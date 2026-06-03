@@ -17,7 +17,7 @@ const Schedule = () => {
   });
   const [isEditing, setIsEditing] = useState(false);
 
-  const API_URL = "http://localhost:8080/CarManagementApp/api/driver-schedules";
+  const API_URL = "https://doannganhquanlixekhach.onrender.com/api/driver-schedules";
 
   // Load danh sách
   const fetchSchedules = async () => {

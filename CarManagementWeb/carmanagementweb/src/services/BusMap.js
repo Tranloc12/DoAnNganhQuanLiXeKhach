@@ -29,7 +29,7 @@ const BusMap = ({ busId }) => {
     }
 
     const fetchBusLocation = () => {
-      fetch(`http://localhost:8080/CarManagementApp/api/bus-locations/latest/${busId}`)
+      fetch(`https://doannganhquanlixekhach.onrender.com/api/bus-locations/latest/${busId}`)
         .then(response => {
           if (!response.ok) {
             // Throw an error if the status is not 200 OK
