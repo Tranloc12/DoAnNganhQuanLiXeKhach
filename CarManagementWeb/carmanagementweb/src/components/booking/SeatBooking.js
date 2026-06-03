@@ -382,7 +382,12 @@ const SeatBooking = () => {
                     navigate("/login");
                     return;
                 }
-                setMessage("Đặt chỗ thất bại: Vui lòng thử lại.");
+                if (err.response && err.response.data) {
+                    const errorDetail = typeof err.response.data === 'string' ? err.response.data : JSON.stringify(err.response.data);
+                    setMessage("Đặt chỗ thất bại: " + errorDetail);
+                } else {
+                    setMessage("Đặt chỗ thất bại: Vui lòng thử lại.");
+                }
             }
         } finally {
             setLoading(false);
