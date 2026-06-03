@@ -119,7 +119,7 @@ public class ApiBookingController {
                     + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Tuyến đường:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" + routeName + "</td></tr>"
                     + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Ngày khởi hành:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" + departureTime + "</td></tr>"
                     + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Số ghế:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" + booking.getSeatNumbers() + "</td></tr>"
-                    + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Tổng tiền:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee; color: #16a34a; font-weight: bold;'>" + String.format("%,d", booking.getTotalAmount() != null ? booking.getTotalAmount().longValue() : 0) + " VND</td></tr>"
+                    + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Tổng tiền:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee; color: #16a34a; font-weight: bold;'>" + String.format("%,d", (long) booking.getTotalAmount()) + " VND</td></tr>"
                     + "</table>"
                     + "<p style='margin-top: 20px;'>Vui lòng đến bến xe trước 30 phút để hoàn tất thủ tục.</p>"
                     + "<p style='color: #888; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px;'>Đây là email tự động, vui lòng không phản hồi.</p>"
