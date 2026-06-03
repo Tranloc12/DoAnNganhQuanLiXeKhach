@@ -38,7 +38,7 @@ public class TripTransferRepositoryImpl implements TripTransferRepository {
     @Override
     public void addTripTransfer(TripTransfer tripTransfer) {
         Session session = this.sessionFactory.getCurrentSession();
-        session.persist(tripTransfer);
+        session.merge(tripTransfer);
     }
 
     @Override
