@@ -38,7 +38,7 @@ public class BookingRepositoryImpl implements BookingRepository {
         } catch (Exception e) {
             System.err.println("Lỗi khi thêm booking: " + e.getMessage());
             e.printStackTrace();
-            return null;
+            throw new RuntimeException("DB_ERROR: " + e.getMessage(), e);
         }
     }
 

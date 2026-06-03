@@ -57,7 +57,7 @@ public class BookingServiceImpl implements BookingService {
                 // Log chi tiết hơn về exception khi lưu vào DB
                 System.err.println("BookingServiceImpl: Lỗi khi lưu booking vào database: " + e.getMessage());
                 e.printStackTrace(); // In stack trace đầy đủ
-                return null;
+                throw new RuntimeException(e.getMessage(), e);
             }
         }
         return null;
