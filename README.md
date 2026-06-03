@@ -67,18 +67,18 @@ graph TD
     
     Client((Frontend / App)):::client
     
-    subgraph Presentation Layer
+    subgraph presentation ["Presentation Layer"]
         Security[Spring Security Filter]:::controller
         API[REST Controllers]:::controller
     end
     
-    subgraph Business Logic Layer
+    subgraph logic ["Business Logic Layer"]
         AuthSvc[Xác thực & Token]:::service
         BookingSvc[Xử lý Đặt vé & VNPay]:::service
         MailSvc[Gửi Mail Bất đồng bộ]:::service
     end
     
-    subgraph Data Access Layer
+    subgraph data_layer ["Data Access Layer"]
         Hibernate[Hibernate Repositories]:::repo
     end
     
