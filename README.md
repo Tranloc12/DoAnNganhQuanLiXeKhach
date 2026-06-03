@@ -1,86 +1,80 @@
-# Car Management System
-This project provides a **Car Management System** with features such as ticket booking, trip management, user management, driver assignment, and trip tracking.  
-The system is built with **Spring Boot (backend)** and **ReactJS (frontend)**, and supports multiple roles: **Admin, Staff, Driver, and Passenger**.
+<div align="center">
+  <img src="https://spring.io/images/spring-logo-9146a4d3298760c2e7e49595184e1975.svg" alt="Spring Logo" width="150" height="auto" />
+  <h1>🛠️ HỆ THỐNG QUẢN LÝ BẾN XE KHÁCH (BACKEND)</h1>
+  <p><i>API Server mạnh mẽ, an toàn được phát triển bằng Spring MVC & Hibernate.</i></p>
 
+  <!-- Badges -->
+  <p>
+    <img src="https://img.shields.io/badge/Java-17-007396?logo=java&logoColor=white" alt="Java 17" />
+    <img src="https://img.shields.io/badge/Spring_MVC-6.x-6DB33F?logo=spring&logoColor=white" alt="Spring MVC" />
+    <img src="https://img.shields.io/badge/Hibernate-6.x-59666C?logo=hibernate&logoColor=white" alt="Hibernate" />
+    <img src="https://img.shields.io/badge/MySQL-8.0-4479A1?logo=mysql&logoColor=white" alt="MySQL" />
+  </p>
+</div>
 
-##  Features
--  **User Authentication & Role-based Authorization** (Admin, Driver, Staff, Passenger)  
--  **Trip Management** (create, update, delete, view trips)  
--  **Ticket Booking & Seat Selection** with booking history  
--  **User Management** (CRUD users, assign roles)  
--  **Driver and Bus Management**  
--  **Real-time Trip Tracking** (OpenStreetMap integration)  
--  **Online Payment Support** (PayPal integration)  
--  **Notifications** (via Firebase if enabled)  
+## 🌟 TỔNG QUAN DỰ ÁN
+Đây là mã nguồn Backend cung cấp toàn bộ API và nghiệp vụ xử lý dữ liệu cho dự án **Hệ Thống Quản Lý Bến Xe Khách**. Hệ thống được thiết kế theo chuẩn RESTful API, bảo mật nhiều lớp với Spring Security & JWT, kết hợp với các dịch vụ đám mây (Cloudinary, Firebase, Aiven MySQL).
 
+## ✨ CÁC TÍNH NĂNG VÀ NGHIỆP VỤ CỐT LÕI
 
-## 🛠️ Technologies Used
+*   🔐 **Xác thực & Phân quyền (Auth & Roles)**: Bảo vệ hệ thống bằng JWT Token, mã hóa mật khẩu. Hỗ trợ đa Role (ADMIN, MANAGER, STAFF, DRIVER, PASSENGER).
+*   🚌 **Quản lý Vận hành**: API tạo/sửa/xóa chuyến đi, quản lý tuyến đường, xe khách, bến xe, điểm trung chuyển.
+*   💳 **Cổng Thanh Toán Online (Payment Gateways)**: Tích hợp hoàn chỉnh API thanh toán VNPay và PayPal SDK.
+*   📧 **Hệ thống Gửi Mail Tự Động (Java Mail Sender)**: Async Thread tự động gửi email HTML chứa Vé Điện Tử khi khách hàng thanh toán thành công.
+*   📊 **Xử lý Dữ liệu Thống kê (Data Analytics)**: Cung cấp API trích xuất doanh thu theo tháng, số lượng chuyến đi, cơ cấu người dùng cho Dashboard Frontend.
+*   ☁️ **Cloud Storage**: Lưu trữ hình ảnh người dùng, xe khách trên Cloudinary thay vì server local.
 
-### Frontend
-![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![React Router](https://img.shields.io/badge/React_Router-CA4245?style=for-the-badge&logo=react-router&logoColor=white)
-![Axios](https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=axios&logoColor=white)
-![TailwindCSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
-![ShadCN UI](https://img.shields.io/badge/Shadcn_UI-000000?style=for-the-badge&logo=shadcn&logoColor=white)
+## 🚀 CÀI ĐẶT VÀ CHẠY DỰ ÁN LÊN SERVER
 
-### Backend
-![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
-![REST API](https://img.shields.io/badge/REST-02569B?style=for-the-badge&logo=rest&logoColor=white)
+### Yêu cầu hệ thống
+*   JDK 17 (Java Development Kit)
+*   Apache Maven
+*   MySQL (Khuyến nghị dùng Aiven Cloud MySQL)
+*   Tomcat 10 (Nếu muốn deploy qua `.war`)
 
-### Database
-![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
-
-### Others
-![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)
-![PayPal](https://img.shields.io/badge/PayPal-00457C?style=for-the-badge&logo=paypal&logoColor=white)
-
-### Database
-<img width="996" height="839" alt="image" src="https://github.com/user-attachments/assets/41515bcd-61ab-4cf3-bf0f-5cc3f35f708e" />
-
-
-## ⚙️ Configuration
-
-### **Backend (Spring Boot)**
-- IDE: **NetBeans 15+** (hoặc IntelliJ / Eclipse nếu cần)
-- Java version: **JDK 17+**
-- Build tool: **Maven**
-- Application server: Embedded **Tomcat**
-- Dependencies: Spring Boot, Spring Security (JWT), Spring Data JPA, MySQL Connector
-- Database: **MySQL 8.0+**
-  - Create a database named: `car_management`
-  - Update your `application.properties` (or `application.yml`):
-    ```properties
-    spring.datasource.url=jdbc:mysql://localhost:3306/car_management?useSSL=false&serverTimezone=UTC
-    spring.datasource.username=root
-    spring.datasource.password=your_password
-    spring.jpa.hibernate.ddl-auto=update
-    spring.jpa.show-sql=true
-    spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
-    jwt.secret=your_jwt_secret
-    ```
-
-### **Frontend (ReactJS)**
-- IDE: **Visual Studio Code**
-- Node.js: **v18+**
-- Package manager: **npm** hoặc **yarn**
-- Dependencies: React, React Router, Axios, TailwindCSS, ShadCN UI
-- Run the project:
-  ```bash
-  cd frontend
-  yarn install
-  yarn start
-
-
-##  Installation
-
-- Clone the repository:
+### Các bước cài đặt
+1. **Clone repository:**
    ```bash
-   git clone https://github.com/your-username/car-management-app.git   
-   cd car-management-app
+   git clone https://github.com/Tranloc12/DoAnNganhQuanLiXeKhach.git
+   ```
+2. **Cấu hình Cơ Sở Dữ Liệu:**
+   Mở file `src/main/resources/application.properties` (hoặc `HibernateConfigs.java` / `database.properties`) và thay đổi các thông số kết nối MySQL của bạn.
+   ```properties
+   jdbc.driver=com.mysql.cj.jdbc.Driver
+   jdbc.url=jdbc:mysql://localhost:3306/carmanagementdb
+   jdbc.username=root
+   jdbc.password=
+   ```
+3. **Cấu hình Email (Để dùng tính năng Auto-Mailer):**
+   Mở file `src/main/resources/mail.properties` và nhập tài khoản Gmail cùng `App Password` của bạn.
+   ```properties
+   mail.host=smtp.gmail.com
+   mail.port=587
+   mail.username=your_email@gmail.com
+   mail.password=your_app_password
+   ```
+4. **Build Dự án bằng Maven:**
+   ```bash
+   mvn clean install
+   ```
+5. **Chạy Dự án (Spring Boot / Tomcat):**
+   Nếu sử dụng IDE (IntelliJ / Eclipse), bạn có thể thêm server Tomcat và Run Artifact `CarManagementApp:war`.
+   API mặc định sẽ chạy ở port `8080`.
 
-## 📜 License
+## 📚 TÀI LIỆU API (API Documentation)
+Hệ thống sử dụng các đường dẫn gốc `/api/*`. Ví dụ:
+*   `POST /api/login`: Đăng nhập & lấy JWT Token.
+*   `GET /api/trips`: Lấy danh sách chuyến đi.
+*   `POST /api/bookings`: Đặt vé mới.
+*   `GET /api/statistics/revenue`: Thống kê doanh thu.
 
-This project is licensed under the **MIT License** – see the [LICENSE](LICENSE) file for details.
+*(Yêu cầu truyền Token vào Header `Authorization: Bearer <token>` với các endpoint cần bảo mật).*
 
+## 👨‍💻 CÔNG NGHỆ BỔ TRỢ
+*   **Thanh toán:** VNPay API, PayPal SDK
+*   **Bảo mật:** Spring Security, Nimbus JOSE JWT
+*   **Thông báo:** Firebase Admin SDK
+*   **Format JSON:** Jackson Datatype JSR310
+
+---
+*Phát triển bởi Nhóm 12 - Đồ án chuyên ngành.*
