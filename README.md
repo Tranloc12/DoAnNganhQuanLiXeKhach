@@ -1,9 +1,9 @@
 <div align="center">
   <img src="https://spring.io/images/spring-logo-9146a4d3298760c2e7e49595184e1975.svg" alt="Spring Logo" width="180" style="margin-bottom: 25px;"/>
   
-  <h1 align="center" style="font-weight: 300; letter-spacing: 2px;">TRANSPORTATION MANAGEMENT SYSTEM</h1>
+  <h1 align="center" style="font-weight: 300; letter-spacing: 2px;">HỆ THỐNG QUẢN LÝ XE KHÁCH CAO CẤP</h1>
   <p align="center" style="font-size: 1.1em; color: #666; font-style: italic;">
-    — BACKEND API & DATA SERVICES —
+    — PHÂN HỆ HỆ THỐNG MÁY CHỦ (BACKEND API SERVER) —
   </p>
 
   <p align="center" style="margin-top: 20px;">
@@ -16,12 +16,45 @@
 
 <br/>
 
-## 1. PROJECT OVERVIEW
-This repository contains the backend infrastructure for the Transportation Management System. Engineered using an N-Tier architecture, it provides a highly secure, scalable, and resilient RESTful API layer that orchestrates complex business logic, transactional integrity, and third-party integrations.
+## 1. TỔNG QUAN DỰ ÁN
+Đây là kho lưu trữ mã nguồn Backend cho Đồ án **Hệ Thống Quản Lý Bến Xe Khách**. Hệ thống máy chủ được xây dựng trên nền tảng Java Spring, tuân thủ nghiêm ngặt các quy chuẩn thiết kế RESTful API, bảo mật đa lớp và tối ưu hóa truy vấn cơ sở dữ liệu để phục vụ cho các ứng dụng đa nền tảng (Web/Mobile).
 
-## 2. SYSTEM ARCHITECTURE
+---
 
-The backend is structured to isolate business logic from data access and presentation layers, ensuring modularity and ease of testing.
+## 2. CHI TIẾT CÁC TÍNH NĂNG & DỊCH VỤ CỐT LÕI (CORE SERVICES)
+
+Backend là nơi xử lý toàn bộ nghiệp vụ logic phức tạp của hệ thống, bao gồm các module chính:
+
+### 🛡️ Module Quản trị Định danh & Bảo mật (Auth & Security)
+- **Cơ chế Token (Stateless JWT):** Sử dụng `Nimbus JOSE JWT` để mã hóa và giải mã phiên đăng nhập.
+- **Phân quyền phân tầng (Role-Based Access Control):** 
+  - Khởi tạo 5 cấp độ quyền (ADMIN, MANAGER, STAFF, DRIVER, PASSENGER).
+  - Bảo vệ các Endpoints quan trọng thông qua Filters của Spring Security.
+
+### 💰 Module Giao dịch & Cổng thanh toán (Payment Processing)
+- **Tích hợp PayPal SDK:** Xử lý thanh toán quốc tế qua đồng USD, cung cấp API gọi trực tiếp đến PayPal Checkout và xử lý Callback.
+- **Tích hợp VNPay API:** Sử dụng thuật toán `HmacSHA512` mã hóa chữ ký điện tử (Checksum) chống tấn công giả mạo dữ liệu thanh toán.
+
+### 🚌 Module Nghiệp vụ Vận tải (Transport Logistics)
+- Cung cấp toàn bộ các API (CRUD) để quản lý:
+  - **Tuyến đường & Trạm trung chuyển:** Quản lý điểm đi, điểm đến và các trạm dừng chân.
+  - **Xe khách & Đội xe:** Quản lý biển số, sơ đồ giường nằm/ghế ngồi.
+  - **Chuyến xe (Trips):** Gán lịch trình, gán tài xế, quản lý số ghế trống realtime.
+  - **Vé xe (Bookings):** Khởi tạo mã vé, tính toán giá tiền (bao gồm logic áp dụng Voucher giảm giá), ghi nhận thanh toán.
+
+### 📧 Module Tự động hóa Dịch vụ (Automation & Cloud)
+- **Tự động gửi Email (Auto-Mailer):** Cấu hình `Java Mail Sender` chạy trên luồng bất đồng bộ (Async Thread) để gửi **Vé Điện Tử (HTML Template)** ngay lập tức sau khi có Callback thanh toán thành công.
+- **Lưu trữ Đám mây (Cloud Storage):** API upload trực tiếp hình ảnh (Avatar, Xe) lên máy chủ **Cloudinary CDN**, giảm tải lưu trữ cho database.
+
+### 📊 Module Phân tích Dữ liệu (Data Analytics)
+- Thực thi các câu lệnh **HQL (Hibernate Query Language)** phức tạp nhằm kết xuất dữ liệu thống kê:
+  - Tính tổng doanh thu theo tháng/năm.
+  - Thống kê tỷ lệ loại vé và tỷ lệ người dùng hệ thống.
+  - Trả về JSON phục vụ chức năng xuất báo cáo CSV cho Frontend.
+
+---
+
+## 3. KIẾN TRÚC MÁY CHỦ (SYSTEM ARCHITECTURE)
 
 ```mermaid
 graph TD
@@ -31,113 +64,78 @@ graph TD
     classDef service fill:#f0fdf4,stroke:#6DB33F,stroke-width:1px,color:#1a1410,rx:5px,ry:5px;
     classDef repo fill:#f8f9fa,stroke:#59666C,stroke-width:1px,color:#1a1410,rx:5px,ry:5px;
     classDef db fill:#4479A1,stroke:#007396,stroke-width:2px,color:#ffffff,rx:5px,ry:5px;
-    classDef external fill:#59666C,stroke:#333333,stroke-width:1px,color:#ffffff,rx:5px,ry:5px;
-
-    %% Nodes
-    Client((Frontend / Mobile App)):::client
+    
+    Client((Frontend / App)):::client
     
     subgraph Presentation Layer
-        Security[Spring Security & JWT Filter]:::controller
+        Security[Spring Security Filter]:::controller
         API[REST Controllers]:::controller
     end
     
     subgraph Business Logic Layer
-        BookingSvc[Booking Service]:::service
-        PaymentSvc[Payment Service]:::service
-        NotificationSvc[Async Notification Service]:::service
+        AuthSvc[Xác thực & Token]:::service
+        BookingSvc[Xử lý Đặt vé & VNPay]:::service
+        MailSvc[Gửi Mail Bất đồng bộ]:::service
     end
     
     subgraph Data Access Layer
-        Hibernate[Hibernate ORM / Repositories]:::repo
+        Hibernate[Hibernate Repositories]:::repo
     end
     
     DB[(MySQL Database)]:::db
-    
-    subgraph Third-Party Integrations
-        VNPay[VNPay Gateway]:::external
-        Mail[SMTP Mail Server]:::external
-        Cloudinary[Cloudinary CDN]:::external
-    end
 
-    %% Connections
-    Client -->|HTTPS Requests| Security
-    Security -->|Validates Token| API
-    API -->|DTOs| BookingSvc
-    API -->|DTOs| PaymentSvc
+    Client -->|API Requests| Security
+    Security -->|Xác thực hợp lệ| API
+    API --> AuthSvc
+    API --> BookingSvc
+    BookingSvc --> MailSvc
     
+    AuthSvc --> Hibernate
     BookingSvc --> Hibernate
-    PaymentSvc --> Hibernate
-    BookingSvc -->|Fires Event| NotificationSvc
-    
-    Hibernate -->|HQL / SQL| DB
-    PaymentSvc -->|Checksum Validation| VNPay
-    NotificationSvc -->|HTML Templates| Mail
-    API -->|Multipart Upload| Cloudinary
+    Hibernate --> DB
 ```
 
-## 3. CORE CAPABILITIES
+---
 
-### Identity & Access Management (IAM)
-*   **Stateless Authentication**: Implemented via JSON Web Tokens (JWT) adhering to the Nimbus JOSE standard.
-*   **Granular Role-Based Access Control (RBAC)**: Enforced endpoint security across multiple roles (`ADMIN`, `MANAGER`, `STAFF`, `DRIVER`, `PASSENGER`).
+## 4. HƯỚNG DẪN TRIỂN KHAI
 
-### Transaction & Payment Processing
-*   **Secure Payment Integrations**: Native SDK integration for PayPal and cryptographic signature (HmacSHA512) validation for VNPay transactions, guaranteeing financial data integrity.
+### Yêu cầu cấu hình
+- **Java 17 (JDK)**
+- **Apache Maven 3.8+**
+- **MySQL 8.0+**
 
-### Asynchronous Operations
-*   **Automated Email Dispatch**: Utilizes Java Mail Sender operating on dedicated background threads to instantly deliver HTML-formatted digital tickets upon successful payment verification without blocking the main request thread.
+### Các bước cài đặt
 
-### Advanced Analytics Engine
-*   **Complex Aggregation**: Optimized Hibernate Query Language (HQL) executions to aggregate monthly revenue, passenger demographics, and route popularities for executive dashboard rendering.
-
-## 4. DIRECTORY STRUCTURE
-
-```text
-src/main/java/com/nhom12/
-├── configs/              # Framework configurations (Security, Mail, DB)
-├── controllers/          # RESTful API Endpoints
-├── dto/                  # Data Transfer Objects for Request/Response mapping
-├── pojo/                 # Plain Old Java Objects (Hibernate Entities)
-├── repositories/         # Data Access Objects interface and implementation
-├── services/             # Core business logic implementation
-└── utils/                # Cryptography, JWT generation, and generic helpers
+**1. Clone mã nguồn:**
+```bash
+git clone https://github.com/Tranloc12/DoAnNganhQuanLiXeKhach.git
 ```
 
-## 5. DEPLOYMENT GUIDE
+**2. Thiết lập Môi trường (Cơ sở dữ liệu & Email):**
+Bạn cần thay đổi thông tin kết nối DB và Email SMTP trong các file cấu hình tại thư mục `src/main/resources/`:
+```properties
+# Trong application.properties / HibernateConfigs.java
+jdbc.url=jdbc:mysql://[HOST]:3306/carmanagementdb
+jdbc.username=your_username
+jdbc.password=your_password
 
-### Prerequisites
-*   Java Development Kit (JDK) 17
-*   Apache Maven 3.8+
-*   MySQL 8.0+ Server
+# Trong mail.properties
+mail.username=tài-khoản-gmail-của-bạn@gmail.com
+mail.password=mã-app-password-của-gmail
+```
 
-### Configuration Steps
-1. **Database Setup**: Modify database credentials in `src/main/resources/application.properties` or your specific configuration class (`HibernateConfigs.java`).
-   ```properties
-   jdbc.driver=com.mysql.cj.jdbc.Driver
-   jdbc.url=jdbc:mysql://[HOST]:3306/carmanagementdb
-   jdbc.username=your_username
-   jdbc.password=your_password
-   ```
-
-2. **SMTP Setup (For Automated Ticketing)**: Update your mail properties. Note: Use an App Password if utilizing Gmail.
-   ```properties
-   mail.host=smtp.gmail.com
-   mail.port=587
-   mail.username=your_email@gmail.com
-   mail.password=your_app_password
-   ```
-
-3. **Build & Execute**:
-   ```bash
-   # Clean and build the artifact
-   mvn clean install
-   ```
-   Deploy the resulting `CarManagementApp:war` artifact to an application server such as Apache Tomcat. The default port is `8080`.
+**3. Khởi chạy Ứng dụng:**
+Sử dụng IDE (IntelliJ IDEA/Eclipse) để cấu hình **Tomcat Server** và build artifact `CarManagementApp:war`.
+Hoặc chạy lệnh Maven qua terminal:
+```bash
+mvn clean install
+```
+Server mặc định sẽ chạy ở port `8080`.
 
 <br/>
 <div align="center">
   <hr style="width: 50%; border: 1px solid #eaeaea;" />
   <p style="color: #888; font-size: 0.9em; margin-top: 20px;">
-    <i>Architected for Scalability, Designed for Excellence.</i>
+    <i>Kiến trúc vững chắc, Bảo mật tuyệt đối.</i>
   </p>
 </div>
