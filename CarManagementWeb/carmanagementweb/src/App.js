@@ -16,6 +16,7 @@ import { getValidToken, handleAuthError } from "./utils/authUtils";
 import { ChatProvider } from "./contexts/ChatContext";
 import ChatButton from "./components/chat/ChatButton";
 import ChatPopup from "./components/chat/ChatPopup";
+import AIAssistant from "./components/chat/AIAssistant";
 import DateTest from "./components/DateTest";
 import ChatDemo from "./components/ChatDemo";
 import AddTrainingProgress from "./components/trainer/AddTrainingProgress";
@@ -406,6 +407,9 @@ const App = () => {
                     <ChatPopup />
                   </>
                 )}
+
+                {/* Trợ lý AI - Hiển thị cho mọi người */}
+                <AIAssistant />
               </>
             </BrowserRouter>
           </ChatProvider>

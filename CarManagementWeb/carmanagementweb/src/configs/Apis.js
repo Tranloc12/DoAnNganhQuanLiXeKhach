@@ -2,7 +2,17 @@ import axios from "axios";
 import { getValidToken } from "../utils/authUtils";
 
 // Cấu hình BASE_URL dựa trên environment
-const BASE_URL = process.env.REACT_APP_API_URL || "https://doannganhquanlixekhach.onrender.com/api";
+let BASE_URL = process.env.REACT_APP_API_URL || "https://doannganhquanlixekhach.onrender.com/api";
+
+// Tự động ép kiểu HTTP sang HTTPS để sửa lỗi Mixed Content trên Vercel
+if (BASE_URL.startsWith("http://") && !BASE_URL.includes("localhost")) {
+    BASE_URL = BASE_URL.replace("http://", "https://");
+}
+
+// Đảm bảo luôn có hậu tố /api
+if (!BASE_URL.endsWith("/api") && !BASE_URL.endsWith("/api/")) {
+    BASE_URL = BASE_URL.endsWith("/") ? BASE_URL + "api" : BASE_URL + "/api";
+}
 
 export const endpoints = {
   register: "/register",
@@ -95,11 +105,10 @@ export const endpoints = {
   tripTransfers: "/triptransfers", // GET all, POST
   tripTransferDetail: (id) => `/triptransfers/${id}`,
 
-
-
-
-
-
+  // --- Statistics APIs ---
+  statisticsRevenue: "/statistics/revenue",
+  statisticsTrips: "/statistics/trips",
+  statisticsUsers: "/statistics/users",
 };
 
 console.log("Endpoints in Apis.js:", endpoints);

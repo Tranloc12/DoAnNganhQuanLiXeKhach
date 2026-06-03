@@ -27,6 +27,8 @@ const SeatBooking = () => {
     const [selectedPaymentMethod, setSelectedPaymentMethod] = useState("vietqr"); // Default selected
     const [remainingTime, setRemainingTime] = useState(1200); // 1200 giây = 20 phút
     const [bookingId, setBookingId] = useState(null); // Lưu bookingId sau khi đặt vé thành công
+    const [promoCode, setPromoCode] = useState("");
+    const [discount, setDiscount] = useState(0);
 
     const [transferPoints, setTransferPoints] = useState([]); // New state for transfer points
     const [shuttle, setShuttle] = useState({
@@ -131,7 +133,8 @@ const SeatBooking = () => {
     };
 
     const getQrCodeValue = () => {
-        const total = (selectedSeats.length * (trip?.fare || 0));
+        const baseTotal = (selectedSeats.length * (trip?.fare || 0));
+        const total = baseTotal - (baseTotal * discount);
         const baseValue = `Thanh toán chuyến ${trip?.routeName || ""}, ghế: ${selectedSeats.join(", ")}`;
 
         // Nội dung QR code tùy thuộc vào phương thức thanh toán
@@ -307,9 +310,7 @@ const SeatBooking = () => {
             const bookingResponse = await authApis().post(endpoints.bookings, {
                 tripId: trip.id,
                 numberOfSeats: numberOfSeats,
-                seatNumbers: selectedSeats.join(","),
-                pickupPoint: pickupTransferPointId,
-                dropoffPoint: dropoffTransferPointId,
+                seatNumbers: selectedSeats.join(",")
             });
 
             const newBookingId = bookingResponse.data.id || bookingResponse.data.bookingId;
@@ -403,7 +404,8 @@ const SeatBooking = () => {
         setMessage("Đang khởi tạo giao dịch PayPal...");
 
         try {
-            const totalAmount = selectedSeats.length * (trip?.fare || 0);
+            const baseTotal = selectedSeats.length * (trip?.fare || 0);
+            const totalAmount = baseTotal - (baseTotal * discount);
             if (totalAmount <= 0 || isNaN(totalAmount)) {
                 setMessage("Lỗi: Tổng số tiền thanh toán không hợp lệ.");
                 setLoading(false);
@@ -480,6 +482,20 @@ const SeatBooking = () => {
             await initiatePayPalPayment();
         } else {
             setMessage(`Vui lòng hoàn tất thanh toán bằng phương thức ${selectedPaymentMethod}. Quét mã QR hoặc làm theo hướng dẫn.`);
+        }
+    };
+
+    const handleApplyPromoCode = () => {
+        if (promoCode.toUpperCase() === 'SALE20') {
+            setDiscount(0.2);
+            setMessage('Áp dụng mã giảm giá SALE20 thành công! (Giảm 20%)');
+        } else if (promoCode.toUpperCase() === 'GIAM50K') {
+            // Giả lập giảm cứng 50k, nhưng ở đây dùng logic % cho dễ
+            setDiscount(0.1); 
+            setMessage('Áp dụng mã giảm giá thành công! (Giảm 10%)');
+        } else {
+            setDiscount(0);
+            setMessage('Mã giảm giá không hợp lệ hoặc đã hết hạn.');
         }
     };
 
@@ -624,10 +640,20 @@ const SeatBooking = () => {
                     <div className="order-summary">
                         <div className="info-card">
                             <div className="flex justify-between items-center mb-2">
-                                <span className="font-semibold">Tổng thanh toán</span>
-                                <span className="text-2xl font-bold text-red-600"> {(selectedSeats.length * (trip?.fare || 0)).toLocaleString('vi-VN')}đ</span>
+                                <span className="font-semibold">Tạm tính</span>
+                                <span className="text-xl font-bold text-gray-700"> {(selectedSeats.length * (trip?.fare || 0)).toLocaleString('vi-VN')}đ</span>
                             </div>
-                            <div className="flex justify-between items-center">
+                            {discount > 0 && (
+                                <div className="flex justify-between items-center mb-2">
+                                    <span className="font-semibold text-green-600">Giảm giá ({(discount * 100)}%)</span>
+                                    <span className="text-xl font-bold text-green-600"> -{((selectedSeats.length * (trip?.fare || 0)) * discount).toLocaleString('vi-VN')}đ</span>
+                                </div>
+                            )}
+                            <div className="flex justify-between items-center mb-2 border-t pt-2">
+                                <span className="font-semibold">Tổng thanh toán</span>
+                                <span className="text-2xl font-bold text-red-600"> {((selectedSeats.length * (trip?.fare || 0)) * (1 - discount)).toLocaleString('vi-VN')}đ</span>
+                            </div>
+                            <div className="flex justify-between items-center mt-4">
                                 <span className="font-semibold">Thời gian giữ chỗ còn lại</span>
                                 <span className="font-mono text-lg text-blue-700">
                                     {formatTime(remainingTime)}
@@ -790,10 +816,32 @@ const SeatBooking = () => {
                                     fontSize: 22,
                                     boxShadow: "0 2px 8px rgba(229,57,53,0.07)"
                                 }}>
-                                    {(selectedSeats.length * (trip?.fare || 0)).toLocaleString('vi-VN')} VNĐ
+                                    {((selectedSeats.length * (trip?.fare || 0)) * (1 - discount)).toLocaleString('vi-VN')} VNĐ
                                 </span>
                             </div>
                         </div>
+                        
+                        {/* VOUCHER INPUT */}
+                        <div className="mt-4 p-4 border border-green-200 rounded-xl" style={{ background: '#f0fdf4' }}>
+                            <h4 className="text-sm font-bold text-green-800 mb-2"><i className="fa-solid fa-ticket"></i> Mã giảm giá / Voucher</h4>
+                            <div className="flex gap-2">
+                                <input 
+                                    type="text" 
+                                    placeholder="Nhập SALE20..." 
+                                    value={promoCode}
+                                    onChange={(e) => setPromoCode(e.target.value)}
+                                    className="border border-green-300 rounded-lg px-3 py-2 flex-1 outline-none text-sm uppercase"
+                                />
+                                <button 
+                                    onClick={handleApplyPromoCode}
+                                    className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition"
+                                >
+                                    Áp dụng
+                                </button>
+                            </div>
+                            {discount > 0 && <div className="text-green-600 text-xs mt-2 font-bold">Đã áp dụng giảm {discount * 100}%!</div>}
+                        </div>
+
                         {currentStep === 0 && ( // Chỉ hiển thị nút "Tiếp tục" ở bước chọn ghế
                             <button
                                 onClick={() => setCurrentStep(1)} // Chuyển sang bước nhập thông tin khách hàng
