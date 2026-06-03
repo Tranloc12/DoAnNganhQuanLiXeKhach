@@ -7,6 +7,7 @@ import com.nhom12.pojo.User;
 import com.nhom12.services.BookingService;
 import com.nhom12.services.TripService;
 import com.nhom12.services.UserService;
+import com.nhom12.services.EmailService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,6 +29,9 @@ public class ApiBookingController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     // Lấy tất cả booking (có thể thêm param lọc)
     @GetMapping
@@ -97,6 +101,42 @@ public class ApiBookingController {
         if (booking == null) {
             return ResponseEntity.status(500).body("Đặt chỗ thất bại. Vui lòng kiểm tra log server.");
         }
+
+        // Gửi email xác nhận
+        try {
+            String subject = "Xác nhận đặt vé thành công - Mã vé #" + booking.getId();
+            String routeName = trip.getRouteId() != null ? trip.getRouteId().getRouteName() : "N/A";
+            String departureTime = trip.getDepartureTime() != null ? trip.getDepartureTime().toString() : "N/A";
+            
+            String htmlBody = "<div style='font-family: Arial, sans-serif; padding: 20px; border: 1px solid #ddd; max-width: 600px; margin: 0 auto;'>"
+                    + "<div style='text-align: center; margin-bottom: 20px;'>"
+                    + "<h2 style='color: #e8832a;'>Xác Nhận Đặt Vé Thành Công</h2>"
+                    + "</div>"
+                    + "<p>Xin chào <strong>" + user.getUsername() + "</strong>,</p>"
+                    + "<p>Cảm ơn bạn đã tin tưởng sử dụng dịch vụ của XeKhách. Dưới đây là thông tin vé điện tử của bạn:</p>"
+                    + "<table style='width: 100%; border-collapse: collapse; margin-top: 15px;'>"
+                    + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Mã vé:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>#" + booking.getId() + "</td></tr>"
+                    + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Tuyến đường:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" + routeName + "</td></tr>"
+                    + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Ngày khởi hành:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" + departureTime + "</td></tr>"
+                    + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Số ghế:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" + booking.getSeatNumbers() + "</td></tr>"
+                    + "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Tổng tiền:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee; color: #16a34a; font-weight: bold;'>" + String.format("%,d", booking.getTotalAmount() != null ? booking.getTotalAmount().longValue() : 0) + " VND</td></tr>"
+                    + "</table>"
+                    + "<p style='margin-top: 20px;'>Vui lòng đến bến xe trước 30 phút để hoàn tất thủ tục.</p>"
+                    + "<p style='color: #888; font-size: 12px; margin-top: 30px; border-top: 1px solid #eee; padding-top: 10px;'>Đây là email tự động, vui lòng không phản hồi.</p>"
+                    + "</div>";
+
+            // Có thể dùng một thread riêng để không block request
+            new Thread(() -> {
+                try {
+                    emailService.sendHtmlEmail(user.getEmail(), subject, htmlBody);
+                } catch (Exception e) {
+                    System.err.println("Failed to send email async: " + e.getMessage());
+                }
+            }).start();
+        } catch (Exception e) {
+            System.err.println("Failed to initiate email sending: " + e.getMessage());
+        }
+
         return ResponseEntity.ok(booking);
     }
 
