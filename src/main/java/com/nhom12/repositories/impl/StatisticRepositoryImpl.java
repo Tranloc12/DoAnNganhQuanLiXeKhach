@@ -24,47 +24,62 @@ public class StatisticRepositoryImpl implements StatisticRepository {
     @Override
     public long countActiveMembers() {
         Session session = sessionFactory.getCurrentSession();
-        return session.createQuery("SELECT COUNT(*) FROM User WHERE userRole = :role", Long.class)
-                .setParameter("role", "ROLE_PASSENGER")
+        return session.createQuery("SELECT COUNT(*) FROM User WHERE userRole = :role AND isActive = :active", Long.class)
+                .setParameter("role", "ROLE_MEMBER")
+                .setParameter("active", true)
                 .getSingleResult();
     }
 
     @Override
     public double calculateTotalRevenue() {
         Session session = sessionFactory.getCurrentSession();
+
+        // Nhận kiểu Double, không ép kiểu BigDecimal
         Double revenue = (Double) session.createQuery(
-                "SELECT SUM(b.totalAmount) FROM Booking b WHERE b.paymentStatus = :status")
-                .setParameter("status", "Paid")
+                "SELECT SUM(p.price) FROM Payment p WHERE p.status = :status")
+                .setParameter("status", "COMPLETED")
                 .uniqueResult();
-        return revenue != null ? revenue : 0.0;
+
+        if (revenue != null && revenue > 0) {
+            return revenue;
+        }
+
+        Double estimatedRevenue = (Double) session.createQuery(
+                "SELECT SUM(gp.price * (1 - COALESCE(gp.discount, 0) / 100)) FROM Subscription s JOIN s.packageId gp WHERE s.isActive = :active")
+                .setParameter("active", true)
+                .uniqueResult();
+
+        return estimatedRevenue != null ? estimatedRevenue : 0.0;
     }
 
     @Override
     public Map<String, Integer> getGymUsageByTimeSlot() {
         Session session = sessionFactory.getCurrentSession();
+
         List<Object[]> results = session.createQuery(
                 "SELECT "
                 + "CASE "
-                + "  WHEN HOUR(t.departureTime) BETWEEN 6 AND 11 THEN 'Sáng (6:00-11:59)' "
-                + "  WHEN HOUR(t.departureTime) BETWEEN 12 AND 17 THEN 'Chiều (12:00-17:59)' "
-                + "  WHEN HOUR(t.departureTime) BETWEEN 18 AND 23 THEN 'Tối (18:00-23:59)' "
-                + "  ELSE 'Đêm (0:00-5:59)' END, "
-                + "COUNT(t.id) "
-                + "FROM Trip t "
+                + "  WHEN HOUR(w.startTime) BETWEEN 6 AND 11 THEN 'Sáng (6:00-12:00)' "
+                + "  WHEN HOUR(w.startTime) BETWEEN 12 AND 17 THEN 'Chiều (12:00-18:00)' "
+                + "  WHEN HOUR(w.startTime) BETWEEN 18 AND 23 THEN 'Tối (18:00-23:00)' "
+                + "  ELSE 'Khác' END, "
+                + "COUNT(*) "
+                + "FROM Workout w JOIN w.subscriptionId s "
+                + "WHERE s.isActive = :active "
                 + "GROUP BY "
                 + "CASE "
-                + "  WHEN HOUR(t.departureTime) BETWEEN 6 AND 11 THEN 'Sáng (6:00-11:59)' "
-                + "  WHEN HOUR(t.departureTime) BETWEEN 12 AND 17 THEN 'Chiều (12:00-17:59)' "
-                + "  WHEN HOUR(t.departureTime) BETWEEN 18 AND 23 THEN 'Tối (18:00-23:59)' "
-                + "  ELSE 'Đêm (0:00-5:59)' END", Object[].class)
+                + "  WHEN HOUR(w.startTime) BETWEEN 6 AND 11 THEN 'Sáng (6:00-12:00)' "
+                + "  WHEN HOUR(w.startTime) BETWEEN 12 AND 17 THEN 'Chiều (12:00-18:00)' "
+                + "  WHEN HOUR(w.startTime) BETWEEN 18 AND 23 THEN 'Tối (18:00-23:00)' "
+                + "  ELSE 'Khác' END", Object[].class)
+                .setParameter("active", true)
                 .getResultList();
-        
-        Map<String, Integer> usage = new HashMap<>();
+        Map<String, Integer> gymUsage = new HashMap<>();
         for (Object[] row : results) {
             String timeSlot = (String) row[0];
-            Number count = (Number) row[1];
-            usage.put(timeSlot, count.intValue());
+            Number count = (Number) row[1]; // dùng Number để an toàn hơn với Long hoặc Integer
+            gymUsage.put(timeSlot, count.intValue());
         }
-        return usage;
+        return gymUsage;
     }
 }

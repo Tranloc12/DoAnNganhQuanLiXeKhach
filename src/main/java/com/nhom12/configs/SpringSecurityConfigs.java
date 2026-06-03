@@ -229,13 +229,7 @@ public class SpringSecurityConfigs {
         CorsConfiguration config = new CorsConfiguration();
 
         // Cho phép localhost và ngrok URLs
-        config.setAllowedOriginPatterns(List.of(
-                "http://localhost:*",
-                "https://localhost:*",
-                "https://*.ngrok.io",
-                "http://*.ngrok.io",
-                "https://*.ngrok-free.app",
-                "http://*.ngrok-free.app"));
+        config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         config.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         config.setExposedHeaders(List.of("Authorization"));
