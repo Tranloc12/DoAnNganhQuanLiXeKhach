@@ -88,6 +88,7 @@ public class SpringSecurityConfigs {
                 .authorizeHttpRequests(requests -> requests
                 // Public endpoints
 
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/register", "/api/login").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/upload-avatar").hasAnyRole("PASSENGER", "ADMIN", "MANAGER", "DRIVER")
                 .requestMatchers(HttpMethod.GET, "/api/buses", "/api/buses/**").permitAll()
