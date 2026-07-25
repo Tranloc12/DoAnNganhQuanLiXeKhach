@@ -90,6 +90,7 @@ public class SpringSecurityConfigs {
 
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/register", "/api/login").permitAll()
+                .requestMatchers("/api/chat/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/upload-avatar").hasAnyRole("PASSENGER", "ADMIN", "MANAGER", "DRIVER")
                 .requestMatchers(HttpMethod.GET, "/api/buses", "/api/buses/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/buses").hasAnyRole("ADMIN", "MANAGER", "STAFF")
