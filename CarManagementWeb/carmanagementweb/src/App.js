@@ -350,7 +350,7 @@ const App = () => {
                     {/* Admin only routes */}
                     <Route path="/statistics" element={
                       <ProtectedRoute allowedRoles={[ROLES.ADMIN]}>
-                        <Statistic />
+                        <AdminDashboard />
                       </ProtectedRoute>
                     } />
                     <Route path="/chat-demo" element={
