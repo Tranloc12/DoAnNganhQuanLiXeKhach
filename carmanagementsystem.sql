@@ -31,13 +31,13 @@ TRUNCATE TABLE `user`;
 -- Password mặc định: 123456 (BCrypt)
 -- ------------------------------------------------------
 INSERT INTO `user` (`id`, `username`, `password`, `email`, `role`, `created_at`, `avatar`) VALUES
-(1, 'admin', '$2a$10$wI5f67HhT18s3H9t961o1eIer.vO557.XNnO.j7A40P3wV/K3U4I6', 'admin@whiteluxury.vn', 'ADMIN', NOW(), 'https://res.cloudinary.com/dwyewwxl1/image/upload/v1727787498/admin_avatar.png'),
-(2, 'manager', '$2a$10$wI5f67HhT18s3H9t961o1eIer.vO557.XNnO.j7A40P3wV/K3U4I6', 'manager@whiteluxury.vn', 'MANAGER', NOW(), 'https://res.cloudinary.com/dwyewwxl1/image/upload/v1727787498/manager.png'),
-(3, 'staff1', '$2a$10$wI5f67HhT18s3H9t961o1eIer.vO557.XNnO.j7A40P3wV/K3U4I6', 'staff@whiteluxury.vn', 'STAFF', NOW(), NULL),
-(4, 'driver_hung', '$2a$10$wI5f67HhT18s3H9t961o1eIer.vO557.XNnO.j7A40P3wV/K3U4I6', 'hung.driver@whiteluxury.vn', 'DRIVER', NOW(), NULL),
-(5, 'driver_tuan', '$2a$10$wI5f67HhT18s3H9t961o1eIer.vO557.XNnO.j7A40P3wV/K3U4I6', 'tuan.driver@whiteluxury.vn', 'DRIVER', NOW(), NULL),
-(6, 'khachhang1', '$2a$10$wI5f67HhT18s3H9t961o1eIer.vO557.XNnO.j7A40P3wV/K3U4I6', 'khachhang1@gmail.com', 'PASSENGER', NOW(), NULL),
-(7, 'khachhang2', '$2a$10$wI5f67HhT18s3H9t961o1eIer.vO557.XNnO.j7A40P3wV/K3U4I6', 'khachhang2@gmail.com', 'PASSENGER', NOW(), NULL);
+(1, 'admin', '$2a$10$dnnQ/p.DiynV8eUoqStlrejnHz75NCaJaYceOSdih0meXyFyU8J/a', 'admin@whiteluxury.vn', 'ROLE_ADMIN', NOW(), 'https://res.cloudinary.com/dwyewwxl1/image/upload/v1727787498/admin_avatar.png'),
+(2, 'manager', '$2a$10$dnnQ/p.DiynV8eUoqStlrejnHz75NCaJaYceOSdih0meXyFyU8J/a', 'manager@whiteluxury.vn', 'ROLE_MANAGER', NOW(), 'https://res.cloudinary.com/dwyewwxl1/image/upload/v1727787498/manager.png'),
+(3, 'staff1', '$2a$10$dnnQ/p.DiynV8eUoqStlrejnHz75NCaJaYceOSdih0meXyFyU8J/a', 'staff@whiteluxury.vn', 'ROLE_STAFF', NOW(), NULL),
+(4, 'driver_hung', '$2a$10$dnnQ/p.DiynV8eUoqStlrejnHz75NCaJaYceOSdih0meXyFyU8J/a', 'hung.driver@whiteluxury.vn', 'ROLE_DRIVER', NOW(), NULL),
+(5, 'driver_tuan', '$2a$10$dnnQ/p.DiynV8eUoqStlrejnHz75NCaJaYceOSdih0meXyFyU8J/a', 'tuan.driver@whiteluxury.vn', 'ROLE_DRIVER', NOW(), NULL),
+(6, 'khachhang1', '$2a$10$dnnQ/p.DiynV8eUoqStlrejnHz75NCaJaYceOSdih0meXyFyU8J/a', 'khachhang1@gmail.com', 'ROLE_PASSENGER', NOW(), NULL),
+(7, 'khachhang2', '$2a$10$dnnQ/p.DiynV8eUoqStlrejnHz75NCaJaYceOSdih0meXyFyU8J/a', 'khachhang2@gmail.com', 'ROLE_PASSENGER', NOW(), NULL);
 
 INSERT INTO `passenger_info` (`userId`, `fullName`, `phoneNumber`, `address`, `loyaltyPoints`) VALUES
 (6, 'Nguyễn Văn Khách', '0901234567', 'Quận 1, TP.HCM', 1500),
