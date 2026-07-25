@@ -1,7 +1,10 @@
 {
-  "buildCommand": "cd CarManagementWeb/carmanagementweb && npm install && npm run build",
+  "buildCommand": "cd CarManagementWeb/carmanagementweb && npm install && CI=false npm run build",
   "outputDirectory": "CarManagementWeb/carmanagementweb/build",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
-  ]
+  ],
+  "env": {
+    "REACT_APP_API_URL": "https://doannganhquanlixekhach.onrender.com/api"
+  }
 }
