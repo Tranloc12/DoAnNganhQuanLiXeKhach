@@ -1,0 +1,45 @@
+/* Seat.css */
+.seat {
+    width: 50px;
+    height: 50px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 8px;
+    font-weight: bold;
+    user-select: none;
+    cursor: pointer;
+    transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    font-size: 0.9em;
+}
+
+.seat.sold {
+    background-color: #d1d1d1; /* Grey */
+    color: #888;
+    cursor: not-allowed;
+    box-shadow: none;
+}
+
+.seat.available {
+    background-color: #e0f2f7; /* Light blue */
+    border: 1px solid #a8d5ed;
+    color: #337ab7;
+}
+
+.seat.selected {
+    background-color: #ffe0e6; /* Pink */
+    border: 1px solid #ff99b3;
+    color: #d9534f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Hover effects */
+.seat.available:hover {
+    background-color: #cce7f2;
+}
+
+.seat.selected:hover {
+    background-color: #ffd1d1;
+}

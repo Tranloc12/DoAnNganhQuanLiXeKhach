@@ -1,0 +1,30 @@
+/* Legend.css */
+.legend {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Cho phép chú thích xuống dòng nếu màn hình nhỏ */
+    gap: 30px;
+    padding: 15px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    font-size: 14px;
+    color: #555;
+}
+
+.legend-color {
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    margin-right: 10px;
+    border: 1px solid rgba(0,0,0,0.1);
+}
+.legend-color.sold { background-color: #d1d1d1; }
+.legend-color.available { background-color: #e0f2f7; }
+.legend-color.selected { background-color: #ffe0e6; }

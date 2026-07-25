@@ -1,0 +1,478 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+
+
+footer {
+  background-color: #212529;
+  /* Dark background */
+  color: #f8f9fa;
+  /* Light text */
+  font-family: 'Arial', sans-serif;
+}
+
+footer h5 {
+  color: #ffffff;
+  margin-bottom: 1rem;
+}
+
+footer .text-muted {
+  color: #adb5bd !important;
+  /* Softer muted color */
+}
+
+footer .nav-link {
+  transition: color 0.3s ease;
+}
+
+footer .nav-link:hover {
+  color: #0d6efd !important;
+  /* Bootstrap primary color for hover */
+}
+
+.social-icon {
+  transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.social-icon:hover {
+  transform: scale(1.2);
+  color: #0d6efd;
+  /* Bootstrap primary color for hover */
+}
+
+/* Ensure footer sticks to bottom if content is short */
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+main {
+  flex: 1 0 auto;
+}
+
+footer {
+  flex-shrink: 0;
+}
+
+/* src/index.css */
+.navbar {
+  background: linear-gradient(90deg, #2c3e50, #3498db);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  padding: 10px 0;
+}
+
+.navbar-brand {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #fff !important;
+  transition: color 0.3s;
+}
+
+.navbar-brand:hover {
+  color: #f1c40f !important;
+}
+
+/* Add the rest of the styles from the previous response */
+.nav-link {
+  color: #fff !important;
+  font-size: 1.1rem;
+  margin: 0 10px;
+  transition: color 0.3s, transform 0.2s;
+}
+
+.nav-link:hover {
+  color: #f1c40f !important;
+  transform: translateY(-2px);
+}
+
+.dropdown-item {
+  color: #2c3e50 !important;
+  transition: background 0.3s, color 0.3s;
+}
+
+.dropdown-item:hover {
+  background: #3498db !important;
+  color: #fff !important;
+}
+
+.navbar-toggler {
+  border: none;
+  color: #fff !important;
+}
+
+.form-control {
+  border-radius: 20px;
+  border: none;
+  padding: 8px 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.3s;
+}
+
+.form-control:focus {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  outline: none;
+}
+
+.btn {
+  border-radius: 20px;
+  padding: 8px 20px;
+  font-weight: 500;
+  transition: transform 0.2s, background 0.3s;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.btn-danger {
+  background: #e74c3c;
+  border: none;
+}
+
+.btn-danger:hover {
+  background: #c0392b;
+}
+
+.user-avatar {
+  border-radius: 50%;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .navbar-nav {
+    background: rgba(0, 0, 0, 0.9);
+    padding: 10px;
+    border-radius: 10px;
+  }
+
+  .nav-link {
+    padding: 10px !important;
+  }
+
+  .form-inline {
+    margin-top: 10px;
+  }
+}
+
+/* src/components/Home.css */
+.home-page {
+  font-family: 'Arial', sans-serif;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+}
+
+.hero-section .carousel-item img {
+  height: 600px;
+  object-fit: cover;
+}
+
+.hero-section .carousel-caption {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.hero-section h1 {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-section p {
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.hero-section .btn {
+  border-radius: 25px;
+  padding: 10px 30px;
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+}
+
+.hero-section .btn:hover {
+  transform: scale(1.1);
+}
+
+/* Services Section */
+.services-section {
+  padding: 50px 0;
+  background: #f8f9fa;
+}
+
+.service-card {
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+}
+
+.service-card img {
+  height: 200px;
+  object-fit: cover;
+}
+
+.service-card .card-body {
+  text-align: center;
+}
+
+.service-card .btn {
+  border-radius: 20px;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+  padding: 50px 0;
+  background: #fff;
+}
+
+.testimonial-card {
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.testimonial-card h5 {
+  margin: 0;
+}
+
+.testimonial-card .text-muted {
+  font-size: 0.9rem;
+}
+
+/* Call-to-Action Section */
+.cta-section {
+  padding: 50px 0;
+  background: linear-gradient(90deg, #2c3e50, #3498db);
+  color: #fff;
+}
+
+.cta-section h2 {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.cta-section p {
+  font-size: 1.2rem;
+}
+
+.cta-section .btn {
+  border-radius: 25px;
+  padding: 10px 30px;
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+}
+
+.cta-section .btn:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hero-section .carousel-item img {
+    height: 400px;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+
+  .cta-section h2 {
+    font-size: 1.8rem;
+  }
+}
+
+/* src/components/Home.css */
+.home-page {
+  font-family: 'Arial', sans-serif;
+}
+
+/* Hero Section */
+.hero-section {
+  position: relative;
+}
+
+.hero-section .carousel-item img {
+  height: 600px;
+  object-fit: cover;
+}
+
+.hero-section .carousel-caption {
+  background: rgba(0, 0, 0, 0.5);
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.hero-section h1 {
+  font-size: 3rem;
+  font-weight: bold;
+  color: #fff;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.hero-section p {
+  font-size: 1.5rem;
+  color: #fff;
+}
+
+.hero-section .btn {
+  border-radius: 25px;
+  padding: 10px 30px;
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+}
+
+.hero-section .btn:hover {
+  transform: scale(1.1);
+}
+
+/* Services Section */
+.services-section {
+  padding: 50px 0;
+  background: #f8f9fa;
+}
+
+.service-card {
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+}
+
+.service-card img {
+  height: 200px;
+  object-fit: cover;
+}
+
+.service-card .card-body {
+  text-align: center;
+}
+
+.service-card .btn {
+  border-radius: 20px;
+}
+
+/* Testimonials Section */
+.testimonials-section {
+  padding: 50px 0;
+  background: #fff;
+}
+
+.testimonial-card {
+  border: none;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.testimonial-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  margin-right: 15px;
+}
+
+.testimonial-card h5 {
+  margin: 0;
+}
+
+.testimonial-card .text-muted {
+  font-size: 0.9rem;
+}
+
+/* Call-to-Action Section */
+.cta-section {
+  padding: 50px 0;
+  background: linear-gradient(90deg, #2c3e50, #3498db);
+  color: #fff;
+}
+
+.cta-section h2 {
+  font-size: 2.5rem;
+  font-weight: bold;
+}
+
+.cta-section p {
+  font-size: 1.2rem;
+}
+
+.cta-section .btn {
+  border-radius: 25px;
+  padding: 10px 30px;
+  font-size: 1.2rem;
+  transition: transform 0.3s;
+}
+
+.cta-section .btn:hover {
+  transform: scale(1.1);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .hero-section .carousel-item img {
+    height: 400px;
+  }
+
+  .hero-section h1 {
+    font-size: 2rem;
+  }
+
+  .hero-section p {
+    font-size: 1rem;
+  }
+
+  .cta-section h2 {
+    font-size: 1.8rem;
+  }
+}
+
+/* Package Card Styles */
+.cursor-pointer {
+  cursor: pointer !important;
+}
+
+.package-card-clickable {
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.package-card-clickable:hover {
+  border-color: #3498db;
+  box-shadow: 0 8px 16px rgba(52, 152, 219, 0.2);
+}
