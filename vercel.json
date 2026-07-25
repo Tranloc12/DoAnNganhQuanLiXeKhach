@@ -1,5 +1,6 @@
 {
-  "buildCommand": "cd CarManagementWeb/carmanagementweb && npm install && CI=false npm run build",
+  "installCommand": "cd CarManagementWeb/carmanagementweb && npm install",
+  "buildCommand": "cd CarManagementWeb/carmanagementweb && CI=false npm run build",
   "outputDirectory": "CarManagementWeb/carmanagementweb/build",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
