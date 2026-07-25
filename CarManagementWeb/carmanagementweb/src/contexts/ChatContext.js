@@ -157,26 +157,34 @@ export const ChatProvider = ({ children }) => {
   const startNewConversation = async (targetUser) => {
     if (!user) return;
 
+    const userIdStr = user.id ? user.id.toString() : 'guest';
+    const userNameStr = user.username || user.name || 'Người dùng';
+    const userRoleStr = user.userRole || 'ROLE_PASSENGER';
+
+    const targetIdStr = targetUser.id ? targetUser.id.toString() : 'support';
+    const targetNameStr = targetUser.name || 'Hỗ trợ';
+    const targetRoleStr = targetUser.role || 'ROLE_MANAGER';
+
     let conversationId;
 
     if (targetUser.isSupport) {
       // Support conversation
-      conversationId = ChatService.createSupportConversationId(user.id.toString(), user.userRole);
+      conversationId = ChatService.createSupportConversationId(userIdStr, userRoleStr);
     } else {
       // Direct conversation
-      conversationId = ChatService.createConversationId(user.id.toString(), targetUser.id.toString());
+      conversationId = ChatService.createConversationId(userIdStr, targetIdStr);
     }
 
     const newConversation = {
       id: conversationId,
       participants: {
-        [user.id]: {
-          name: user.username,
-          role: user.userRole
+        [userIdStr]: {
+          name: userNameStr,
+          role: userRoleStr
         },
-        [targetUser.id]: {
-          name: targetUser.name,
-          role: targetUser.role
+        [targetIdStr]: {
+          name: targetNameStr,
+          role: targetRoleStr
         }
       }
     };
@@ -191,11 +199,15 @@ export const ChatProvider = ({ children }) => {
     dispatch({ type: 'SET_LOADING', payload: true });
 
     try {
+      const senderId = user.id ? user.id.toString() : 'guest';
+      const senderName = user.username || user.name || 'Người dùng';
+      const senderRole = user.userRole || 'ROLE_PASSENGER';
+
       await ChatService.sendMessage(
         state.activeConversation.id,
-        user.id.toString(),
-        user.username,
-        user.userRole,
+        senderId,
+        senderName,
+        senderRole,
         message.trim()
       );
     } catch (error) {

@@ -157,95 +157,55 @@ class ChatService {
   // Lấy danh sách users để chat (trainers cho members, members cho trainers)
   async getAvailableUsers(currentUser) {
     try {
-      // Gọi API để lấy danh sách users
-      const { authApis, endpoints } = await import('../configs/Apis.js');
-
       const users = [];
+      const role = currentUser?.userRole;
 
-      if (currentUser.userRole === 'ROLE_MEMBER') {
-        // Members có thể chat với trainers và gửi support request
+      if (role === 'ROLE_PASSENGER' || role === 'ROLE_MEMBER') {
         users.push({
           id: 'support',
           name: 'Hỗ trợ khách hàng',
           role: 'ROLE_MANAGER',
           isSupport: true
         });
-
-        // Lấy danh sách trainers (nếu có API)
-        try {
-          const response = await authApis().get(endpoints['secure-trainers']);
-          if (response.data) {
-            response.data.forEach(trainer => {
-              users.push({
-                id: trainer.id.toString(),
-                name: trainer.username || trainer.name,
-                role: 'ROLE_TRAINER',
-                isSupport: false
-              });
-            });
-          }
-        } catch (error) {
-          console.log('Could not fetch trainers:', error);
-        }
-
-      } else if (currentUser.userRole === 'ROLE_TRAINER') {
-        // Trainers có thể chat với members và gửi support request
+      } else if (role === 'ROLE_DRIVER') {
+        users.push({
+          id: 'support',
+          name: 'Hỗ trợ tài xế',
+          role: 'ROLE_MANAGER',
+          isSupport: true
+        });
+      } else if (role === 'ROLE_STAFF') {
         users.push({
           id: 'support',
           name: 'Hỗ trợ nhân viên',
           role: 'ROLE_MANAGER',
           isSupport: true
         });
-
-        // Lấy danh sách members (nếu có API)
-        try {
-          const response = await authApis().get('/secure/progress/members');
-          if (response.data) {
-            response.data.forEach(member => {
-              users.push({
-                id: member.id.toString(),
-                name: member.username || member.name,
-                role: 'ROLE_MEMBER',
-                isSupport: false
-              });
-            });
-          }
-        } catch (error) {
-          console.log('Could not fetch members:', error);
-        }
-      } else if (currentUser.userRole === 'ROLE_MANAGER') {
-        // Managers don't need to start new conversations, they only respond to support requests
-        // No users to add for managers as they only see support conversations
+      } else if (role === 'ROLE_ADMIN' || role === 'ROLE_MANAGER') {
+        users.push({
+          id: 'support',
+          name: 'Hỗ trợ hệ thống',
+          role: 'ROLE_MANAGER',
+          isSupport: true
+        });
+      } else {
+        users.push({
+          id: 'support',
+          name: 'Hỗ trợ khách hàng',
+          role: 'ROLE_MANAGER',
+          isSupport: true
+        });
       }
 
       return users;
     } catch (error) {
       console.error('Error getting available users:', error);
-      // Fallback to support only
-      const users = [];
-      if (currentUser.userRole === 'ROLE_PASSENGER') {
-        users.push({
-          id: 'support',
-          name: 'Hỗ trợ khách hàng',
-          role: 'ROLE_MANAGER',
-          isSupport: true
-        });
-      } else if (currentUser.userRole === 'ROLE_STAFF') {
-        users.push({
-          id: 'support',
-          name: 'Hỗ trợ nhân viên',
-          role: 'ROLE_MANAGER',
-          isSupport: true
-        });
-      } else if (currentUser.userRole === 'ROLE_DRIVER') {
-        users.push({
-          id: 'support',
-          name: 'Hỗ trợ tài xế ',
-          role: 'ROLE_MANAGER',
-          isSupport: true
-        });
-      }
-      return users;
+      return [{
+        id: 'support',
+        name: 'Hỗ trợ khách hàng',
+        role: 'ROLE_MANAGER',
+        isSupport: true
+      }];
     }
   }
 
