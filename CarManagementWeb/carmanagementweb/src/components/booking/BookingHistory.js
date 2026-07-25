@@ -1,9 +1,11 @@
 // src/components/booking/BookingHistory.js
 import React, { useEffect, useState, useContext } from "react";
-import { Container, Table, Spinner, Alert, Card, Badge, Form, Row, Col, Button } from "react-bootstrap";
+import { Container, Table, Spinner, Alert, Card, Badge, Form, Row, Col, Button, Modal } from "react-bootstrap";
+import QRCode from "react-qr-code";
 import MyAxios, { authApis, endpoints } from "../../configs/Apis";
 import { MyUserContext } from "../../contexts/Contexts";
 import moment from "moment";
+import html2pdf from "html2pdf.js";
 
 // Định dạng ngày từ mảng [year, month, day, hour, minute]
 const formatArrayDate = (dateArray) => {
@@ -24,6 +26,33 @@ const BookingHistory = () => {
     const [filterRoute, setFilterRoute] = useState('');
     const [filterTripStatus, setFilterTripStatus] = useState('');
     const [filterPaymentStatus, setFilterPaymentStatus] = useState('');
+
+    // Modal state for QR code
+    const [showQR, setShowQR] = useState(false);
+    const [selectedTicket, setSelectedTicket] = useState(null);
+
+    const handleShowQR = (booking) => {
+        setSelectedTicket(booking);
+        setShowQR(true);
+    };
+
+    const handleCloseQR = () => {
+        setShowQR(false);
+        setSelectedTicket(null);
+    };
+
+    const handleDownloadPDF = () => {
+        const element = document.getElementById("ticket-content");
+        const opt = {
+            margin:       10,
+            filename:     `VeDienTu_${selectedTicket?.id}.pdf`,
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 },
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    };
 
     useEffect(() => {
         const fetchBookings = async () => {
@@ -160,6 +189,7 @@ const BookingHistory = () => {
                                     <th>Số tiền</th>
                                     <th>Thanh toán</th>
                                     <th>Trạng thái</th>
+                                    <th>Hành động</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -180,6 +210,11 @@ const BookingHistory = () => {
                                                 {booking.tripId?.status === 'Scheduled' ? 'Đã xác nhận' : 'Khác'}
                                             </Badge>
                                         </td>
+                                        <td>
+                                            <Button variant="outline-warning" size="sm" onClick={() => handleShowQR(booking)}>
+                                                <i className="fa-solid fa-qrcode me-1"></i> Xem vé
+                                            </Button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -187,6 +222,50 @@ const BookingHistory = () => {
                     </div>
                 </Card>
             )}
+
+            {/* Modal hiển thị Vé điện tử (QR Code) */}
+            <Modal show={showQR} onHide={handleCloseQR} centered>
+                <Modal.Header closeButton style={{ borderBottom: '1px solid rgba(0,0,0,0.05)' }}>
+                    <Modal.Title style={{ color: '#1a1410', fontWeight: 700 }}>
+                        <i className="fa-solid fa-ticket me-2" style={{ color: '#e8832a' }}></i>
+                        Vé Điện Tử
+                    </Modal.Title>
+                </Modal.Header>
+                <Modal.Body className="text-center p-4">
+                    {selectedTicket && (
+                        <div id="ticket-content" style={{ padding: '20px', background: '#fff', borderRadius: '12px' }}>
+                            <div style={{ background: '#fff', padding: '16px', display: 'inline-block', borderRadius: '12px', border: '1px solid rgba(0,0,0,0.1)', boxShadow: '0 4px 15px rgba(0,0,0,0.05)', marginBottom: '20px' }}>
+                                <QRCode 
+                                    value={`TICKET:${selectedTicket.id}|ROUTE:${selectedTicket.tripId?.routeId?.routeName}|SEAT:${selectedTicket.seatNumbers}|DATE:${formatArrayDate(selectedTicket.tripId?.departureTime)}`} 
+                                    size={200}
+                                    fgColor="#1a1410"
+                                />
+                            </div>
+                            <h5 style={{ fontWeight: 700, color: '#1a1410' }}>Mã vé: #{selectedTicket.id}</h5>
+                            <p style={{ color: '#5c4f3a', marginBottom: '8px' }}>
+                                <strong>Tuyến:</strong> {selectedTicket.tripId?.routeId?.routeName}
+                            </p>
+                            <p style={{ color: '#5c4f3a', marginBottom: '8px' }}>
+                                <strong>Ghế:</strong> {selectedTicket.seatNumbers}
+                            </p>
+                            <p style={{ color: '#5c4f3a', marginBottom: '0' }}>
+                                <strong>Khởi hành:</strong> {formatArrayDate(selectedTicket.tripId?.departureTime)}
+                            </p>
+                            <div style={{ marginTop: '20px', borderTop: '1px dashed #ccc', paddingTop: '10px', fontSize: '0.8rem', color: '#9c8c78' }}>
+                                Cảm ơn quý khách đã sử dụng dịch vụ của XeKhách. Vui lòng xuất trình mã QR này khi lên xe.
+                            </div>
+                        </div>
+                    )}
+                </Modal.Body>
+                <Modal.Footer style={{ borderTop: 'none', justifyContent: 'center', gap: '10px' }}>
+                    <Button variant="outline-secondary" onClick={() => window.print()}>
+                        <i className="fa-solid fa-print me-1"></i> In vé
+                    </Button>
+                    <Button variant="primary" onClick={handleDownloadPDF} style={{ background: 'linear-gradient(135deg, #e8832a, #f09a40)', border: 'none' }}>
+                        <i className="fa-solid fa-file-pdf me-1"></i> Tải file PDF
+                    </Button>
+                </Modal.Footer>
+            </Modal>
         </Container>
     );
 };

@@ -205,10 +205,31 @@ const Home = () => {
                     ))}
                 </div>
                 <div className="hero-content">
-                    <h1 className="hero-title">Tìm kiếm chuyến đi hoàn hảo của bạn</h1>
+                    <div className="hero-badge">
+                        <i className="fa-solid fa-crown"></i>
+                        <span>Premium Bus Travel Experience</span>
+                    </div>
+                    <h1 className="hero-title">
+                        Hành trình của bạn,{" "}<span className="highlight">sang trọng</span>{" "}hơn
+                    </h1>
+                    <div className="hero-divider"></div>
                     <p className="hero-subtitle">
-                        Khám phá và đặt vé xe khách một cách nhanh chóng và tiện lợi.
+                        Khám phá và đặt vé xe khách chất lượng cao — an toàn, tiện lợi và đẳng cấp.
                     </p>
+                    <div className="hero-stats">
+                        <div className="hero-stat">
+                            <span className="hero-stat-number">50+</span>
+                            <span className="hero-stat-label">Tuyến đường</span>
+                        </div>
+                        <div className="hero-stat">
+                            <span className="hero-stat-number">1000+</span>
+                            <span className="hero-stat-label">Khách hàng</span>
+                        </div>
+                        <div className="hero-stat">
+                            <span className="hero-stat-number">24/7</span>
+                            <span className="hero-stat-label">Hỗ trợ</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -286,9 +307,14 @@ const Home = () => {
 
             {/* Trips list */}
             <Container className="main-content">
-                <h2 className="section-title">
-                    {isSearching ? "Kết quả tìm kiếm" : "Các Chuyến đi Tiêu biểu"}
-                </h2>
+                <div className="section-title">
+                    <span className="section-title-gold">
+                        {isSearching ? "✨ Kết quả tìm kiếm" : "✨ Featured Journeys"}
+                    </span>
+                    <span className="section-title-serif">
+                        {isSearching ? "Chuyến đi phù hợp" : "Các Chuyến đi Tiêu biểu"}
+                    </span>
+                </div>
                 {loading ? (
                     <div className="text-center my-5">
                         <Spinner animation="border" variant="warning" role="status" />
@@ -370,12 +396,12 @@ const Home = () => {
                 )}
             </Container>
             <Container className="main-content">
-                <Card className="reviews-card mt-5 shadow-lg rounded-4">
-                    <Card.Body>
-                        <Card.Title className="reviews-card-title text-center mb-4 fs-3 fw-bold text-primary">
-                            <i className="fa-solid fa-star me-2 text-warning"></i>
-                            Đánh giá của Khách hàng
-                        </Card.Title>
+                <Card className="reviews-card mt-5">
+                    <Card.Body className="p-4 p-md-5">
+                        <div className="section-title" style={{marginBottom:'3rem'}}>
+                            <span className="section-title-gold">⭐ Customer Reviews</span>
+                            <span className="section-title-serif">Đánh giá của Khách hàng</span>
+                        </div>
 
                         {loadingReviews ? (
                             <div className="text-center my-4">

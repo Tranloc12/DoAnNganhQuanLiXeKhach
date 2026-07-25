@@ -16,17 +16,11 @@ import { getValidToken, handleAuthError } from "./utils/authUtils";
 import { ChatProvider } from "./contexts/ChatContext";
 import ChatButton from "./components/chat/ChatButton";
 import ChatPopup from "./components/chat/ChatPopup";
+import AIAssistant from "./components/chat/AIAssistant";
 import DateTest from "./components/DateTest";
 import ChatDemo from "./components/ChatDemo";
-import AddTrainingProgress from "./components/trainer/AddTrainingProgress";
-import MySubscription from "./components/member/MySubscription";
-import Statistic from "./components/manager/Statistics";
-import TrainerDashboard from "./components/trainer/TrainerDashboard";
-import MemberProgress from "./components/member/MemberProgress";
-import TrainerScheduleView from "./components/trainer/TrainerScheduleView";
 import ProtectedRoute from "./components/common/ProtectedRoute";
 import { ROLES } from "./utils/roleUtils";
-import CreateSubscription from "./components/CreateSubscription";
 import PaymentResult from "./components/PaymentResult";
 import BusList from "./components/bus/BusList";
 import TripList from "./components/trip/TripList";
@@ -65,6 +59,8 @@ import NotificationList from "./services/NotificationList.js";
 import BusStationList from "./components/busstation/BusStationList.js";
 import TransferPointList from "./components/transferPoint/TransferPointList.js";
 import TripTransferList from "./components/transferPoint/TripTransferList.js";
+import AdminDashboard from "./components/admin/AdminDashboard.js";
+import MyTickets from "./components/booking/MyTickets.js";
 
 
 const App = () => {
@@ -328,54 +324,22 @@ const App = () => {
                       </ProtectedRoute>
                     } />
 
+                    {/* ✅ Dashboard Admin */}
+                    <Route path="/admin/dashboard" element={
+                      <ProtectedRoute allowedRoles={[ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
+                        <AdminDashboard />
+                      </ProtectedRoute>
+                    } />
 
-
-
-
-
-
+                    {/* ✅ Vé của tôi - QR Code */}
+                    <Route path="/my-tickets" element={
+                      <ProtectedRoute allowedRoles={[ROLES.PASSENGER, ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]}>
+                        <MyTickets />
+                      </ProtectedRoute>
+                    } />
 
                     {/* ------------------------------- */}
 
-
-
-                    {/* Trainer only routes */}
-                    <Route path="/progress-create" element={
-                      <ProtectedRoute allowedRoles={[ROLES.TRAINER]}>
-                        <AddTrainingProgress />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/trainer-progress" element={
-                      <ProtectedRoute allowedRoles={[ROLES.TRAINER]}>
-                        <TrainerDashboard />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/trainer-schedule-view" element={
-                      <ProtectedRoute allowedRoles={[ROLES.TRAINER]}>
-                        <TrainerScheduleView />
-                      </ProtectedRoute>
-                    } />
-
-                    {/* Member only routes */}
-                    <Route path="/member-progress" element={
-                      <ProtectedRoute allowedRoles={[ROLES.MEMBER]}>
-                        <MemberProgress />
-                      </ProtectedRoute>
-                    } />
-                    <Route path="/my-subscriptions" element={
-                      <ProtectedRoute allowedRoles={[ROLES.MEMBER]}>
-                        <MySubscription />
-                      </ProtectedRoute>
-                    } />
-
-
-
-
-                    <Route path="/create-subscription" element={
-                      <ProtectedRoute>
-                        <CreateSubscription />
-                      </ProtectedRoute>
-                    } />
                     <Route path="/payment/return" element={
                       <ProtectedRoute>
                         <PaymentResult />
@@ -406,6 +370,9 @@ const App = () => {
                     <ChatPopup />
                   </>
                 )}
+
+                {/* Trợ lý AI - Hiển thị cho mọi người */}
+                <AIAssistant />
               </>
             </BrowserRouter>
           </ChatProvider>
