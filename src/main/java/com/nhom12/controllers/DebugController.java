@@ -40,7 +40,8 @@ public class DebugController {
             }
             return "Admin user not found!";
         } catch (Exception e) {
-            return "Error: " + e.getMessage();
+            String cause = e.getCause() != null ? e.getCause().toString() : "No nested cause";
+            return "Error: " + e.getMessage() + "<br/>Details: " + cause;
         }
     }
 }
