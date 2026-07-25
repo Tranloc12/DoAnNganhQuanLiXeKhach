@@ -32,7 +32,7 @@
             </div>
             <div class="card-body">
                 <div class="list-group">
-                    <div th:each="b : ${my-bookings}" class="list-group-item list-group-item-action mb-3 shadow-sm">
+                    <div th:each="b : ${bookings}" class="list-group-item list-group-item-action mb-3 shadow-sm">
                         <div class="d-flex w-100 justify-content-between">
                             <h5 class="mb-1">Đặt chỗ #<span th:text="${b.id}"></span> - <span th:text="${b.tripId.routeId.routeName}"></span></h5>
                             <small class="text-muted">Đặt lúc: <span th:text="${#temporals.format(b.bookingDate, 'dd/MM/yyyy HH:mm')}"></span></small>

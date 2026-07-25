@@ -7,6 +7,7 @@ package com.nhom12.controllers;
 import com.paypal.api.payments.Links;
 import com.paypal.base.rest.PayPalRESTException;
 import com.nhom12.services.PaypalService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController // Đánh dấu đây là một REST Controller
 @RequestMapping("/api/paypal") // Định nghĩa base URL cho tất cả các endpoints trong Controller này
 // Cần thiết để cho phép các yêu cầu từ ReactJS front-end chạy trên port khác (ví dụ: http://localhost:3000)
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin
 public class PaypalController {
 
     @Autowired
@@ -35,12 +36,11 @@ public class PaypalController {
      * thông báo lỗi nếu thất bại.
      */
     @PostMapping("/create-payment")
-    public ResponseEntity<String> createPayment(@RequestParam("price") Double price, @RequestParam("bookingId") Integer bookingId) {
+    public ResponseEntity<String> createPayment(@RequestParam("price") Double price, @RequestParam("bookingId") Integer bookingId, HttpServletRequest request) {
         try {
-            // Các URL hủy và thành công mà PayPal sẽ chuyển hướng trình duyệt của người dùng về sau khi họ tương tác trên trang PayPal.
-            // Chúng ta truyền bookingId trở lại qua URL để trang Success/Cancel của React có thể lấy nó và gửi lại cho back-end.
-            String cancelUrl = "http://localhost:3000/cancel?bookingId=" + bookingId;
-            String successUrl = "http://localhost:3000/success?bookingId=" + bookingId;
+            String baseUrl = request.getScheme() + "://" + request.getServerName() + (request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort());
+            String cancelUrl = baseUrl + "/api/paypal/cancel?bookingId=" + bookingId;
+            String successUrl = baseUrl + "/api/paypal/success?bookingId=" + bookingId;
 
             // Gọi service PayPal để tạo thanh toán trên hệ thống PayPal.
             com.paypal.api.payments.Payment payment = paypalService.createPayment(
