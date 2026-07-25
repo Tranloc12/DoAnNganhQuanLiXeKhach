@@ -11,7 +11,7 @@ public class DbImport {
         // Cần thêm allowMultiQueries=true để chạy toàn bộ file SQL
         String url = "jdbc:mysql://my-database-xe-khach-carmanagement.h.aivencloud.com:20489/defaultdb?useSSL=true&requireSSL=true&allowMultiQueries=true";
         String user = "avnadmin";
-        String pass = System.getenv("DB_PASSWORD"); // Lấy mật khẩu từ biến môi trường
+        String pass = "AVNS_fJcCxs9qTfJYGJjHLGt"; // Đã thêm mật khẩu trực tiếp để bạn dễ dàng Run File trong NetBeans
         String sqlFilePath = "carmanagementsystem.sql"; // Đường dẫn từ thư mục gốc dự án
 
         try {
