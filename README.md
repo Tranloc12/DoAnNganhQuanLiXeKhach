@@ -16,7 +16,7 @@
 
   <p align="center">
     🚀 <b>Live Demo (Frontend Web):</b> <a href="https://quan-li-xe-khach.vercel.app" target="_blank">https://quan-li-xe-khach.vercel.app</a><br/>
-    ⚙️ <b>Backend API Server:</b> <a href="https://doannganhquanlixekhach.onrender.com" target="_blank">https://doannganhquanlixekhach.onrender.com</a>
+    ⚙️ <b>Backend API Server:</b> <a href="https://doannganhquanlixekhach.onrender.com/" target="_blank">https://doannganhquanlixekhach.onrender.com</a>
   </p>
 </div>
 
